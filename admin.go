@@ -77,9 +77,8 @@ type Form struct {
 }
 
 type Config struct {
-	UITheme  UITheme
-	Endpoint string
-	Pages    Pages
+	UITheme UITheme
+	Pages   Pages
 }
 
 type (

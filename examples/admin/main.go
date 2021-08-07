@@ -49,9 +49,8 @@ func main() {
 	}
 
 	admin := admin.New(&admin.Config{
-		UITheme:  admin.MaterialUI, // admin.AntDesignUI,
-		Endpoint: "localhost:8080/graphql",
-		Pages:    pages,
+		UITheme: admin.MaterialUI, // admin.AntDesignUI,
+		Pages:   pages,
 	})
 
 	http.Handle("/admin", admin)
