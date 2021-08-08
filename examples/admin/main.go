@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/admin-golang/admin"
 )
@@ -57,8 +59,14 @@ func main() {
 	http.Handle("/admin", admin)
 	http.HandleFunc("/sign-in", signIn)
 
-	log.Println("[admin-golang] running on port :8080, path: /admin")
-	http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("[admin-golang] running on port :%s, path: /admin", port)
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
 type signInForm struct {
