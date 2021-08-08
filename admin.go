@@ -111,7 +111,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	materialUIThemeScriptJSFn := func() template.HTML {
 		if ad.debugMode {
 			return template.HTML(`
-    <script src="https://cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
       `)
 		}
 
@@ -267,11 +267,11 @@ const adminTemplateText string = `
   [[ if .Debug ]]
     <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.development.js"></script>
     <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.development.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
   [[ else ]]
     <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
   [[ end ]]
 
   [[ .ThemeScriptJS ]]
