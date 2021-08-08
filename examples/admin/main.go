@@ -49,8 +49,9 @@ func main() {
 	}
 
 	admin := admin.New(&admin.Config{
-		UITheme: admin.MaterialUI, // admin.AntDesignUI,
-		Pages:   pages,
+		DebugMode: false,
+		UITheme:   admin.MaterialUI, // admin.AntDesignUI,
+		Pages:     pages,
 	})
 
 	http.Handle("/admin", admin)
