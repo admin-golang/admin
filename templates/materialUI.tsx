@@ -29,6 +29,8 @@ const {
 	Grid,
 	Snackbar,
 	Alert,
+	Menu,
+	MenuItem,
 } = MaterialUI;
 
 const {
@@ -103,6 +105,14 @@ function NotificationsIcon() {
 	return (
     <SvgIcon>
 			<path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+    </SvgIcon>
+	);
+}
+
+function AccountCircleIcon() {
+	return (
+    <SvgIcon>
+			<path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
     </SvgIcon>
 	);
 }
@@ -201,11 +211,11 @@ ReactDOM.render(
 
 [[ range $page := .Pages ]]
   [[ if eq $page.Type $.DashboardPage ]]
-  	[[ template "Dashboard" (WrapPage $page) ]]
+  	[[ template "Dashboard" (WrapPage $.Layout $page) ]]
   [[ end ]]
 
   [[ if eq $page.Type $.SideFormPage ]]
-  	[[ template "SideForm" (WrapPage $page) ]]
+  	[[ template "SideForm" (WrapPage $.Layout $page) ]]
   [[ end ]]
 [[ end ]]
 
@@ -217,6 +227,16 @@ function [[ .page.ID ]]Dashboard() {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const isMenuOpen = Boolean(anchorEl);
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const menuId = 'primary-search-account-menu';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -248,11 +268,7 @@ function [[ .page.ID ]]Dashboard() {
           >
             Dashboard
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          [[ template "MenuIcons" (WrapMenuIcons .layout.Menu) ]]
         </Toolbar>
       </StyledAppBar>
       <StyledDrawer variant="permanent" open={open}>
@@ -326,6 +342,24 @@ function [[ .page.ID ]]Dashboard() {
           <Copyright sx={{ pt: 4 }} />
         </Container>
       </Box>
+    	<Menu
+    	  anchorEl={anchorEl}
+    	  anchorOrigin={{
+    	    vertical: 'top',
+    	    horizontal: 'right',
+    	  }}
+    	  id={menuId}
+    	  keepMounted
+    	  transformOrigin={{
+    	    vertical: 'top',
+    	    horizontal: 'right',
+    	  }}
+    	  open={isMenuOpen}
+    	  onClose={handleMenuClose}
+    	>
+    	  <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+    	  <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+    	</Menu>
     </Box>
   );
 }
@@ -461,6 +495,33 @@ function [[ .page.ID ]]SideForm() {
     </Grid>
   );
 }
+[[ end ]]
+
+[[ define "MenuIcons" ]]
+  [[ range $item := .menu.Items ]]
+    <IconButton
+      size="large"
+      edge="end"
+      aria-label="account of current user"
+      aria-controls={menuId}
+      aria-haspopup="true"
+      onClick={handleProfileMenuOpen}
+      color="inherit"
+    >
+      [[ if IsNotNil $item.Badge ]]
+        <Badge badgeContent={[[$item.Badge.Content]]} color="secondary">
+      [[ end ]]
+        [[ if eq $item.Icon.Type 0 ]]
+          <NotificationsIcon />
+        [[ end ]]
+        [[ if eq $item.Icon.Type 1 ]]
+          <AccountCircleIcon />
+        [[ end ]]
+      [[ if IsNotNil $item.Badge ]]
+        </Badge>
+      [[ end ]]
+    </IconButton>
+  [[ end ]]
 [[ end ]]
 
 [[ define "TextField" ]]
