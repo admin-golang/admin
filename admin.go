@@ -6,9 +6,14 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"reflect"
 	textTemplate "text/template"
 
 	"github.com/evanw/esbuild/pkg/api"
+
+	"github.com/admin-golang/admin/icon"
+	"github.com/admin-golang/admin/layout"
+	"github.com/admin-golang/admin/menu"
 )
 
 //go:embed templates/materialUI.tsx
@@ -76,6 +81,7 @@ type Form struct {
 
 type Config struct {
 	DebugMode bool
+	Layout    *layout.Layout
 	UITheme   UITheme
 	Pages     Pages
 }
@@ -87,6 +93,7 @@ type (
 
 	admin struct {
 		debugMode bool
+		layout    *layout.Layout
 		pages     Pages
 		uiTheme   UITheme
 	}
@@ -155,6 +162,10 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		themeScriptJS = materialUIThemeScriptJSFn()
 	}
 
+	isNotNil := func(val interface{}) bool {
+		return !reflect.ValueOf(val).IsNil()
+	}
+
 	wrap := func(ID string, label string, isRequired bool, value string) map[string]interface{} {
 		return map[string]interface{}{
 			"ID":         ID,
@@ -164,15 +175,24 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	wrapPage := func(page Page) map[string]interface{} {
+	wrapPage := func(layout *layout.Layout, page Page) map[string]interface{} {
 		return map[string]interface{}{
-			"page": page,
+			"layout": layout,
+			"page":   page,
+		}
+	}
+
+	wrapMenuIcons := func(menu *menu.Menu) map[string]interface{} {
+		return map[string]interface{}{
+			"menu": menu,
 		}
 	}
 
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
-		"Wrap":     wrap,
-		"WrapPage": wrapPage,
+		"IsNotNil":      isNotNil,
+		"Wrap":          wrap,
+		"WrapPage":      wrapPage,
+		"WrapMenuIcons": wrapMenuIcons,
 	}).Parse(jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
@@ -184,13 +204,19 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var jsxWriter bytes.Buffer
 
 	jsxData := struct {
-		Pages         Pages
-		DashboardPage PageType
-		SideFormPage  PageType
+		Layout            *layout.Layout
+		Pages             Pages
+		DashboardPage     PageType
+		SideFormPage      PageType
+		AccountCircleIcon icon.IconType
+		NotificationsIcon icon.IconType
 	}{
-		Pages:         ad.pages,
-		DashboardPage: DashboardPage,
-		SideFormPage:  SideFormPage,
+		Layout:            ad.layout,
+		Pages:             ad.pages,
+		DashboardPage:     DashboardPage,
+		SideFormPage:      SideFormPage,
+		AccountCircleIcon: icon.AccountCircle,
+		NotificationsIcon: icon.Notifications,
 	}
 
 	if err := jsxTemplate.Execute(&jsxWriter, jsxData); err != nil {
@@ -247,7 +273,12 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func New(config *Config) Admin {
-	return &admin{debugMode: config.DebugMode, pages: config.Pages, uiTheme: config.UITheme}
+	return &admin{
+		debugMode: config.DebugMode,
+		layout:    config.Layout,
+		pages:     config.Pages,
+		uiTheme:   config.UITheme,
+	}
 }
 
 const adminTemplateText string = `
