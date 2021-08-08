@@ -17,8 +17,6 @@ var materialUIJSXTemplateText string
 //go:embed templates/antDesignUI.tsx
 var antDesignUIJSXTemplateText string
 
-var debug = true
-
 type UITheme int8
 
 const (
@@ -77,8 +75,9 @@ type Form struct {
 }
 
 type Config struct {
-	UITheme UITheme
-	Pages   Pages
+	DebugMode bool
+	UITheme   UITheme
+	Pages     Pages
 }
 
 type (
@@ -87,8 +86,9 @@ type (
 	}
 
 	admin struct {
-		pages   Pages
-		uiTheme UITheme
+		debugMode bool
+		pages     Pages
+		uiTheme   UITheme
 	}
 )
 
@@ -109,7 +109,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	materialUIThemeScriptJSFn := func() template.HTML {
-		if debug {
+		if ad.debugMode {
 			return template.HTML(`
     <script src="https://cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
       `)
@@ -202,9 +202,9 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	indexJSMinified := api.Transform(jsxWriter.String(), api.TransformOptions{
 		Loader:            api.LoaderTSX,
-		MinifyWhitespace:  !debug,
-		MinifyIdentifiers: !debug,
-		MinifySyntax:      !debug,
+		MinifyWhitespace:  !ad.debugMode,
+		MinifyIdentifiers: !ad.debugMode,
+		MinifySyntax:      !ad.debugMode,
 	})
 
 	if len(indexJSMinified.Errors) > 0 {
@@ -222,7 +222,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Title         string
 		Pages         Pages
 	}{
-		Debug:         debug,
+		Debug:         ad.debugMode,
 		ThemeJS:       template.JS(indexJSMinified.Code),
 		ThemeLinkCSS:  themeLinkCSS,
 		ThemeScriptJS: themeScriptJS,
@@ -247,7 +247,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func New(config *Config) Admin {
-	return &admin{pages: config.Pages, uiTheme: config.UITheme}
+	return &admin{debugMode: config.DebugMode, pages: config.Pages, uiTheme: config.UITheme}
 }
 
 const adminTemplateText string = `
