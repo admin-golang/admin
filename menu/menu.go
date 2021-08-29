@@ -7,9 +7,10 @@ type Badge struct {
 }
 
 type Item struct {
+	ID      string
 	Badge   *Badge
 	Icon    icon.Icon
-	Popover Popover
+	Popover *Popover
 }
 
 type Items []Item
