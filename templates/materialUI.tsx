@@ -118,6 +118,14 @@ function AccountCircleIcon() {
 	);
 }
 
+function LogoutIcon(props) {
+  return (
+    <SvgIcon {...props}>
+			<path d="M0 0h24v24H0z" fill="none"/><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+    </SvgIcon>
+  );
+}
+
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -223,6 +231,77 @@ ReactDOM.render(
   [[ end ]]
 [[ end ]]
 
+[[ range $item := .Layout.Menu.Items ]]
+	function [[ $item.ID ]]MenuItem() {
+		const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+		const handleMenuClose = () => {
+		  setAnchorEl(null);
+		};
+		const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+		  setAnchorEl(event.currentTarget);
+		};
+    const isMenuOpen = Boolean(anchorEl);
+    const menuId = 'primary-search-account-menu';
+	
+		return (
+      <>
+			  <IconButton
+			    size="large"
+			    edge="end"
+			    aria-label="account of current user"
+			    aria-controls={menuId}
+			    aria-haspopup="true"
+			    onClick={handleProfileMenuOpen}
+			    color="inherit"
+			  >
+			    [[ if IsNotNil $item.Badge ]]
+			      <Badge badgeContent={[[$item.Badge.Content]]} color="secondary">
+			    [[ end ]]
+			      [[ if eq $item.Icon.Type 0 ]]
+			        <NotificationsIcon />
+			      [[ end ]]
+			      [[ if eq $item.Icon.Type 1 ]]
+			        <AccountCircleIcon />
+			      [[ end ]]
+			    [[ if IsNotNil $item.Badge ]]
+			      </Badge>
+			    [[ end ]]
+			  </IconButton>
+			  [[ if IsNotNil $item.Popover ]]
+			  	<Menu
+			  	  anchorEl={anchorEl}
+			  	  anchorOrigin={{
+			  	    vertical: 'top',
+			  	    horizontal: 'right',
+			  	  }}
+			  	  id={menuId}
+			  	  keepMounted
+			  	  transformOrigin={{
+			  	    vertical: 'top',
+			  	    horizontal: 'right',
+			  	  }}
+			  	  open={isMenuOpen}
+			  	  onClose={handleMenuClose}
+			  	>
+			  	  <MenuItem onClick={handleMenuClose}>
+			  	    Profile
+			  	  </MenuItem>
+			  	  <MenuItem onClick={handleMenuClose}>
+			  	    My account
+			  	  </MenuItem>
+			  	  <MenuItem onClick={handleMenuClose}>
+			  	    <ListItemIcon>
+			  	      <LogoutIcon />
+			  	    </ListItemIcon>
+			  	    Logout
+			  	  </MenuItem>
+			  	</Menu>
+			  [[ end ]]
+      </>
+		);
+	}
+[[ end ]]
+
 [[ end ]]
 
 [[ define "Dashboard" ]]
@@ -232,15 +311,6 @@ function [[ .page.ID ]]Dashboard() {
     setOpen(!open);
   };
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const isMenuOpen = Boolean(anchorEl);
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const menuId = 'primary-search-account-menu';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -346,24 +416,6 @@ function [[ .page.ID ]]Dashboard() {
           <Copyright sx={{ pt: 4 }} />
         </Container>
       </Box>
-    	<Menu
-    	  anchorEl={anchorEl}
-    	  anchorOrigin={{
-    	    vertical: 'top',
-    	    horizontal: 'right',
-    	  }}
-    	  id={menuId}
-    	  keepMounted
-    	  transformOrigin={{
-    	    vertical: 'top',
-    	    horizontal: 'right',
-    	  }}
-    	  open={isMenuOpen}
-    	  onClose={handleMenuClose}
-    	>
-    	  <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-    	  <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-    	</Menu>
     </Box>
   );
 }
@@ -503,28 +555,7 @@ function [[ .page.ID ]]SideForm() {
 
 [[ define "MenuIcons" ]]
   [[ range $item := .menu.Items ]]
-    <IconButton
-      size="large"
-      edge="end"
-      aria-label="account of current user"
-      aria-controls={menuId}
-      aria-haspopup="true"
-      onClick={handleProfileMenuOpen}
-      color="inherit"
-    >
-      [[ if IsNotNil $item.Badge ]]
-        <Badge badgeContent={[[$item.Badge.Content]]} color="secondary">
-      [[ end ]]
-        [[ if eq $item.Icon.Type 0 ]]
-          <NotificationsIcon />
-        [[ end ]]
-        [[ if eq $item.Icon.Type 1 ]]
-          <AccountCircleIcon />
-        [[ end ]]
-      [[ if IsNotNil $item.Badge ]]
-        </Badge>
-      [[ end ]]
-    </IconButton>
+    <[[ $item.ID ]]MenuItem />
   [[ end ]]
 [[ end ]]
 
