@@ -58,10 +58,11 @@ type Pager interface {
 }
 
 type Page struct {
-	ID   string
-	URL  string
-	Type PageType
-	Form Form
+	IsDefault bool
+	ID        string
+	URL       string
+	Type      PageType
+	Form      Form
 }
 
 type Pages []Page
