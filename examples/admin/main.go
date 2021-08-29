@@ -58,6 +58,7 @@ func main() {
 		Menu: &menu.Menu{
 			Items: menu.Items{
 				menu.Item{
+					ID: "Notifications",
 					Badge: &menu.Badge{
 						Content: 1,
 					},
@@ -66,10 +67,11 @@ func main() {
 					},
 				},
 				menu.Item{
+					ID: "Account",
 					Icon: icon.Icon{
 						Type: icon.AccountCircle,
 					},
-					Popover: menu.Popover{
+					Popover: &menu.Popover{
 						Items: menu.PopoverItems{
 							menu.PopoverItem{
 								Label: "My Account",
