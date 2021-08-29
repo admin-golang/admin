@@ -22,9 +22,10 @@ func main() {
 			Type: admin.DashboardPage,
 		},
 		admin.Page{
-			ID:   "SignIn",
-			URL:  "/sign-in",
-			Type: admin.SideFormPage,
+			IsDefault: true,
+			ID:        "SignIn",
+			URL:       "/sign-in",
+			Type:      admin.SideFormPage,
 			Form: admin.Form{
 				ID: "signIn",
 				Fields: admin.Fields{
