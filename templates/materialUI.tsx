@@ -41,6 +41,7 @@ const {
   HashRouter,
   Switch,
   Route,
+  Redirect,
   useHistory
 } = ReactRouterDOM;
 
@@ -195,6 +196,9 @@ function App() {
 							<[[ $page.ID ]]SideForm />
           	[[ end ]]
           </Route>
+          [[ if eq $page.IsDefault true ]]
+            <Redirect exect from="/" to="[[ $page.URL ]]" />
+          [[ end ]]
 				[[ end ]]
         </Switch>
       </HashRouter>
