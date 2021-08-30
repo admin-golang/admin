@@ -283,18 +283,24 @@ ReactDOM.render(
 			  	  open={isMenuOpen}
 			  	  onClose={handleMenuClose}
 			  	>
-			  	  <MenuItem onClick={handleMenuClose}>
-			  	    Profile
-			  	  </MenuItem>
-			  	  <MenuItem onClick={handleMenuClose}>
-			  	    My account
-			  	  </MenuItem>
-			  	  <MenuItem onClick={handleMenuClose}>
-			  	    <ListItemIcon>
-			  	      <LogoutIcon />
-			  	    </ListItemIcon>
-			  	    Logout
-			  	  </MenuItem>
+            [[ range $popoverItem := $item.Popover.Items ]]
+			  	    <MenuItem onClick={handleMenuClose}>
+                [[ if IsNotNil $popoverItem.Icon ]]
+			  	      <ListItemIcon>
+			            [[ if (eq $popoverItem.Icon.Type 0) ]]
+			              <AccountCircleIcon />
+			            [[ end ]]
+			            [[ if (eq $popoverItem.Icon.Type 1) ]]
+			              <LogoutIcon />
+			            [[ end ]]
+                [[ end ]]
+
+                [[ if IsNotNil $popoverItem.Icon ]]
+			  	      </ListItemIcon>
+                [[ end ]]
+			  	      [[ $popoverItem.Label ]]
+			  	    </MenuItem>
+            [[ end ]]
 			  	</Menu>
 			  [[ end ]]
       </>
