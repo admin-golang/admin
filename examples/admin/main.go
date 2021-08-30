@@ -20,6 +20,17 @@ func main() {
 			ID:   "Dashboard",
 			URL:  "/dashboard",
 			Type: admin.DashboardPage,
+			Icon: icon.Icon{
+				Type: icon.Dashboard,
+			},
+		},
+		admin.Page{
+			ID:   "Products",
+			URL:  "/products",
+			Type: admin.DashboardPage,
+			Icon: icon.Icon{
+				Type: icon.Inventory,
+			},
 		},
 		admin.Page{
 			IsDefault: true,
