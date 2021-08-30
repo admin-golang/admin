@@ -5,6 +5,8 @@ type IconType uint
 const (
 	Notifications IconType = iota
 	AccountCircle
+	Dashboard
+	Inventory
 )
 
 type Icon struct {

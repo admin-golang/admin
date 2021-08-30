@@ -63,6 +63,7 @@ type Page struct {
 	URL       string
 	Type      PageType
 	Form      Form
+	Icon      icon.Icon
 }
 
 type Pages []Page
@@ -176,10 +177,11 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	wrapPage := func(layout *layout.Layout, page Page) map[string]interface{} {
+	wrapPage := func(layout *layout.Layout, page Page, pages Pages) map[string]interface{} {
 		return map[string]interface{}{
 			"layout": layout,
 			"page":   page,
+			"pages":  pages,
 		}
 	}
 

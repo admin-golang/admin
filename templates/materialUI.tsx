@@ -102,6 +102,14 @@ function DashboardIcon() {
 	);
 }
 
+function InventoryIcon() {
+	return (
+    <SvgIcon>
+			<path d="M0 0h24v24H0V0z" fill="none"/><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4l16-.02V7z"/>
+    </SvgIcon>
+	);
+}
+
 function NotificationsIcon() {
 	return (
     <SvgIcon>
@@ -223,11 +231,11 @@ ReactDOM.render(
 
 [[ range $page := .Pages ]]
   [[ if eq $page.Type $.DashboardPage ]]
-  	[[ template "Dashboard" (WrapPage $.Layout $page) ]]
+  	[[ template "Dashboard" (WrapPage $.Layout $page $.Pages) ]]
   [[ end ]]
 
   [[ if eq $page.Type $.SideFormPage ]]
-  	[[ template "SideForm" (WrapPage $.Layout $page) ]]
+  	[[ template "SideForm" (WrapPage $.Layout $page $.Pages) ]]
   [[ end ]]
 [[ end ]]
 
@@ -366,14 +374,25 @@ function [[ .page.ID ]]Dashboard() {
         </Toolbar>
         <Divider />
         <List>
+          [[ range $page := .pages ]]
+            [[ if eq $page.Type 0 ]]
   					<div>
+							<Link href="#[[ $page.URL ]]">
   					  <ListItem button>
   					    <ListItemIcon>
-  					      <DashboardIcon />
+                  [[ if eq $page.Icon.Type 2 ]]
+  					        <DashboardIcon />
+                  [[ end ]]
+                  [[ if eq $page.Icon.Type 3 ]]
+  					        <InventoryIcon />
+                  [[ end ]]
   					    </ListItemIcon>
-  					    <ListItemText primary="Dashboard" />
+								<ListItemText primary="[[ $page.ID ]]" />
   					  </ListItem>
+							</Link>
   					</div>
+            [[ end ]]
+          [[ end ]]
 					</List>
         <Divider />
       </StyledDrawer>
