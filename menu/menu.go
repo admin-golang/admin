@@ -29,7 +29,7 @@ func New() *Menu {
 
 type PopoverItem struct {
 	Label string
-	Icon  icon.PopoverIcon
+	Icon  *icon.PopoverIcon
 }
 
 type PopoverItems []PopoverItem

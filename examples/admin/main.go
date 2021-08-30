@@ -75,13 +75,13 @@ func main() {
 						Items: menu.PopoverItems{
 							menu.PopoverItem{
 								Label: "My Account",
-								Icon: icon.PopoverIcon{
+								Icon: &icon.PopoverIcon{
 									Type: icon.Avatar,
 								},
 							},
 							menu.PopoverItem{
 								Label: "Logout",
-								Icon: icon.PopoverIcon{
+								Icon: &icon.PopoverIcon{
 									Type: icon.Logout,
 								},
 							},
