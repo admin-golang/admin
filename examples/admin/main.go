@@ -23,14 +23,16 @@ func main() {
 			Icon: icon.Icon{
 				Type: icon.Dashboard,
 			},
+			ToolbarEnabled: true,
 		},
 		admin.Page{
 			ID:   "Products",
 			URL:  "/products",
-			Type: admin.DashboardPage,
+			Type: admin.ListPage,
 			Icon: icon.Icon{
 				Type: icon.Inventory,
 			},
+			ToolbarEnabled: true,
 		},
 		admin.Page{
 			IsDefault: true,
