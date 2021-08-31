@@ -41,6 +41,7 @@ type PageType uint
 const (
 	DashboardPage PageType = iota
 	SideFormPage
+	ListPage
 )
 
 type Field struct {
@@ -58,12 +59,13 @@ type Pager interface {
 }
 
 type Page struct {
-	IsDefault bool
-	ID        string
-	URL       string
-	Type      PageType
-	Form      Form
-	Icon      icon.Icon
+	IsDefault      bool
+	ID             string
+	URL            string
+	Type           PageType
+	Form           Form
+	Icon           icon.Icon
+	ToolbarEnabled bool
 }
 
 type Pages []Page
@@ -211,6 +213,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Pages             Pages
 		DashboardPage     PageType
 		SideFormPage      PageType
+		ListPage          PageType
 		AccountCircleIcon icon.IconType
 		NotificationsIcon icon.IconType
 	}{
@@ -218,6 +221,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Pages:             ad.pages,
 		DashboardPage:     DashboardPage,
 		SideFormPage:      SideFormPage,
+		ListPage:          ListPage,
 		AccountCircleIcon: icon.AccountCircle,
 		NotificationsIcon: icon.Notifications,
 	}
