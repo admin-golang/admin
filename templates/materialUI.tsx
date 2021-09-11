@@ -36,7 +36,8 @@ const {
   TableBody,
   TableRow,
   TableCell,
-	TableFooter
+	TableFooter,
+	TableHead
 } = MaterialUI;
 
 const {
@@ -604,6 +605,13 @@ function [[ .page.ID ]]List() {
               >
     						<TableContainer component={Paper}>
     						  <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
+        						<TableHead>
+        						  <TableRow>
+        						    <TableCell>Dessert (100g serving)</TableCell>
+        						    <TableCell align="right">Calories</TableCell>
+        						    <TableCell align="right">Fat&nbsp;(g)</TableCell>
+        						  </TableRow>
+        						</TableHead>
     						    <TableBody>
     						      {(rowsPerPage > 0
     						        ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
