@@ -112,8 +112,10 @@ func main() {
 		Layout:    layout,
 	})
 
-	http.Handle("/admin", admin)
-	http.HandleFunc("/sign-in", signIn)
+	mux := http.NewServeMux()
+
+	mux.Handle("/admin", admin)
+	mux.HandleFunc("/sign-in", signIn)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -122,7 +124,7 @@ func main() {
 
 	log.Printf("[admin-golang] running on port :%s, path: /admin", port)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
 }
 
 type signInForm struct {
