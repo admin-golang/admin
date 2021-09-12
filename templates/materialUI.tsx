@@ -49,7 +49,8 @@ const {
   Switch,
   Route,
   Redirect,
-  useHistory
+  useHistory,
+  useLocation
 } = ReactRouterDOM;
 
 const theme = createTheme({
@@ -339,6 +340,7 @@ function [[ .page.ID ]]Dashboard() {
     setOpen(!open);
   };
 
+	const location = useLocation();
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -392,7 +394,7 @@ function [[ .page.ID ]]Dashboard() {
             [[ if $page.ToolbarEnabled ]]
   					<div>
 							<Link href="#[[ $page.URL ]]">
-  					  <ListItem button>
+  					  <ListItem button selected={"[[ $page.URL ]]" === location.pathname}>
   					    <ListItemIcon>
                   [[ if eq $page.Icon.Type 2 ]]
   					        <DashboardIcon />
@@ -509,6 +511,8 @@ function [[ .page.ID ]]List() {
     setPage(0);
   };
 
+	const location = useLocation();
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -561,7 +565,7 @@ function [[ .page.ID ]]List() {
             [[ if $page.ToolbarEnabled ]]
   					<div>
 							<Link href="#[[ $page.URL ]]">
-  					  <ListItem button>
+  					  <ListItem button selected={"[[ $page.URL ]]" === location.pathname}>
   					    <ListItemIcon>
                   [[ if eq $page.Icon.Type 2 ]]
   					        <DashboardIcon />
