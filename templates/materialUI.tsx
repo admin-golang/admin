@@ -603,6 +603,21 @@ function [[ .page.ID ]]List() {
                   height: 640,
                 }}
               >
+						<Grid container spacing={0} justifyContent="flex-end">
+							<Grid container item xs={3} md={2} lg={2} justifyContent="flex-end">
+								<Box sx={{ pr: 0, pl: 0 }}>
+            			<Button
+            			  type="submit"
+            			  fullWidth
+            			  variant="contained"
+            			  size="small"
+            			  sx={{ mt: 1, mb: 4 }}
+            			>
+										Add Product
+            			</Button>
+								</Box>
+							</Grid>
+						</Grid>
     						<TableContainer component={Paper}>
     						  <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
         						<TableHead>
