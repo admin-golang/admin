@@ -342,17 +342,17 @@ ReactDOM.render(
 );
 
 [[range $page := .Pages]]
-[[ if eq $page.Type $.DashboardPage ]]
-[[template "Dashboard"(WrapPage $.Layout $page $.Pages)]]
-[[end]]
+  [[ if eq $page.Type $.DashboardPage ]]
+    [[template "Dashboard"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
 
-[[ if eq $page.Type $.SideFormPage ]]
-[[template "SideForm"(WrapPage $.Layout $page $.Pages)]]
-[[end]]
+  [[ if eq $page.Type $.SideFormPage ]]
+    [[template "SideForm"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
 
-[[ if eq $page.Type $.ListPage ]]
-[[template "List"(WrapPage $.Layout $page $.Pages)]]
-[[end]]
+  [[ if eq $page.Type $.ListPage ]]
+    [[template "List"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
 [[end]]
 
 [[range $item := .Layout.Menu.Items]]
@@ -378,61 +378,69 @@ function [[$item.ID]]MenuItem() {
         onClick={handleProfileMenuOpen}
         color="inherit"
       >
-        [[ if IsNotNil $item.Badge ]]
-			      <Badge badgeContent={[[$item.Badge.Content]]} color="secondary">
-          [[ end ]]
-          [[ if eq $item.Icon.Type 0 ]]
-			        <NotificationsIcon />
-			      [[ end ]]
-			      [[ if eq $item.Icon.Type 1 ]]
-			        <AccountCircleIcon />
-			      [[ end ]]
-			    [[ if IsNotNil $item.Badge ]]
-			      </Badge>
-			    [[ end ]]
-			  </IconButton>
-			  [[ if IsNotNil $item.Popover ]]
-      <Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        id={menuId}
-        keepMounted
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        open={isMenuOpen}
-        onClose={handleMenuClose}
-      >
-        [[ range $popoverItem := $item.Popover.Items ]]
-			  	    <MenuItem onClick={handleMenuClose}>
-          [[ if IsNotNil $popoverItem.Icon ]]
-			  	      <ListItemIcon>
-            [[ if (eq $popoverItem.Icon.Type 0) ]]
-			              <AccountCircleIcon />
-			            [[ end ]]
-			            [[ if (eq $popoverItem.Icon.Type 1) ]]
-			              <LogoutIcon />
-			            [[ end ]]
+      [[ if IsNotNil $item.Badge ]]
+        <Badge badgeContent={[[$item.Badge.Content]]} color="secondary">
+      [[ end ]]
+
+      [[ if eq $item.Icon.Type 0 ]]
+        <NotificationsIcon />
+      [[ end ]]
+
+      [[ if eq $item.Icon.Type 1 ]]
+        <AccountCircleIcon />
+      [[ end ]]
+
+      [[ if IsNotNil $item.Badge ]]
+        </Badge>
+      [[ end ]]
+
+      </IconButton>
+
+      [[ if IsNotNil $item.Popover ]]
+        <Menu
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          id={menuId}
+          keepMounted
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          open={isMenuOpen}
+          onClose={handleMenuClose}
+        >
+          [[ range $popoverItem := $item.Popover.Items ]]
+            <MenuItem onClick={handleMenuClose}>
+              [[ if IsNotNil $popoverItem.Icon ]]
+                <ListItemIcon>
+
+                [[ if (eq $popoverItem.Icon.Type 0) ]]
+                  <AccountCircleIcon />
                 [[ end ]]
 
-                [[ if IsNotNil $popoverItem.Icon ]]
-			  	      </ListItemIcon>
+                [[ if (eq $popoverItem.Icon.Type 1) ]]
+                  <LogoutIcon />
                 [[ end ]]
-			  	      [[ $popoverItem.Label ]]
-			  	    </MenuItem>
-            [[ end ]]
-			  	</Menu>
-			  [[ end ]]
+              [[ end ]]
+
+              [[ if IsNotNil $popoverItem.Icon ]]
+                </ListItemIcon>
+              [[ end ]]
+
+              [[ $popoverItem.Label ]]
+            </MenuItem>
+          [[ end ]]
+        </Menu>
+      [[ end ]]
     </>
   );
 }
 [[end]]
 
-[[end]]
+[[end]] [[/* JSX end */]]
 
 [[define "Dashboard"]]
 function [[ .page.ID]]Dashboard() {
@@ -717,40 +725,40 @@ function [[ .page.ID]]SideForm() {
 [[end]]
 
 [[define "MenuIcons"]]
-[[range $item := .menu.Items]]
-  < [[$item.ID]]MenuItem />
-    [[end]]
-    [[end]]
-
-    [[define "TextField"]]
-    < TextField
-variant = "outlined"
-margin = "normal"
-required = { [[ .isRequired]]}
-fullWidth
-id = "[[ .label ]]"
-label = "[[ .label ]]"
-name = "[[ .label ]]"
-autoComplete = "off"
-autoFocus = { false}
-value = { [[ .ID]]}
-onChange = { handle[[ .ID]]Change }
-  />
+  [[range $item := .menu.Items]]
+    <[[$item.ID]]MenuItem />
   [[end]]
+[[end]]
 
-  [[define "PasswordField"]]
-  < TextField
-variant = "outlined"
-margin = "normal"
-required = { [[ .isRequired]]}
-fullWidth
-id = "[[ .label ]]"
-label = "[[ .label ]]"
-type = "password"
-name = "password"
-autoComplete = "off"
-autoFocus = { false}
-value = { [[ .ID]]}
-onChange = { handle[[ .ID]]Change }
-  />
-  [[end]]
+[[define "TextField"]]
+<TextField
+  variant = "outlined"
+  margin = "normal"
+  required = { [[ .isRequired]]}
+  fullWidth
+  id = "[[ .label ]]"
+  label = "[[ .label ]]"
+  name = "[[ .label ]]"
+  autoComplete = "off"
+  autoFocus = { false}
+  value = { [[ .ID]]}
+  onChange = { handle[[ .ID]]Change }
+/>
+[[end]]
+
+[[define "PasswordField"]]
+<TextField
+  variant = "outlined"
+  margin = "normal"
+  required = { [[ .isRequired]]}
+  fullWidth
+  id = "[[ .label ]]"
+  label = "[[ .label ]]"
+  type = "password"
+  name = "password"
+  autoComplete = "off"
+  autoFocus = { false}
+  value = { [[ .ID]]}
+  onChange = { handle[[ .ID]]Change }
+/>
+[[end]]
