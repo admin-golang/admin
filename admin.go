@@ -112,58 +112,19 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return materialUIJSXTemplateText
 	}
 
-	materialUIThemeLinkCSSFn := func() template.HTML {
-		return template.HTML(`
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" />
-    `)
-	}
-
-	materialUIThemeScriptJSFn := func() template.HTML {
-		if ad.debugMode {
-			return template.HTML(`
-    <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
-      `)
-		}
-
-		return template.HTML(`
-  <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.production.min.js"></script>
-    `)
-	}
-
 	antDesignUIJSXTemplateTextFn := func() string {
 		return antDesignUIJSXTemplateText
 	}
 
-	antDesignUIThemeLinkCSSFn := func() template.HTML {
-		return template.HTML(`
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.css">
-    `)
-	}
-
-	antDesignUIThemeScriptJSFn := func() template.HTML {
-		return template.HTML(`
-  <script src="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.js"></script>
-    `)
-	}
-
 	var jsxTemplateText string
-	var themeLinkCSS template.HTML
-	var themeScriptJS template.HTML
 
 	switch ad.uiTheme {
 	case MaterialUI:
 		jsxTemplateText = materialUIJSXTemplateTextFn()
-		themeLinkCSS = materialUIThemeLinkCSSFn()
-		themeScriptJS = materialUIThemeScriptJSFn()
 	case AntDesignUI:
 		jsxTemplateText = antDesignUIJSXTemplateTextFn()
-		themeLinkCSS = antDesignUIThemeLinkCSSFn()
-		themeScriptJS = antDesignUIThemeScriptJSFn()
 	default:
 		jsxTemplateText = materialUIJSXTemplateTextFn()
-		themeLinkCSS = materialUIThemeLinkCSSFn()
-		themeScriptJS = materialUIThemeScriptJSFn()
 	}
 
 	isNotNil := func(val interface{}) bool {
@@ -248,19 +209,21 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	indexData := struct {
-		Debug         bool
-		ThemeJS       template.JS
-		ThemeLinkCSS  template.HTML
-		ThemeScriptJS template.HTML
-		Title         string
-		Pages         Pages
+		Debug       bool
+		ThemeJS     template.JS
+		Title       string
+		Pages       Pages
+		UITheme     UITheme
+		MaterialUI  UITheme
+		AntDesignUI UITheme
 	}{
-		Debug:         ad.debugMode,
-		ThemeJS:       template.JS(indexJSMinified.Code),
-		ThemeLinkCSS:  themeLinkCSS,
-		ThemeScriptJS: themeScriptJS,
-		Title:         "admin",
-		Pages:         ad.pages,
+		Debug:       ad.debugMode,
+		ThemeJS:     template.JS(indexJSMinified.Code),
+		Title:       "admin",
+		Pages:       ad.pages,
+		UITheme:     ad.uiTheme,
+		MaterialUI:  MaterialUI,
+		AntDesignUI: AntDesignUI,
 	}
 
 	adminTemplate, err := newTemplate("Admin").Parse(adminTemplateText)
@@ -297,7 +260,20 @@ const adminTemplateText string = `
   <meta charset=utf-8/>
   <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
   <title>[[ .Title ]]</title>
-  [[ .ThemeLinkCSS ]]
+
+  [[ if and (eq .UITheme .AntDesignUI) .Debug ]]
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.css">
+  [[ end ]]
+
+  [[ if and (eq .UITheme .AntDesignUI) (not .Debug) ]]
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.css">
+  [[ end ]]
+
+  [[ if and (eq .UITheme .MaterialUI) ]]
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" />
+  [[ end ]]
+
 </head>
 <body>
   <div id="root"></div>
@@ -312,7 +288,21 @@ const adminTemplateText string = `
     <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
   [[ end ]]
 
-  [[ .ThemeScriptJS ]]
+  [[ if and (eq .UITheme .AntDesignUI) .Debug ]]
+    <script src="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.js"></script>
+  [[ end ]]
+
+  [[ if and (eq .UITheme .AntDesignUI) (not .Debug) ]]
+    <script src="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.js"></script>
+  [[ end ]]
+
+  [[ if and (eq .UITheme .MaterialUI) .Debug ]]
+    <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
+  [[ end ]]
+
+  [[ if and (eq .UITheme .MaterialUI) (not .Debug) ]]
+    <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.production.min.js"></script>
+  [[ end ]]
 
 <script type="text/javascript">[[ .ThemeJS ]]</script>
 </body>
