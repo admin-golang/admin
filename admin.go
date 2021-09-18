@@ -54,10 +54,6 @@ type Field struct {
 
 type Fields []Field
 
-type Pager interface {
-	Fields() Fields
-}
-
 type Page struct {
 	IsDefault      bool
 	ID             string
