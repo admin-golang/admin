@@ -54,17 +54,99 @@ type Field struct {
 
 type Fields []Field
 
-type Page struct {
-	IsDefault      bool
-	ID             string
-	URL            string
-	Type           PageType
-	Form           Form
-	Icon           icon.Icon
-	ToolbarEnabled bool
+type Pager interface {
+	IsDefault() bool
+	ID() string
+	URL() string
+	Type() PageType
+	Form() Form
+	Icon() icon.Icon
+	ToolbarEnabled() bool
 }
 
-type Pages []Page
+type Page struct {
+	page page
+}
+
+type PageParams struct {
+	Form           Form
+	ID             string
+	Icon           icon.Icon
+	IsDefault      bool
+	ToolbarEnabled bool
+	Type           PageType
+	URL            string
+}
+
+type ListPageParams struct {
+	PageParams
+	MainButton *MainButton
+}
+
+func NewPage(p PageParams) Pager {
+	page := page{
+		form:           p.Form,
+		icon:           p.Icon,
+		id:             p.ID,
+		isDefault:      p.IsDefault,
+		toolbarEnabled: p.ToolbarEnabled,
+		ttype:          p.Type,
+		url:            p.URL,
+	}
+	return &Page{page}
+}
+
+type page struct {
+	form           Form
+	icon           icon.Icon
+	id             string
+	isDefault      bool
+	toolbarEnabled bool
+	ttype          PageType
+	url            string
+}
+
+func (p *Page) Form() Form           { return p.page.form }
+func (p *Page) Icon() icon.Icon      { return p.page.icon }
+func (p *Page) ID() string           { return p.page.id }
+func (p *Page) IsDefault() bool      { return p.page.isDefault }
+func (p *Page) ToolbarEnabled() bool { return p.page.toolbarEnabled }
+func (p *Page) Type() PageType       { return p.page.ttype }
+func (p *Page) URL() string          { return p.page.url }
+
+type MainButton struct {
+	Label string
+}
+
+type LListPage struct {
+	page page
+
+	MainButton *MainButton
+}
+
+func NewListPage(p ListPageParams) Pager {
+	page := page{
+		form:           p.Form,
+		icon:           p.Icon,
+		id:             p.ID,
+		isDefault:      p.IsDefault,
+		toolbarEnabled: p.ToolbarEnabled,
+		ttype:          p.Type,
+		url:            p.URL,
+	}
+
+	return &LListPage{page: page, MainButton: p.MainButton}
+}
+
+func (p *LListPage) Form() Form           { return p.page.form }
+func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
+func (p *LListPage) ID() string           { return p.page.id }
+func (p *LListPage) IsDefault() bool      { return p.page.isDefault }
+func (p *LListPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
+func (p *LListPage) Type() PageType       { return p.page.ttype }
+func (p *LListPage) URL() string          { return p.page.url }
+
+type Pages []Pager
 
 type Submit struct {
 	Label       string
@@ -136,7 +218,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	wrapPage := func(layout *layout.Layout, page Page, pages Pages) map[string]interface{} {
+	wrapPage := func(layout *layout.Layout, page Pager, pages Pages) map[string]interface{} {
 		return map[string]interface{}{
 			"layout": layout,
 			"page":   page,
@@ -150,11 +232,16 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	wrapListPage := func(page Pager) *LListPage {
+		return page.(*LListPage)
+	}
+
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
 		"IsNotNil":      isNotNil,
 		"Wrap":          wrap,
 		"WrapPage":      wrapPage,
 		"WrapMenuIcons": wrapMenuIcons,
+		"WrapListPage":  wrapListPage,
 	}).Parse(jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
@@ -198,7 +285,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if len(indexJSMinified.Errors) > 0 {
-		log.Printf("failed to transform and minify TSX template, errors: %+v", indexJSMinified.Errors)
+		log.Printf("failed to transform and minify TSX template, errors: %+v: %+v", indexJSMinified.Errors, indexJSMinified.Errors[0].Location)
 
 		http.Error(w, "failed to render", http.StatusInternalServerError)
 		return
