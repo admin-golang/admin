@@ -16,7 +16,7 @@ import (
 
 func main() {
 	pages := admin.Pages{
-		admin.Page{
+		admin.NewPage(admin.PageParams{
 			ID:   "Dashboard",
 			URL:  "/dashboard",
 			Type: admin.DashboardPage,
@@ -24,17 +24,22 @@ func main() {
 				Type: icon.Dashboard,
 			},
 			ToolbarEnabled: true,
-		},
-		admin.Page{
-			ID:   "Products",
-			URL:  "/products",
-			Type: admin.ListPage,
-			Icon: icon.Icon{
-				Type: icon.Inventory,
+		}),
+		admin.NewListPage(admin.ListPageParams{
+			PageParams: admin.PageParams{
+				ID:   "Products",
+				URL:  "/products",
+				Type: admin.ListPage,
+				Icon: icon.Icon{
+					Type: icon.Inventory,
+				},
+				ToolbarEnabled: true,
 			},
-			ToolbarEnabled: true,
-		},
-		admin.Page{
+			MainButton: &admin.MainButton{
+				Label: "Add Product",
+			},
+		}),
+		admin.NewPage(admin.PageParams{
 			IsDefault: true,
 			ID:        "SignIn",
 			URL:       "/sign-in",
@@ -64,7 +69,7 @@ func main() {
 					RedirectURL: "/dashboard",
 				},
 			},
-		},
+		}),
 	}
 
 	layout := layout.New(&layout.Config{
