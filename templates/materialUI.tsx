@@ -443,7 +443,9 @@ function [[$item.ID]]MenuItem() {
 [[end]] [[/* JSX end */]]
 
 [[define "Dashboard"]]
-function [[ .page.ID]]Dashboard() {
+[[ with .page ]]
+function [[ .ID ]]Dashboard() {
+[[ end ]]
   return (
     <Layout>
       <Grid item xs={12} md={8} lg={9}>
@@ -479,7 +481,9 @@ function [[ .page.ID]]Dashboard() {
 
 
 [[define "List"]]
-function [[ .page.ID]]List() {
+[[ with .page ]]
+[[ $listPage := WrapListPage . ]]
+function [[ .ID ]]List() {
   function createData(name: string, calories: number, fat: number) {
     return { name, calories, fat };
   }
@@ -532,6 +536,7 @@ function [[ .page.ID]]List() {
             height: 640,
           }}
         >
+          [[ if IsNotNil $listPage.MainButton ]]
           <Grid container spacing={0} justifyContent="flex-end">
             <Grid container item xs={3} md={2} lg={2} justifyContent="flex-end">
               <Box sx={{ pr: 0, pl: 0 }}>
@@ -542,11 +547,12 @@ function [[ .page.ID]]List() {
                   size="small"
                   sx={{ mt: 1, mb: 4 }}
                 >
-                  Add Product
-      			</Button>
+                [[ $listPage.MainButton.Label ]]
+                </Button>
               </Box>
             </Grid>
           </Grid>
+          [[ end ]]
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
               <TableHead>
@@ -590,30 +596,32 @@ function [[ .page.ID]]List() {
     </Layout>
   );
 }
+[[ end ]]
 [[end]]
 
 [[define "SideForm"]]
-function [[ .page.ID]]SideForm() {
+[[ with .page ]]
+function [[ .ID ]]SideForm() {
   const history = useHistory();
 
-  [[range $field := .page.Form.Fields]]
+  [[range $field := .Form.Fields]]
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
   const handle[[$field.ID]]Change = (e) => {
     set[[$field.ID]](e.target.value);
   };
   [[end]]
 
-  const handle[[ .page.Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const payload = {
-      [[range $field := .page.Form.Fields]]
+      [[range $field := .Form.Fields]]
         "[[$field.ID]]": [[$field.ID]],
       [[end]]
     };
 
-    fetch("[[ .page.Form.Submit.URL ]]", {
-      method: "[[ .page.Form.Submit.Method ]]",
+    fetch("[[ .Form.Submit.URL ]]", {
+      method: "[[ .Form.Submit.Method ]]",
       body: JSON.stringify(payload),
     })
       .then(async (response) => {
@@ -626,7 +634,7 @@ function [[ .page.ID]]SideForm() {
         }
 
         if (response.ok) {
-          history.push("[[ .page.Form.Submit.RedirectURL ]]");
+          history.push("[[ .Form.Submit.RedirectURL ]]");
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);
@@ -682,8 +690,8 @@ function [[ .page.ID]]SideForm() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handle[[ .page.Form.ID]]Submit} sx={{ mt: 1 }}>
-            	[[ range $field := .page.Form.Fields ]]
+          <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 1 }}>
+              [[ range $field := .Form.Fields ]]
             	  [[ if eq $field.Type 0 ]]
             	    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value) ]]
             	  [[ end ]]
@@ -701,7 +709,7 @@ function [[ .page.ID]]SideForm() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            [[ .page.Form.Submit.Label ]]
+            [[ .Form.Submit.Label ]]
             </Button>
           <Grid container>
             <Grid item xs>
@@ -722,6 +730,7 @@ function [[ .page.ID]]SideForm() {
     </Grid >
   );
 }
+[[ end ]]
 [[end]]
 
 [[define "MenuIcons"]]
