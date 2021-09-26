@@ -59,7 +59,6 @@ type Pager interface {
 	ID() string
 	URL() string
 	Type() PageType
-	Form() Form
 	Icon() icon.Icon
 	ToolbarEnabled() bool
 }
@@ -69,7 +68,6 @@ type Page struct {
 }
 
 type PageConfig struct {
-	Form           Form
 	ID             string
 	Icon           icon.Icon
 	IsDefault      bool
@@ -85,7 +83,6 @@ type ListPageConfig struct {
 
 func NewPage(p PageConfig) Pager {
 	page := page{
-		form:           p.Form,
 		icon:           p.Icon,
 		id:             p.ID,
 		isDefault:      p.IsDefault,
@@ -97,7 +94,6 @@ func NewPage(p PageConfig) Pager {
 }
 
 type page struct {
-	form           Form
 	icon           icon.Icon
 	id             string
 	isDefault      bool
@@ -106,7 +102,6 @@ type page struct {
 	url            string
 }
 
-func (p *Page) Form() Form           { return p.page.form }
 func (p *Page) Icon() icon.Icon      { return p.page.icon }
 func (p *Page) ID() string           { return p.page.id }
 func (p *Page) IsDefault() bool      { return p.page.isDefault }
@@ -126,7 +121,6 @@ type LListPage struct {
 
 func NewListPage(p ListPageConfig) Pager {
 	page := page{
-		form:           p.Form,
 		icon:           p.Icon,
 		id:             p.ID,
 		isDefault:      p.IsDefault,
@@ -138,13 +132,44 @@ func NewListPage(p ListPageConfig) Pager {
 	return &LListPage{page: page, MainButton: p.MainButton}
 }
 
-func (p *LListPage) Form() Form           { return p.page.form }
 func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
 func (p *LListPage) ID() string           { return p.page.id }
 func (p *LListPage) IsDefault() bool      { return p.page.isDefault }
 func (p *LListPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
 func (p *LListPage) Type() PageType       { return p.page.ttype }
 func (p *LListPage) URL() string          { return p.page.url }
+
+type SSideFormPage struct {
+	page page
+
+	Form Form
+}
+
+func (p *SSideFormPage) Icon() icon.Icon      { return p.page.icon }
+func (p *SSideFormPage) ID() string           { return p.page.id }
+func (p *SSideFormPage) IsDefault() bool      { return p.page.isDefault }
+func (p *SSideFormPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
+func (p *SSideFormPage) Type() PageType       { return p.page.ttype }
+func (p *SSideFormPage) URL() string          { return p.page.url }
+
+type SideFormPageConfig struct {
+	PageConfig
+
+	Form Form
+}
+
+func NewSideFormPage(p SideFormPageConfig) Pager {
+	page := page{
+		icon:           p.Icon,
+		id:             p.ID,
+		isDefault:      p.IsDefault,
+		toolbarEnabled: p.ToolbarEnabled,
+		ttype:          p.Type,
+		url:            p.URL,
+	}
+
+	return &SSideFormPage{page: page, Form: p.Form}
+}
 
 type Pages []Pager
 
