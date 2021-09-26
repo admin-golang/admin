@@ -68,7 +68,7 @@ type Page struct {
 	page page
 }
 
-type PageParams struct {
+type PageConfig struct {
 	Form           Form
 	ID             string
 	Icon           icon.Icon
@@ -78,12 +78,12 @@ type PageParams struct {
 	URL            string
 }
 
-type ListPageParams struct {
-	PageParams
+type ListPageConfig struct {
+	PageConfig
 	MainButton *MainButton
 }
 
-func NewPage(p PageParams) Pager {
+func NewPage(p PageConfig) Pager {
 	page := page{
 		form:           p.Form,
 		icon:           p.Icon,
@@ -124,7 +124,7 @@ type LListPage struct {
 	MainButton *MainButton
 }
 
-func NewListPage(p ListPageParams) Pager {
+func NewListPage(p ListPageConfig) Pager {
 	page := page{
 		form:           p.Form,
 		icon:           p.Icon,
