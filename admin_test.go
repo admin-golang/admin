@@ -21,11 +21,13 @@ func TestAdmin(t *testing.T) {
 			admin: admin.New(&admin.Config{
 				Layout: layout.New(&layout.Config{}),
 				Pages: admin.Pages{
-					admin.NewPage(admin.PageParams{
-						IsDefault: true,
-						ID:        "SignIn",
-						URL:       "/sign-in",
-						Type:      admin.SideFormPage,
+					admin.NewSideFormPage(admin.SideFormPageConfig{
+						PageConfig: admin.PageConfig{
+							IsDefault: true,
+							ID:        "SignIn",
+							URL:       "/sign-in",
+							Type:      admin.SideFormPage,
+						},
 						Form: admin.Form{
 							ID: "signIn",
 							Fields: admin.Fields{
@@ -52,7 +54,7 @@ func TestAdmin(t *testing.T) {
 							},
 						},
 					}),
-					admin.NewPage(admin.PageParams{
+					admin.NewPage(admin.PageConfig{
 						ID:   "Dashboard",
 						URL:  "/dashboard",
 						Type: admin.DashboardPage,
@@ -61,8 +63,8 @@ func TestAdmin(t *testing.T) {
 						},
 						ToolbarEnabled: true,
 					}),
-					admin.NewListPage(admin.ListPageParams{
-						PageParams: admin.PageParams{
+					admin.NewListPage(admin.ListPageConfig{
+						PageConfig: admin.PageConfig{
 							ID:   "Products",
 							URL:  "/products",
 							Type: admin.ListPage,
