@@ -39,11 +39,13 @@ func main() {
 				Label: "Add Product",
 			},
 		}),
-		admin.NewPage(admin.PageConfig{
-			IsDefault: true,
-			ID:        "SignIn",
-			URL:       "/sign-in",
-			Type:      admin.SideFormPage,
+		admin.NewSideFormPage(admin.SideFormPageConfig{
+			PageConfig: admin.PageConfig{
+				IsDefault: true,
+				ID:        "SignIn",
+				URL:       "/sign-in",
+				Type:      admin.SideFormPage,
+			},
 			Form: admin.Form{
 				ID: "signIn",
 				Fields: admin.Fields{
