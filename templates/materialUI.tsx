@@ -269,7 +269,9 @@ function Layout({ children }) {
           >
             Dashboard
           </Typography>
+          [[ if and .Layout .Layout.Menu ]]
           [[ template "MenuIcons" (WrapMenuIcons .Layout.Menu) ]]
+          [[end]]
         </Toolbar>
       </StyledAppBar>
       <StyledDrawer variant="permanent" open={open}>
@@ -355,6 +357,7 @@ ReactDOM.render(
   [[end]]
 [[end]]
 
+[[ if and .Layout .Layout.Menu ]]
 [[range $item := .Layout.Menu.Items]]
 function [[$item.ID]]MenuItem() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -438,6 +441,7 @@ function [[$item.ID]]MenuItem() {
     </>
   );
 }
+[[end]]
 [[end]]
 
 [[end]] [[/* JSX end */]]
