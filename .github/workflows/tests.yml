@@ -16,7 +16,7 @@ jobs:
           go-version: ${{ matrix.go }}
       - run: go test ./... -coverprofile=cov.out -covermode=atomic
       - name: Codecov
-        uses: codecov/codecov@v2
+        uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./cov.out
