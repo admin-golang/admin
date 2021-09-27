@@ -10,8 +10,22 @@ jobs:
     name: Go ${{ matrix.go }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
-      - run: go version
+        run: go version
+
+      - name: Run Tests
+        run: go test ./... -coverprofile=cov.out -covermode=atomic
+
+      - name: Codecov
+        uses: codecov/codecov@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./cov.out
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
