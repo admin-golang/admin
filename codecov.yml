@@ -6,6 +6,19 @@ coverage:
   round: down
   range: "80...100"
 
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0%
+        base: auto
+        flags: null
+        paths: null
+        branches: null
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+
 parsers:
   gcov:
     branch_detection:
