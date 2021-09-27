@@ -17,68 +17,8 @@ func TestAdmin(t *testing.T) {
 		expectedStatusCode int
 	}{
 		{
-			subTestName: "Success",
-			admin: admin.New(&admin.Config{
-				Layout: layout.New(&layout.Config{}),
-				Pages: admin.Pages{
-					admin.NewSideFormPage(admin.SideFormPageConfig{
-						PageConfig: admin.PageConfig{
-							IsDefault: true,
-							ID:        "SignIn",
-							URL:       "/sign-in",
-							Type:      admin.SideFormPage,
-						},
-						Form: admin.Form{
-							ID: "signIn",
-							Fields: admin.Fields{
-								admin.Field{
-									ID:         "email",
-									Type:       admin.InputText,
-									Label:      "Email",
-									IsRequired: true,
-									Value:      "",
-								},
-								admin.Field{
-									ID:         "password",
-									Type:       admin.InputPassword,
-									Label:      "Password",
-									IsRequired: true,
-									Value:      "",
-								},
-							},
-							Submit: admin.Submit{
-								Label:       "Sign In",
-								URL:         "/sign-in",
-								Method:      "POST",
-								RedirectURL: "/dashboard",
-							},
-						},
-					}),
-					admin.NewPage(admin.PageConfig{
-						ID:   "Dashboard",
-						URL:  "/dashboard",
-						Type: admin.DashboardPage,
-						Icon: icon.Icon{
-							Type: icon.Dashboard,
-						},
-						ToolbarEnabled: true,
-					}),
-					admin.NewListPage(admin.ListPageConfig{
-						PageConfig: admin.PageConfig{
-							ID:   "Products",
-							URL:  "/products",
-							Type: admin.ListPage,
-							Icon: icon.Icon{
-								Type: icon.Inventory,
-							},
-							ToolbarEnabled: true,
-						},
-						MainButton: &admin.MainButton{
-							Label: "Add Product",
-						},
-					}),
-				},
-			}),
+			subTestName:        "Success",
+			admin:              newTestAdmin(),
 			expectedStatusCode: http.StatusOK,
 		},
 	}
@@ -95,4 +35,68 @@ func TestAdmin(t *testing.T) {
 			}
 		})
 	}
+}
+
+func newTestAdmin() admin.Admin {
+	return admin.New(&admin.Config{
+		Layout: layout.New(&layout.Config{}),
+		Pages: admin.Pages{
+			admin.NewSideFormPage(admin.SideFormPageConfig{
+				PageConfig: admin.PageConfig{
+					IsDefault: true,
+					ID:        "SignIn",
+					URL:       "/sign-in",
+					Type:      admin.SideFormPage,
+				},
+				Form: admin.Form{
+					ID: "signIn",
+					Fields: admin.Fields{
+						admin.Field{
+							ID:         "email",
+							Type:       admin.InputText,
+							Label:      "Email",
+							IsRequired: true,
+							Value:      "",
+						},
+						admin.Field{
+							ID:         "password",
+							Type:       admin.InputPassword,
+							Label:      "Password",
+							IsRequired: true,
+							Value:      "",
+						},
+					},
+					Submit: admin.Submit{
+						Label:       "Sign In",
+						URL:         "/sign-in",
+						Method:      "POST",
+						RedirectURL: "/dashboard",
+					},
+				},
+			}),
+			admin.NewPage(admin.PageConfig{
+				ID:   "Dashboard",
+				URL:  "/dashboard",
+				Type: admin.DashboardPage,
+				Icon: icon.Icon{
+					Type: icon.Dashboard,
+				},
+				ToolbarEnabled: true,
+			}),
+			admin.NewListPage(admin.ListPageConfig{
+				PageConfig: admin.PageConfig{
+					ID:   "Products",
+					URL:  "/products",
+					Type: admin.ListPage,
+					Icon: icon.Icon{
+						Type: icon.Inventory,
+					},
+					ToolbarEnabled: true,
+				},
+				MainButton: &admin.MainButton{
+					Label: "Add Product",
+				},
+			}),
+		},
+	})
 }
