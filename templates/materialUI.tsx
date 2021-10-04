@@ -37,7 +37,8 @@ const {
   TableRow,
   TableCell,
   TableFooter,
-  TableHead
+  TableHead,
+  Breadcrumbs
 } = MaterialUI;
 
 const {
@@ -210,13 +211,16 @@ function App() {
     <HashRouter>
       <Switch>
         [[ range $page := .Pages ]]
-          <Route path="[[$page.URL]]">
+          <Route exact path="[[$page.URL]]">
           [[ if eq $page.Type $.DashboardPage ]]
 							<[[ $page.ID ]]Dashboard />
           	[[ end ]]
           	[[ if eq $page.Type $.ListPage ]]
 							<[[ $page.ID ]]List />
           	[[ end ]]
+            [[ if eq $page.Type $.FormPage ]]
+              <[[ $page.ID ]]Form />
+            [[ end ]]
           	[[ if eq $page.Type $.SideFormPage ]]
 							<[[ $page.ID ]]SideForm />
           	[[ end ]]
@@ -354,6 +358,10 @@ ReactDOM.render(
 
   [[ if eq $page.Type $.ListPage ]]
     [[template "List"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
+
+  [[ if eq $page.Type $.FormPage ]]
+    [[template "Form"(WrapPage $.Layout $page $.Pages)]]
   [[end]]
 [[end]]
 
@@ -541,20 +549,34 @@ function [[ .ID ]]List() {
           }}
         >
           [[ if IsNotNil $listPage.MainButton ]]
-          <Grid container spacing={0} justifyContent="flex-end">
-            <Grid container item xs={3} md={2} lg={2} justifyContent="flex-end">
-              <Box sx={{ pr: 0, pl: 0 }}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  size="small"
-                  sx={{ mt: 1, mb: 4 }}
-                >
-                [[ $listPage.MainButton.Label ]]
-                </Button>
-              </Box>
-            </Grid>
+          <Grid container spacing={0}>
+          	<Grid item xs={8}>
+       		 		<Typography
+       		 		  variant="h6"
+       		 		  id="tableTitle"
+       		 		  component="div"
+       		 		>
+       		 		  Products
+       		 		</Typography>
+          	</Grid>
+          	<Grid item xs={4}>
+            	<Grid container item justifyContent="flex-end">
+            		<Grid item xs={10} md={4} lg={4} justifyContent="flex-end">
+            		  <Box sx={{ pr: 0, pl: 0 }}>
+            		    <Button
+            		      type="submit"
+            		      fullWidth
+            		      variant="contained"
+            		      size="small"
+            		      sx={{ mt: 1, mb: 4 }}
+            		      href="#[[ $listPage.MainButton.URL ]]"
+            		    >
+            		    [[ $listPage.MainButton.Label ]]
+            		    </Button>
+            		  </Box>
+            		</Grid>
+            	</Grid>
+          	</Grid>
           </Grid>
           [[ end ]]
           <TableContainer component={Paper}>
@@ -597,6 +619,134 @@ function [[ .ID ]]List() {
           </TableContainer>
         </Paper>
       </Grid>
+    </Layout>
+  );
+}
+[[ end ]]
+[[end]]
+
+[[define "Form"]]
+[[ with .page ]]
+function [[ .ID ]]Form() {
+  const history = useHistory();
+
+  [[range $field := .Form.Fields]]
+  const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
+  const handle[[$field.ID]]Change = (e) => {
+    set[[$field.ID]](e.target.value);
+  };
+  [[end]]
+
+  const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const payload = {
+      [[range $field := .Form.Fields]]
+        "[[$field.ID]]": [[$field.ID]],
+      [[end]]
+    };
+
+    fetch("[[ .Form.Submit.URL ]]", {
+      method: "[[ .Form.Submit.Method ]]",
+      body: JSON.stringify(payload),
+    })
+      .then(async (response) => {
+        var data;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
+
+        if (response.ok) {
+          history.push("[[ .Form.Submit.RedirectURL ]]");
+        } else {
+          setAlertMessage(data);
+          setIsSnackbarOpen(true);
+        }
+
+        return data;
+      });
+  };
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const handleSnackbarClose = () => {
+    setIsSnackbarOpen(false);
+  };
+
+  return (
+    <Layout>
+					<Grid container>
+						<Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
+      				<Breadcrumbs aria-label="breadcrumb">
+      				  <Link
+      				    underline="hover"
+      				    color="inherit"
+      				    href="#products"
+      				  >
+      				    Products
+      				  </Link>
+      				  <Typography color="text.primary">Create</Typography>
+      				</Breadcrumbs>
+						</Grid>
+					</Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        <Paper
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            height: 640,
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            [[ .Form.Title ]]
+          </Typography>
+          <Divider />
+          <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              [[ range $field := .Form.Fields ]]
+            	  [[ if eq $field.Type 0 ]]
+                  <Grid item xs={12} sm={6}>
+            	    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
+                  </Grid>
+            	  [[ end ]]
+            	  [[ if eq $field.Type 1 ]]
+                  <Grid item xs={12} sm={6}>
+            	    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
+                  </Grid>
+            	  [[ end ]]
+            	[[ end ]]
+            {/*<FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />*/}
+            </Grid>
+          <Button
+            type="submit"
+            fullWidth={false}
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            [[ .Form.Submit.Label ]]
+            </Button>
+          <Grid container>
+            <Grid item xs>
+              {/*<Link href="#" variant="body2">
+                  Forgot password?
+                </Link>*/}
+            </Grid>
+            <Grid item>
+              {/*<Link href="#" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>*/}
+            </Grid>
+          </Grid>
+        </Box>
+        </Paper>
+        </Grid>
     </Layout>
   );
 }
@@ -668,7 +818,7 @@ function [[ .ID ]]SideForm() {
         sm={4}
         md={7}
         sx={{
-          backgroundImage: 'url(https://source.unsplash.com/random/?jewelry)',
+          backgroundImage: 'url(https://source.unsplash.com/random/?books)',
           backgroundRepeat: 'no-repeat',
           backgroundColor: (theme) =>
             theme.palette.mode === 'light'
@@ -692,15 +842,15 @@ function [[ .ID ]]SideForm() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            [[ .Form.Title ]]
           </Typography>
           <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 1 }}>
               [[ range $field := .Form.Fields ]]
             	  [[ if eq $field.Type 0 ]]
-            	    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value) ]]
+            	    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
             	  [[ end ]]
             	  [[ if eq $field.Type 1 ]]
-            	    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value) ]]
+            	    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
             	  [[ end ]]
             	[[ end ]]
             {/*<FormControlLabel
@@ -747,8 +897,8 @@ function [[ .ID ]]SideForm() {
 <TextField
   variant = "outlined"
   margin = "normal"
-  required = { [[ .isRequired]]}
-  fullWidth
+  required = { [[ .isRequired ]]}
+  fullWidth = { [[ .fullWidth ]] }
   id = "[[ .label ]]"
   label = "[[ .label ]]"
   name = "[[ .label ]]"
