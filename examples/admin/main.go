@@ -37,6 +37,37 @@ func main() {
 			},
 			MainButton: &admin.MainButton{
 				Label: "Add Product",
+				URL:   "/products/create",
+			},
+		}),
+		admin.NewFormPage(admin.FormPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "ProductsCreate",
+				URL:  "/products/create",
+				Type: admin.FormPage,
+				Icon: icon.Icon{
+					Type: icon.Dashboard,
+				},
+				ToolbarEnabled: false,
+			},
+			Form: admin.Form{
+				ID:    "ProductsCreate",
+				Title: "New Product",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:         "Name",
+						Type:       admin.InputText,
+						Label:      "Name",
+						IsRequired: true,
+						Value:      "",
+					},
+				},
+				Submit: admin.Submit{
+					Label:       "Create",
+					URL:         "/products/create",
+					Method:      http.MethodPost,
+					RedirectURL: "/products",
+				},
 			},
 		}),
 		admin.NewSideFormPage(admin.SideFormPageConfig{
@@ -47,7 +78,8 @@ func main() {
 				Type:      admin.SideFormPage,
 			},
 			Form: admin.Form{
-				ID: "signIn",
+				ID:    "signIn",
+				Title: "Sign in",
 				Fields: admin.Fields{
 					admin.Field{
 						ID:         "email",
@@ -55,6 +87,7 @@ func main() {
 						Label:      "Email",
 						IsRequired: true,
 						Value:      "",
+						FullWidth:  true,
 					},
 					admin.Field{
 						ID:         "password",
@@ -62,6 +95,7 @@ func main() {
 						Label:      "Password",
 						IsRequired: true,
 						Value:      "",
+						FullWidth:  true,
 					},
 				},
 				Submit: admin.Submit{
