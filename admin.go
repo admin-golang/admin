@@ -42,6 +42,7 @@ const (
 	DashboardPage PageType = iota
 	SideFormPage
 	ListPage
+	FormPage
 )
 
 type Field struct {
@@ -49,6 +50,7 @@ type Field struct {
 	Label      string
 	Type       FieldType
 	IsRequired bool
+	FullWidth  bool
 	Value      string
 }
 
@@ -111,6 +113,7 @@ func (p *Page) URL() string          { return p.page.url }
 
 type MainButton struct {
 	Label string
+	URL   string
 }
 
 type LListPage struct {
@@ -171,6 +174,38 @@ func NewSideFormPage(p SideFormPageConfig) Pager {
 	return &SSideFormPage{page: page, Form: p.Form}
 }
 
+type FFormPage struct {
+	page page
+
+	Form Form
+}
+
+func (p *FFormPage) Icon() icon.Icon      { return p.page.icon }
+func (p *FFormPage) ID() string           { return p.page.id }
+func (p *FFormPage) IsDefault() bool      { return p.page.isDefault }
+func (p *FFormPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
+func (p *FFormPage) Type() PageType       { return p.page.ttype }
+func (p *FFormPage) URL() string          { return p.page.url }
+
+type FormPageConfig struct {
+	PageConfig
+
+	Form Form
+}
+
+func NewFormPage(p FormPageConfig) Pager {
+	page := page{
+		icon:           p.Icon,
+		id:             p.ID,
+		isDefault:      p.IsDefault,
+		toolbarEnabled: p.ToolbarEnabled,
+		ttype:          p.Type,
+		url:            p.URL,
+	}
+
+	return &FFormPage{page: page, Form: p.Form}
+}
+
 type Pages []Pager
 
 type Submit struct {
@@ -181,9 +216,10 @@ type Submit struct {
 }
 
 type Form struct {
-	ID     string
 	Fields Fields
+	ID     string
 	Submit Submit
+	Title  string
 }
 
 type Config struct {
@@ -234,12 +270,13 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return !reflect.ValueOf(val).IsNil()
 	}
 
-	wrap := func(ID string, label string, isRequired bool, value string) map[string]interface{} {
+	wrap := func(ID string, label string, isRequired bool, value string, fullWidth bool) map[string]interface{} {
 		return map[string]interface{}{
 			"ID":         ID,
 			"label":      label,
 			"isRequired": isRequired,
 			"value":      value,
+			"fullWidth":  fullWidth,
 		}
 	}
 
@@ -283,6 +320,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DashboardPage     PageType
 		SideFormPage      PageType
 		ListPage          PageType
+		FormPage          PageType
 		AccountCircleIcon icon.IconType
 		NotificationsIcon icon.IconType
 	}{
@@ -291,6 +329,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DashboardPage:     DashboardPage,
 		SideFormPage:      SideFormPage,
 		ListPage:          ListPage,
+		FormPage:          FormPage,
 		AccountCircleIcon: icon.AccountCircle,
 		NotificationsIcon: icon.Notifications,
 	}
