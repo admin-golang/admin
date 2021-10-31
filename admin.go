@@ -399,60 +399,57 @@ func New(config *Config) Admin {
 }
 
 const adminTemplateText string = `
-[[ define "Admin" ]]
+[[- define "Admin" -]]
 
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset=utf-8/>
-  <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui" />
   <title>[[ .Title ]]</title>
+  [[- if and (eq .UITheme .AntDesignUI) .Debug ]]
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.css">
+  [[- end -]]
 
-  [[ if and (eq .UITheme .AntDesignUI) .Debug ]]
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.css">
-  [[ end ]]
+  [[- if and (eq .UITheme .AntDesignUI) (not .Debug) ]]
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.css">
+  [[- end -]]
 
-  [[ if and (eq .UITheme .AntDesignUI) (not .Debug) ]]
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.css">
-  [[ end ]]
-
-  [[ if and (eq .UITheme .MaterialUI) ]]
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" />
-  [[ end ]]
-
+  [[- if and (eq .UITheme .MaterialUI) ]]
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" />
+  [[- end ]]
 </head>
 <body>
   <div id="root"></div>
+  [[ if .Debug -]]
+  <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.development.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.development.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
+  [[- else -]]
+  <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.production.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
+  [[- end -]]
 
-  [[ if .Debug ]]
-    <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.development.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.development.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
-  [[ else ]]
-    <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.production.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
-  [[ end ]]
+  [[- if and (eq .UITheme .AntDesignUI) .Debug ]]
+  <script src="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.js"></script>
+  [[- end -]]
 
-  [[ if and (eq .UITheme .AntDesignUI) .Debug ]]
-    <script src="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.js"></script>
-  [[ end ]]
+  [[- if and (eq .UITheme .AntDesignUI) (not .Debug) ]]
+  <script src="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.js"></script>
+  [[- end -]]
 
-  [[ if and (eq .UITheme .AntDesignUI) (not .Debug) ]]
-    <script src="//cdn.jsdelivr.net/npm/antd@4.12.3/dist/antd.min.js"></script>
-  [[ end ]]
+  [[- if and (eq .UITheme .MaterialUI) .Debug ]]
+  <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
+  [[- end -]]
 
-  [[ if and (eq .UITheme .MaterialUI) .Debug ]]
-    <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
-  [[ end ]]
+  [[- if and (eq .UITheme .MaterialUI) (not .Debug) ]]
+  <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.production.min.js"></script>
+  [[- end ]]
 
-  [[ if and (eq .UITheme .MaterialUI) (not .Debug) ]]
-    <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.production.min.js"></script>
-  [[ end ]]
-
-<script type="text/javascript">[[ .ThemeJS ]]</script>
+  <script type="text/javascript">[[ .ThemeJS ]]</script>
 </body>
 
-[[ end ]]
+[[- end -]]
 `
