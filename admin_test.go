@@ -8,6 +8,7 @@ import (
 	"github.com/admin-golang/admin"
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
+	"github.com/admin-golang/admin/menu"
 )
 
 func TestAdmin(t *testing.T) {
@@ -38,65 +39,140 @@ func TestAdmin(t *testing.T) {
 }
 
 func newTestAdmin() admin.Admin {
-	return admin.New(&admin.Config{
-		Layout: layout.New(&layout.Config{}),
-		Pages: admin.Pages{
-			admin.NewSideFormPage(admin.SideFormPageConfig{
-				PageConfig: admin.PageConfig{
-					IsDefault: true,
-					ID:        "SignIn",
-					URL:       "/sign-in",
-					Type:      admin.SideFormPage,
+	pages := admin.Pages{
+		admin.NewPage(admin.PageConfig{
+			ID:   "Dashboard",
+			URL:  "/dashboard",
+			Type: admin.DashboardPage,
+			Icon: icon.Icon{
+				Type: icon.Dashboard,
+			},
+			ToolbarEnabled: true,
+		}),
+		admin.NewListPage(admin.ListPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "Products",
+				URL:  "/products",
+				Type: admin.ListPage,
+				Icon: icon.Icon{
+					Type: icon.Inventory,
 				},
-				Form: admin.Form{
-					ID: "signIn",
-					Fields: admin.Fields{
-						admin.Field{
-							ID:         "email",
-							Type:       admin.InputText,
-							Label:      "Email",
-							IsRequired: true,
-							Value:      "",
-						},
-						admin.Field{
-							ID:         "password",
-							Type:       admin.InputPassword,
-							Label:      "Password",
-							IsRequired: true,
-							Value:      "",
-						},
-					},
-					Submit: admin.Submit{
-						Label:       "Sign In",
-						URL:         "/sign-in",
-						Method:      "POST",
-						RedirectURL: "/dashboard",
-					},
-				},
-			}),
-			admin.NewPage(admin.PageConfig{
-				ID:   "Dashboard",
-				URL:  "/dashboard",
-				Type: admin.DashboardPage,
+				ToolbarEnabled: true,
+			},
+			MainButton: &admin.MainButton{
+				Label: "Add Product",
+				URL:   "/products/create",
+			},
+		}),
+		admin.NewFormPage(admin.FormPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "ProductsCreate",
+				URL:  "/products/create",
+				Type: admin.FormPage,
 				Icon: icon.Icon{
 					Type: icon.Dashboard,
 				},
-				ToolbarEnabled: true,
-			}),
-			admin.NewListPage(admin.ListPageConfig{
-				PageConfig: admin.PageConfig{
-					ID:   "Products",
-					URL:  "/products",
-					Type: admin.ListPage,
-					Icon: icon.Icon{
-						Type: icon.Inventory,
+				ToolbarEnabled: false,
+			},
+			Form: admin.Form{
+				ID:    "ProductsCreate",
+				Title: "New Product",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:         "Name",
+						Type:       admin.InputText,
+						Label:      "Name",
+						IsRequired: true,
+						Value:      "",
 					},
-					ToolbarEnabled: true,
 				},
-				MainButton: &admin.MainButton{
-					Label: "Add Product",
+				Submit: admin.Submit{
+					Label:       "Create",
+					URL:         "/products/create",
+					Method:      http.MethodPost,
+					RedirectURL: "/products",
 				},
-			}),
+			},
+		}),
+		admin.NewSideFormPage(admin.SideFormPageConfig{
+			PageConfig: admin.PageConfig{
+				IsDefault: true,
+				ID:        "SignIn",
+				URL:       "/sign-in",
+				Type:      admin.SideFormPage,
+				Icon:      icon.Icon{Type: icon.Inventory},
+			},
+			Form: admin.Form{
+				ID:    "signIn",
+				Title: "Sign in",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:         "email",
+						Type:       admin.InputText,
+						Label:      "Email",
+						IsRequired: true,
+						Value:      "",
+						FullWidth:  true,
+					},
+					admin.Field{
+						ID:         "password",
+						Type:       admin.InputPassword,
+						Label:      "Password",
+						IsRequired: true,
+						Value:      "",
+						FullWidth:  true,
+					},
+				},
+				Submit: admin.Submit{
+					Label:       "Sign In",
+					URL:         "/sign-in",
+					Method:      "POST",
+					RedirectURL: "/dashboard",
+				},
+			},
+		}),
+	}
+
+	layout := layout.New(&layout.Config{
+		Menu: &menu.Menu{
+			Items: menu.Items{
+				menu.Item{
+					ID: "Notifications",
+					Badge: &menu.Badge{
+						Content: 1,
+					},
+					Icon: icon.Icon{
+						Type: icon.Notifications,
+					},
+				},
+				menu.Item{
+					ID: "Account",
+					Icon: icon.Icon{
+						Type: icon.AccountCircle,
+					},
+					Popover: &menu.Popover{
+						Items: menu.PopoverItems{
+							menu.PopoverItem{
+								Label: "My Account",
+								Icon: &icon.PopoverIcon{
+									Type: icon.Avatar,
+								},
+							},
+							menu.PopoverItem{
+								Label: "Logout",
+								Icon: &icon.PopoverIcon{
+									Type: icon.Logout,
+								},
+							},
+						},
+					},
+				},
+			},
 		},
+	})
+
+	return admin.New(&admin.Config{
+		Layout: layout,
+		Pages:  pages,
 	})
 }
