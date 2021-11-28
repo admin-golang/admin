@@ -556,7 +556,7 @@ function [[ .ID ]]List() {
        		 		  id="tableTitle"
        		 		  component="div"
        		 		>
-       		 		  Products
+       		 		[[ $listPage.Title ]]
        		 		</Typography>
           	</Grid>
           	<Grid item xs={4}>

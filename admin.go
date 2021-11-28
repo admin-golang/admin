@@ -81,6 +81,7 @@ type PageConfig struct {
 type ListPageConfig struct {
 	PageConfig
 	MainButton *MainButton
+	Title      string
 }
 
 func NewPage(p PageConfig) Pager {
@@ -120,6 +121,7 @@ type LListPage struct {
 	page page
 
 	MainButton *MainButton
+	Title      string
 }
 
 func NewListPage(p ListPageConfig) Pager {
@@ -132,7 +134,7 @@ func NewListPage(p ListPageConfig) Pager {
 		url:            p.URL,
 	}
 
-	return &LListPage{page: page, MainButton: p.MainButton}
+	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title}
 }
 
 func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
