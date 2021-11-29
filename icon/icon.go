@@ -7,6 +7,7 @@ const (
 	AccountCircle
 	Dashboard
 	Inventory
+	Sell
 )
 
 type Icon struct {
