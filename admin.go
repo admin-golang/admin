@@ -14,6 +14,7 @@ import (
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
 	"github.com/admin-golang/admin/menu"
+	"github.com/admin-golang/admin/navigation"
 )
 
 //go:embed templates/materialUI.tsx
@@ -218,10 +219,11 @@ type Submit struct {
 }
 
 type Form struct {
-	Fields Fields
-	ID     string
-	Submit Submit
-	Title  string
+	Navigation *navigation.Navigation
+	Fields     Fields
+	ID         string
+	Submit     Submit
+	Title      string
 }
 
 type Config struct {
