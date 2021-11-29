@@ -11,6 +11,7 @@ import (
 
 	"github.com/evanw/esbuild/pkg/api"
 
+	"github.com/admin-golang/admin/dataloader"
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
 	"github.com/admin-golang/admin/menu"
@@ -83,6 +84,7 @@ type ListPageConfig struct {
 	PageConfig
 	MainButton *MainButton
 	Title      string
+	DataLoader *dataloader.DataLoader
 }
 
 func NewPage(p PageConfig) Pager {
@@ -123,6 +125,7 @@ type LListPage struct {
 
 	MainButton *MainButton
 	Title      string
+	DataLoader *dataloader.DataLoader
 }
 
 func NewListPage(p ListPageConfig) Pager {
@@ -135,7 +138,7 @@ func NewListPage(p ListPageConfig) Pager {
 		url:            p.URL,
 	}
 
-	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title}
+	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader}
 }
 
 func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
