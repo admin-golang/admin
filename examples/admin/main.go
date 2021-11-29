@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/admin-golang/admin"
+	"github.com/admin-golang/admin/dataloader"
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
 	"github.com/admin-golang/admin/menu"
@@ -41,6 +42,10 @@ func main() {
 				Label: "Add Release",
 				URL:   "/releases/create",
 			},
+			DataLoader: dataloader.New(dataloader.Config{
+				URL:    "/releases",
+				Method: http.MethodGet,
+			}),
 		}),
 		admin.NewListPage(admin.ListPageConfig{
 			PageConfig: admin.PageConfig{
@@ -215,6 +220,7 @@ func main() {
 
 	mux.Handle("/admin", admin)
 	mux.HandleFunc("/sign-in", signIn)
+	mux.HandleFunc("/releases", releases)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -266,5 +272,41 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Write(b)
+}
+
+type Release struct {
+	Name        string `json:"name"`
+	ReleaseDate string `json:"release_date"`
+	URL         string `json:"url"`
+}
+
+func releases(w http.ResponseWriter, r *http.Request) {
+	resp := dataloader.Response{
+		Data: []Release{
+			{
+				Name:        "Go 1.16",
+				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
+				URL:         "https://go.dev/doc/go1.16",
+			},
+			{
+				Name:        "Go 1.15",
+				ReleaseDate: "Tue Aug 11 19:01:57 2020 +0000",
+				URL:         "https://go.dev/doc/go1.15",
+			},
+		},
+		Meta: dataloader.Meta{
+			TableHeaders: []string{"Name", "Release Date", "URL"},
+		},
+	}
+
+	b, err := json.Marshal(resp)
+	if err != nil {
+		log.Printf("failed to serialize releases: %+v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(b)
 }
