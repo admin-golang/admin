@@ -12,6 +12,7 @@ import (
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
 	"github.com/admin-golang/admin/menu"
+	"github.com/admin-golang/admin/navigation"
 )
 
 func main() {
@@ -27,6 +28,22 @@ func main() {
 		}),
 		admin.NewListPage(admin.ListPageConfig{
 			PageConfig: admin.PageConfig{
+				ID:   "Releases",
+				URL:  "/releases",
+				Type: admin.ListPage,
+				Icon: icon.Icon{
+					Type: icon.Sell,
+				},
+				ToolbarEnabled: true,
+			},
+			Title: "Releases",
+			MainButton: &admin.MainButton{
+				Label: "Add Release",
+				URL:   "/releases/create",
+			},
+		}),
+		admin.NewListPage(admin.ListPageConfig{
+			PageConfig: admin.PageConfig{
 				ID:   "Products",
 				URL:  "/products",
 				Type: admin.ListPage,
@@ -38,6 +55,47 @@ func main() {
 			MainButton: &admin.MainButton{
 				Label: "Add Product",
 				URL:   "/products/create",
+			},
+		}),
+		admin.NewFormPage(admin.FormPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "ReleasesCreate",
+				URL:  "/releases/create",
+				Type: admin.FormPage,
+				Icon: icon.Icon{
+					Type: icon.Dashboard,
+				},
+				ToolbarEnabled: false,
+			},
+			Form: admin.Form{
+				Navigation: navigation.New(navigation.Config{
+					Items: navigation.Items{
+						navigation.Item{
+							Label: "Releases",
+							URL:   "/releases",
+						},
+					},
+					Active: navigation.Item{
+						Label: "Create",
+					},
+				}),
+				ID:    "ReleasesCreate",
+				Title: "New Release",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:         "Name",
+						Type:       admin.InputText,
+						Label:      "Name",
+						IsRequired: true,
+						Value:      "",
+					},
+				},
+				Submit: admin.Submit{
+					Label:       "Create",
+					URL:         "/releases/create",
+					Method:      http.MethodPost,
+					RedirectURL: "/releases",
+				},
 			},
 		}),
 		admin.NewFormPage(admin.FormPageConfig{
