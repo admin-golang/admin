@@ -3,6 +3,7 @@ package admin_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/admin-golang/admin"
@@ -95,6 +96,7 @@ func newTestAdmin() admin.Admin {
 			},
 		}),
 		admin.NewSideFormPage(admin.SideFormPageConfig{
+			BackgroundImage: &url.URL{},
 			PageConfig: admin.PageConfig{
 				IsDefault: true,
 				ID:        "SignIn",
