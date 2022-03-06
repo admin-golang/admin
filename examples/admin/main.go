@@ -55,8 +55,8 @@ func main() {
 		}),
 		admin.NewListPage(admin.ListPageConfig{
 			PageConfig: admin.PageConfig{
-				ID:   "Products",
-				URL:  "/products",
+				ID:   "Packages",
+				URL:  "/packages",
 				Type: admin.ListPage,
 				Icon: icon.Icon{
 					Type: icon.Inventory,
@@ -64,9 +64,13 @@ func main() {
 				ToolbarEnabled: true,
 			},
 			MainButton: &admin.MainButton{
-				Label: "Add Product",
-				URL:   "/products/create",
+				Label: "Add Package",
+				URL:   "/packages/create",
 			},
+			DataLoader: dataloader.New(dataloader.Config{
+				URL:    "/packages",
+				Method: http.MethodGet,
+			}),
 		}),
 		admin.NewFormPage(admin.FormPageConfig{
 			PageConfig: admin.PageConfig{
@@ -111,8 +115,8 @@ func main() {
 		}),
 		admin.NewFormPage(admin.FormPageConfig{
 			PageConfig: admin.PageConfig{
-				ID:   "ProductsCreate",
-				URL:  "/products/create",
+				ID:   "PackagesCreate",
+				URL:  "/packages/create",
 				Type: admin.FormPage,
 				Icon: icon.Icon{
 					Type: icon.Dashboard,
@@ -120,8 +124,8 @@ func main() {
 				ToolbarEnabled: false,
 			},
 			Form: admin.Form{
-				ID:    "ProductsCreate",
-				Title: "New Product",
+				ID:    "PackagesCreate",
+				Title: "New Package",
 				Fields: admin.Fields{
 					admin.Field{
 						ID:         "Name",
@@ -133,9 +137,9 @@ func main() {
 				},
 				Submit: admin.Submit{
 					Label:       "Create",
-					URL:         "/products/create",
+					URL:         "/packages/create",
 					Method:      http.MethodPost,
-					RedirectURL: "/products",
+					RedirectURL: "/packages",
 				},
 			},
 		}),
@@ -228,6 +232,7 @@ func main() {
 	mux.Handle("/admin", admin)
 	mux.HandleFunc("/sign-in", signIn)
 	mux.HandleFunc("/releases", releases)
+	mux.HandleFunc("/packages", packages)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -303,7 +308,12 @@ func releases(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 		Meta: dataloader.Meta{
-			TableHeaders: []string{"Name", "Release Date", "URL"},
+			Headers: []string{"Name", "Release Date", "URL"},
+			Components: map[string]string{
+				"name":         "text",
+				"release_date": "text",
+				"url":          "link",
+			},
 		},
 	}
 
@@ -316,4 +326,46 @@ func releases(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(b)
+}
+
+type Package struct {
+	ModulePath string   `json:"module_path"`
+	Tags       []string `json:"tags"`
+	URL        string   `json:"url"`
+}
+
+func packages(w http.ResponseWriter, r *http.Request) {
+	resp := dataloader.Response{
+		Data: []Package{
+			{
+				ModulePath: "github.com/google/uuid",
+				Tags:       []string{"uuid", "Universally Unique IDentifier"},
+				URL:        "https://github.com/google/uuid",
+			},
+			{
+				ModulePath: "golang.org/x/tools/...@latest",
+				Tags:       []string{"tools", "godoc", "vet", "goimports"},
+				URL:        "https://github.com/golang/tools",
+			},
+		},
+		Meta: dataloader.Meta{
+			Headers: []string{"Module Path", "Tags", "URL"},
+			Components: map[string]string{
+				"module_path": "text",
+				"tags":        "tag",
+				"url":         "link",
+			},
+		},
+	}
+
+	b, err := json.Marshal(resp)
+	if err != nil {
+		log.Printf("failed to serialize packages: %+v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.Write(b)
+
 }
