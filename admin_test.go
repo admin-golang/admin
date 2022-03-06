@@ -52,8 +52,8 @@ func newTestAdmin() admin.Admin {
 		}),
 		admin.NewListPage(admin.ListPageConfig{
 			PageConfig: admin.PageConfig{
-				ID:   "Products",
-				URL:  "/products",
+				ID:   "Packages",
+				URL:  "/packages",
 				Type: admin.ListPage,
 				Icon: icon.Icon{
 					Type: icon.Inventory,
@@ -61,14 +61,14 @@ func newTestAdmin() admin.Admin {
 				ToolbarEnabled: true,
 			},
 			MainButton: &admin.MainButton{
-				Label: "Add Product",
-				URL:   "/products/create",
+				Label: "Add Package",
+				URL:   "/packages/create",
 			},
 		}),
 		admin.NewFormPage(admin.FormPageConfig{
 			PageConfig: admin.PageConfig{
-				ID:   "ProductsCreate",
-				URL:  "/products/create",
+				ID:   "PackagesCreate",
+				URL:  "/packages/create",
 				Type: admin.FormPage,
 				Icon: icon.Icon{
 					Type: icon.Dashboard,
@@ -76,8 +76,8 @@ func newTestAdmin() admin.Admin {
 				ToolbarEnabled: false,
 			},
 			Form: admin.Form{
-				ID:    "ProductsCreate",
-				Title: "New Product",
+				ID:    "PackagesCreate",
+				Title: "New Package",
 				Fields: admin.Fields{
 					admin.Field{
 						ID:         "Name",
@@ -89,9 +89,9 @@ func newTestAdmin() admin.Admin {
 				},
 				Submit: admin.Submit{
 					Label:       "Create",
-					URL:         "/products/create",
+					URL:         "/packages/create",
 					Method:      http.MethodPost,
-					RedirectURL: "/products",
+					RedirectURL: "/packages",
 				},
 			},
 		}),
