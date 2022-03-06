@@ -850,7 +850,7 @@ function [[ .ID ]]SideForm() {
         sm={4}
         md={7}
         sx={{
-          backgroundImage: 'url(https://source.unsplash.com/random/?books)',
+          backgroundImage: 'url([[ .BackgroundImage.String ]])',
           backgroundRepeat: 'no-repeat',
           backgroundColor: (theme) =>
             theme.palette.mode === 'light'

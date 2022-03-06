@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/admin-golang/admin"
@@ -17,6 +18,11 @@ import (
 )
 
 func main() {
+	sideFormBackgroundImage, err := url.Parse("https://source.unsplash.com/random/?golang")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	pages := admin.Pages{
 		admin.NewPage(admin.PageConfig{
 			ID:   "Dashboard",
@@ -134,6 +140,7 @@ func main() {
 			},
 		}),
 		admin.NewSideFormPage(admin.SideFormPageConfig{
+			BackgroundImage: sideFormBackgroundImage,
 			PageConfig: admin.PageConfig{
 				IsDefault: true,
 				ID:        "SignIn",

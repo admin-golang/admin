@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"reflect"
 	textTemplate "text/template"
 
@@ -151,7 +152,8 @@ func (p *LListPage) URL() string          { return p.page.url }
 type SSideFormPage struct {
 	page page
 
-	Form Form
+	Form            Form
+	BackgroundImage *url.URL
 }
 
 func (p *SSideFormPage) Icon() icon.Icon      { return p.page.icon }
@@ -164,7 +166,8 @@ func (p *SSideFormPage) URL() string          { return p.page.url }
 type SideFormPageConfig struct {
 	PageConfig
 
-	Form Form
+	Form            Form
+	BackgroundImage *url.URL
 }
 
 func NewSideFormPage(p SideFormPageConfig) Pager {
@@ -177,7 +180,7 @@ func NewSideFormPage(p SideFormPageConfig) Pager {
 		url:            p.URL,
 	}
 
-	return &SSideFormPage{page: page, Form: p.Form}
+	return &SSideFormPage{page: page, Form: p.Form, BackgroundImage: p.BackgroundImage}
 }
 
 type FFormPage struct {
