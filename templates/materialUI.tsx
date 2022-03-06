@@ -38,7 +38,8 @@ const {
   TableCell,
   TableFooter,
   TableHead,
-  Breadcrumbs
+  Breadcrumbs,
+  Chip
 } = MaterialUI;
 
 const {
@@ -522,7 +523,7 @@ function [[ .ID ]]List() {
   }
 
   const [rows, setRows] = React.useState<Array>([]);
-  const [rowsMeta, setRowsMeta] = React.useState<Object>({table_headers: []});
+  const [rowsMeta, setRowsMeta] = React.useState<Object>({headers: []});
   const [rowsProps, setRowsProps] = React.useState<Array>([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -615,8 +616,8 @@ function [[ .ID ]]List() {
             <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
               <TableHead>
                 <TableRow>
-                  {rowsMeta.table_headers.map((tableHeader, idx) => (
-                    <TableCell key={idx} align="left">{tableHeader}</TableCell>
+                  {rowsMeta.headers.map((header, idx) => (
+                    <TableCell key={idx} align="left">{header}</TableCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -628,7 +629,16 @@ function [[ .ID ]]List() {
                   <TableRow key={idx}>
                     {rowsProps.map((rowProp, idj) => (
                       <TableCell key={idj} component="th" scope="row">
-                        {row[rowProp]}
+                        {rowsMeta.components?.[rowProp] === 'text' ? row[rowProp] : null}
+                        {
+                          rowsMeta.components?.[rowProp] === 'tag'
+                          ? ( Array.isArray(row[rowProp])
+                            ? row[rowProp].map((p, idx) => <Chip key={idx} label={p} sx={{mr: 1}} />)
+                            : <Chip label={row[rowProp]} />
+                            )
+                          : null
+                        }
+                        {rowsMeta.components?.[rowProp] === 'link' ? <Link href={row[rowProp]} target="_blank">{row[rowProp]}</Link> : null}
                       </TableCell>
                     ))}
                   </TableRow>

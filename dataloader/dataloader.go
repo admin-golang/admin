@@ -18,7 +18,8 @@ func New(c Config) *DataLoader {
 }
 
 type Meta struct {
-	TableHeaders []string `json:"table_headers,omitempty"`
+	Headers    []string          `json:"headers,omitempty"`
+	Components map[string]string `json:"components"`
 }
 
 type Response struct {
