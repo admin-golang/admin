@@ -266,8 +266,6 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("form: %+v", form)
-
 	if form.Password == "testerror" {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
