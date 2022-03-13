@@ -104,6 +104,13 @@ func main() {
 						IsRequired: true,
 						Value:      "",
 					},
+					admin.Field{
+						ID:         "ReleaseDate",
+						Type:       admin.InputDateTime,
+						Label:      "Release Date",
+						IsRequired: true,
+						Value:      "",
+					},
 				},
 				Submit: admin.Submit{
 					Label:       "Create",
@@ -221,7 +228,7 @@ func main() {
 	})
 
 	admin := admin.New(&admin.Config{
-		DebugMode: false,
+		DebugMode: true,
 		UITheme:   admin.MaterialUI, // admin.AntDesignUI,
 		Pages:     pages,
 		Layout:    layout,

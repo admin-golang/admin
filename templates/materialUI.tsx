@@ -39,8 +39,11 @@ const {
   TableFooter,
   TableHead,
   Breadcrumbs,
-  Chip
+  Chip,
+	DateTimePicker
 } = MaterialUI;
+
+console.log("DateTimePicker:", DateTimePicker);
 
 const {
   useState,
@@ -760,6 +763,11 @@ function [[ .ID ]]Form() {
             	    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
                   </Grid>
             	  [[ end ]]
+            	  [[ if eq $field.Type 2 ]]
+                  <Grid item xs={12} sm={6}>
+            	    [[ template "DateTimePicker" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
+                  </Grid>
+            	  [[ end ]]
             	[[ end ]]
             {/*<FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -966,4 +974,8 @@ function [[ .ID ]]SideForm() {
   value = { [[ .ID]]}
   onChange = { handle[[ .ID]]Change }
 />
+[[end]]
+
+[[define "DateTimePicker"]]
+<DateTimePicker/>
 [[end]]

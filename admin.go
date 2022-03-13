@@ -37,6 +37,7 @@ type FieldType uint
 const (
 	InputPassword FieldType = iota
 	InputText
+	InputDateTime
 )
 
 type PageType uint
@@ -452,10 +453,12 @@ const adminTemplateText string = `
 
   [[- if and (eq .UITheme .MaterialUI) .Debug ]]
   <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.development.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@material-ui/lab@5.0.0-alpha.42/node/index.js"></script>
   [[- end -]]
 
   [[- if and (eq .UITheme .MaterialUI) (not .Debug) ]]
   <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.production.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@material-ui/lab@5.0.0-alpha.42/node/index.min.js"></script>
   [[- end ]]
 
   <script type="text/javascript">[[ .ThemeJS ]]</script>
