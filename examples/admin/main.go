@@ -145,6 +145,7 @@ func main() {
 		}),
 		admin.NewSideFormPage(admin.SideFormPageConfig{
 			BackgroundImage: sideFormBackgroundImage,
+			FooterLabel:     "Copyright © Your Website 2022.",
 			PageConfig: admin.PageConfig{
 				IsDefault: true,
 				ID:        "SignIn",
@@ -218,6 +219,8 @@ func main() {
 				},
 			},
 		},
+		Title:       "Admin Title",
+		FooterLabel: "Copyright © Your Website 2022.",
 	})
 
 	admin := admin.New(&admin.Config{
