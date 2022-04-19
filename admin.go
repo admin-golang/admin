@@ -383,7 +383,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}{
 		Debug:       ad.debugMode,
 		ThemeJS:     template.JS(indexJSMinified.Code),
-		Title:       "admin",
+		Title:       ad.layout.Title,
 		Pages:       ad.pages,
 		UITheme:     ad.uiTheme,
 		MaterialUI:  MaterialUI,
