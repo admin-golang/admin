@@ -161,15 +161,10 @@ function SellIcon(props) {
   );
 }
 
-function Copyright(props: any) {
+function FooterLabel(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      { props.label }
     </Typography>
   );
 }
@@ -353,7 +348,7 @@ function Layout({ children }) {
           <Grid container spacing={3}>
             {children}
           </Grid>
-          <Copyright sx={{ pt: 4 }} />
+          <FooterLabel sx={{ pt: 4 }} label={"[[ .Layout.FooterLabel ]]"} />
         </Container>
       </Box>
     </Box>
@@ -919,7 +914,7 @@ function [[ .ID ]]SideForm() {
                 </Link>*/}
             </Grid>
           </Grid>
-          <Copyright sx={{ mt: 5 }} />
+          <FooterLabel sx={{ mt: 5 }} label={"[[ .FooterLabel ]]"} />
         </Box>
         </Box>
     </Grid>
