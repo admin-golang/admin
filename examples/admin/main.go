@@ -145,6 +145,7 @@ func main() {
 		}),
 		admin.NewSideFormPage(admin.SideFormPageConfig{
 			BackgroundImage: sideFormBackgroundImage,
+			FooterLabel:     "Copyright © Your Website 2022.",
 			PageConfig: admin.PageConfig{
 				IsDefault: true,
 				ID:        "SignIn",
@@ -218,6 +219,8 @@ func main() {
 				},
 			},
 		},
+		Title:       "Admin Title",
+		FooterLabel: "Copyright © Your Website 2022.",
 	})
 
 	admin := admin.New(&admin.Config{
@@ -265,8 +268,6 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-
-	log.Printf("form: %+v", form)
 
 	if form.Password == "testerror" {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)

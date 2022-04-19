@@ -154,6 +154,7 @@ type SSideFormPage struct {
 
 	Form            Form
 	BackgroundImage *url.URL
+	FooterLabel     string
 }
 
 func (p *SSideFormPage) Icon() icon.Icon      { return p.page.icon }
@@ -168,6 +169,7 @@ type SideFormPageConfig struct {
 
 	Form            Form
 	BackgroundImage *url.URL
+	FooterLabel     string
 }
 
 func NewSideFormPage(p SideFormPageConfig) Pager {
@@ -180,7 +182,12 @@ func NewSideFormPage(p SideFormPageConfig) Pager {
 		url:            p.URL,
 	}
 
-	return &SSideFormPage{page: page, Form: p.Form, BackgroundImage: p.BackgroundImage}
+	return &SSideFormPage{
+		page:            page,
+		Form:            p.Form,
+		BackgroundImage: p.BackgroundImage,
+		FooterLabel:     p.FooterLabel,
+	}
 }
 
 type FFormPage struct {
@@ -376,7 +383,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}{
 		Debug:       ad.debugMode,
 		ThemeJS:     template.JS(indexJSMinified.Code),
-		Title:       "admin",
+		Title:       ad.layout.Title,
 		Pages:       ad.pages,
 		UITheme:     ad.uiTheme,
 		MaterialUI:  MaterialUI,
