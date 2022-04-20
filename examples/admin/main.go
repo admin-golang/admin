@@ -51,6 +51,13 @@ func main() {
 			DataLoader: dataloader.New(dataloader.Config{
 				URL:    "/releases",
 				Method: http.MethodGet,
+				HeaderConfig: &dataloader.HeaderConfig{
+					Key: "Authorization",
+					ValueConfig: dataloader.HeaderValueConfig{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser?.token",
+					},
+				},
 			}),
 		}),
 		admin.NewListPage(admin.ListPageConfig{
@@ -106,10 +113,12 @@ func main() {
 					},
 				},
 				Submit: admin.Submit{
-					Label:       "Create",
-					URL:         "/releases/create",
-					Method:      http.MethodPost,
-					RedirectURL: "/releases",
+					Label:  "Create",
+					URL:    "/releases/create",
+					Method: http.MethodPost,
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/releases",
+					},
 				},
 			},
 		}),
@@ -136,10 +145,12 @@ func main() {
 					},
 				},
 				Submit: admin.Submit{
-					Label:       "Create",
-					URL:         "/packages/create",
-					Method:      http.MethodPost,
-					RedirectURL: "/packages",
+					Label:  "Create",
+					URL:    "/packages/create",
+					Method: http.MethodPost,
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/packages",
+					},
 				},
 			},
 		}),
@@ -174,10 +185,14 @@ func main() {
 					},
 				},
 				Submit: admin.Submit{
-					Label:       "Sign In",
-					URL:         "/sign-in",
-					Method:      "POST",
-					RedirectURL: "/dashboard",
+					Label:  "Sign In",
+					URL:    "/sign-in",
+					Method: "POST",
+					OnSuccess: &admin.OnSubmitSuccess{
+						SetAppState:          true,
+						SetAppStateFieldName: "currentUser",
+						RedirectURL:          "/dashboard",
+					},
 				},
 			},
 		}),
@@ -275,7 +290,8 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]string{
-		"data": "ok",
+		"uuid":  "user_uuid",
+		"token": "user_token",
 	}
 
 	b, err := json.Marshal(resp)
@@ -285,6 +301,7 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 }
 

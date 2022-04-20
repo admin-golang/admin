@@ -219,31 +219,65 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
   }),
 );
 
+const AppContext = React.createContext({});
+const AppStateLocalStorageKey = "app-state";
+
 function App() {
+  const rawAppState = localStorage.getItem(AppStateLocalStorageKey) || {};
+
+  let initialAppState = {};
+  try {
+    initialAppState = JSON.parse(rawAppState);
+  } catch(err) {}
+
+  const [ appState, setAppState ] = React.useState(initialAppState);
+
+  const handleSetAppState = (newState) => {
+    const state = {...appState, ...newState};
+    setAppState(state);
+    localStorage.setItem(AppStateLocalStorageKey, JSON.stringify(state));
+  };
+
+  let defaultPageURL = "";
+  [[ range $page := .Pages ]]
+    [[ if $page.IsDefault ]]
+      defaultPageURL = "[[ $page.URL ]]";
+    [[ end ]]
+  [[ end ]]
+
+  const shouldRedirect = !Object.keys(initialAppState).length;
+
   return (
+  <AppContext.Provider value={appState}>
     <HashRouter>
       <Switch>
         [[ range $page := .Pages ]]
           <Route exact path="[[$page.URL]]">
+          { shouldRedirect ? <Redirect to={defaultPageURL} />: null }
           [[ if eq $page.Type $.DashboardPage ]]
 							<[[ $page.ID ]]Dashboard />
           	[[ end ]]
           	[[ if eq $page.Type $.ListPage ]]
-							<[[ $page.ID ]]List />
+              <AppContext.Consumer>
+              {appState => (
+							<[[ $page.ID ]]List appState={appState} />
+              )}
+              </AppContext.Consumer>
           	[[ end ]]
             [[ if eq $page.Type $.FormPage ]]
               <[[ $page.ID ]]Form />
             [[ end ]]
           	[[ if eq $page.Type $.SideFormPage ]]
-							<[[ $page.ID ]]SideForm />
+							<[[ $page.ID ]]SideForm handleSetAppState={handleSetAppState} />
           	[[ end ]]
           </Route>
           [[ if $page.IsDefault ]]
-            <Redirect exect from="/" to="[[ $page.URL ]]" />
+            <Redirect exact from="/" to="[[ $page.URL ]]" />
           [[ end ]]
 				[[ end ]]
         </Switch>
     </HashRouter>
+    </AppContext.Provider>
   );
 }
 
@@ -512,7 +546,7 @@ function [[ .ID ]]Dashboard() {
 [[define "List"]]
 [[ with .page ]]
 [[ $listPage := WrapListPage . ]]
-function [[ .ID ]]List() {
+function [[ .ID ]]List({ appState }) {
   function createData(name: string, calories: number, fat: number) {
     return { name, calories, fat };
   }
@@ -525,9 +559,17 @@ function [[ .ID ]]List() {
 
   [[ if $listPage.DataLoader ]]
   useEffect(() => {
-    fetch("[[ $listPage.DataLoader.URL ]]", {
-      method: "[[ $listPage.DataLoader.Method ]]",
-    })
+    const abortCtrl = new AbortController();
+    const fetchOptions = { method: "[[ $listPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
+    [[ if $listPage.DataLoader.Header ]]
+      if (appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
+        const headerPrefix = "[[ $listPage.DataLoader.Header.Value.Prefix ]]";
+        const headerValue = appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]];
+        fetchOptions.headers["[[ $listPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+      }
+    [[ end ]]
+
+    fetch("[[ $listPage.DataLoader.URL ]]", fetchOptions)
       .then(async (response) => {
         var resp: any;
 
@@ -543,7 +585,13 @@ function [[ .ID ]]List() {
           setRowsMeta(resp.meta);
         } else {
         }
+      })
+      .catch(err => {
+        if (err.name === "AbortError") return;
+        throw error;
       });
+
+      return () => { abortCtrl.abort() };
   }, []);
   [[end]]
 
@@ -693,7 +741,9 @@ function [[ .ID ]]Form() {
         }
 
         if (response.ok) {
-          history.push("[[ .Form.Submit.RedirectURL ]]");
+          [[ if .Form.Submit.OnSuccess ]]
+          history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
+          [[ end ]]
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);
@@ -792,7 +842,7 @@ function [[ .ID ]]Form() {
 
 [[define "SideForm"]]
 [[ with .page ]]
-function [[ .ID ]]SideForm() {
+function [[ .ID ]]SideForm({ handleSetAppState }) {
   const history = useHistory();
 
   [[range $field := .Form.Fields]]
@@ -825,7 +875,12 @@ function [[ .ID ]]SideForm() {
         }
 
         if (response.ok) {
-          history.push("[[ .Form.Submit.RedirectURL ]]");
+          [[ if .Form.Submit.OnSuccess ]]
+            [[ if .Form.Submit.OnSuccess.SetAppState ]]
+              handleSetAppState({ [[ .Form.Submit.OnSuccess.SetAppStateFieldName ]]: data });
+            [[ end ]]
+            history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
+          [[ end ]]
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);

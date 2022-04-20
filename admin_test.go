@@ -88,10 +88,12 @@ func newTestAdmin() admin.Admin {
 					},
 				},
 				Submit: admin.Submit{
-					Label:       "Create",
-					URL:         "/packages/create",
-					Method:      http.MethodPost,
-					RedirectURL: "/packages",
+					Label:  "Create",
+					URL:    "/packages/create",
+					Method: http.MethodPost,
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/packages",
+					},
 				},
 			},
 		}),
@@ -126,10 +128,12 @@ func newTestAdmin() admin.Admin {
 					},
 				},
 				Submit: admin.Submit{
-					Label:       "Sign In",
-					URL:         "/sign-in",
-					Method:      "POST",
-					RedirectURL: "/dashboard",
+					Label:  "Sign In",
+					URL:    "/sign-in",
+					Method: "POST",
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/dashboard",
+					},
 				},
 			},
 		}),
