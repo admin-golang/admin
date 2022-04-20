@@ -225,10 +225,16 @@ func NewFormPage(p FormPageConfig) Pager {
 type Pages []Pager
 
 type Submit struct {
-	Label       string
-	URL         string
-	Method      string
-	RedirectURL string
+	Label     string
+	URL       string
+	Method    string
+	OnSuccess *OnSubmitSuccess
+}
+
+type OnSubmitSuccess struct {
+	SetAppState          bool
+	SetAppStateFieldName string
+	RedirectURL          string
 }
 
 type Form struct {
