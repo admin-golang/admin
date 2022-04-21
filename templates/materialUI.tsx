@@ -811,13 +811,17 @@ function [[ .ID ]]Form({ appState }) {
             <Grid container spacing={2}>
               [[ range $field := .Form.Fields ]]
             	  [[ if eq $field.Type 0 ]]
-                  <Grid item xs={12} sm={6}>
-            	    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
+                  <Grid item xs={12}>
+                    <Grid xs={12} md={6}>
+                    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
                   </Grid>
             	  [[ end ]]
             	  [[ if eq $field.Type 1 ]]
-                  <Grid item xs={12} sm={6}>
-            	    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
+                  <Grid item xs={12}>
+                    <Grid xs={12} md={6}>
+                    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
                   </Grid>
             	  [[ end ]]
             	[[ end ]]
@@ -954,10 +958,10 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
           <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 1 }}>
               [[ range $field := .Form.Fields ]]
             	  [[ if eq $field.Type 0 ]]
-            	    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
+                    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
             	  [[ end ]]
             	  [[ if eq $field.Type 1 ]]
-            	    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth) ]]
+                    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
             	  [[ end ]]
             	[[ end ]]
             {/*<FormControlLabel
@@ -1008,6 +1012,8 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   fullWidth = { [[ .fullWidth ]] }
   id = "[[ .label ]]"
   label = "[[ .label ]]"
+  multiline = { [[ .isMultiline ]] }
+  rows = { [[ .numberOfRows ]] }
   name = "[[ .label ]]"
   autoComplete = "off"
   autoFocus = { false}
