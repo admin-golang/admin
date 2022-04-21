@@ -673,7 +673,7 @@ function [[ .ID ]]List({ appState }) {
                   ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   : rows
                 ).map((row, idx) => (
-                  <TableRow key={idx}>
+                  <TableRow sx={{ cursor: "pointer" }} hover key={idx}>
                     {rowsProps.map((rowProp, idj) => (
                       <TableCell key={idj} component="th" scope="row">
                         {rowsMeta.components?.[rowProp] === 'text' ? row[rowProp] : null}
@@ -812,14 +812,14 @@ function [[ .ID ]]Form({ appState }) {
               [[ range $field := .Form.Fields ]]
             	  [[ if eq $field.Type 0 ]]
                   <Grid item xs={12}>
-                    <Grid xs={12} md={6}>
+                    <Grid item xs={12} md={6}>
                     [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
                     </Grid>
                   </Grid>
             	  [[ end ]]
             	  [[ if eq $field.Type 1 ]]
                   <Grid item xs={12}>
-                    <Grid xs={12} md={6}>
+                    <Grid item xs={12} md={6}>
                     [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
                     </Grid>
                   </Grid>
