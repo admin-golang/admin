@@ -49,12 +49,14 @@ const (
 )
 
 type Field struct {
-	ID         string
-	Label      string
-	Type       FieldType
-	IsRequired bool
-	FullWidth  bool
-	Value      string
+	ID           string
+	Label        string
+	Type         FieldType
+	IsRequired   bool
+	FullWidth    bool
+	Value        string
+	IsMultiline  bool
+	NumberOfRows int
 }
 
 type Fields []Field
@@ -304,13 +306,15 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return !reflect.ValueOf(val).IsNil()
 	}
 
-	wrap := func(ID string, label string, isRequired bool, value string, fullWidth bool) map[string]interface{} {
+	wrap := func(ID string, label string, isRequired bool, value string, fullWidth bool, isMultiline bool, numberOfRows int) map[string]interface{} {
 		return map[string]interface{}{
-			"ID":         ID,
-			"label":      label,
-			"isRequired": isRequired,
-			"value":      value,
-			"fullWidth":  fullWidth,
+			"ID":           ID,
+			"label":        label,
+			"isRequired":   isRequired,
+			"value":        value,
+			"fullWidth":    fullWidth,
+			"isMultiline":  isMultiline,
+			"numberOfRows": numberOfRows,
 		}
 	}
 

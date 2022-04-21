@@ -110,6 +110,17 @@ func main() {
 						Label:      "Name",
 						IsRequired: true,
 						Value:      "",
+						FullWidth:  true,
+					},
+					admin.Field{
+						ID:           "Description",
+						Type:         admin.InputText,
+						Label:        "Description",
+						IsRequired:   true,
+						Value:        "",
+						IsMultiline:  true,
+						NumberOfRows: 4,
+						FullWidth:    true,
 					},
 				},
 				Submit: admin.Submit{
