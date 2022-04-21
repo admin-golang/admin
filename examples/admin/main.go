@@ -116,6 +116,13 @@ func main() {
 					Label:  "Create",
 					URL:    "/releases/create",
 					Method: http.MethodPost,
+					Header: &admin.Header{
+						Key: "Authorization",
+						Value: admin.HeaderValue{
+							Prefix:            "Bearer ",
+							AppStateFieldPath: "currentUser?.token",
+						},
+					},
 					OnSuccess: &admin.OnSubmitSuccess{
 						RedirectURL: "/releases",
 					},

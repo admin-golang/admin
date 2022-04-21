@@ -265,7 +265,11 @@ function App() {
               </AppContext.Consumer>
           	[[ end ]]
             [[ if eq $page.Type $.FormPage ]]
-              <[[ $page.ID ]]Form />
+              <AppContext.Consumer>
+              {appState => (
+              <[[ $page.ID ]]Form appState={appState} />
+              )}
+              </AppContext.Consumer>
             [[ end ]]
           	[[ if eq $page.Type $.SideFormPage ]]
 							<[[ $page.ID ]]SideForm handleSetAppState={handleSetAppState} />
@@ -708,7 +712,7 @@ function [[ .ID ]]List({ appState }) {
 
 [[define "Form"]]
 [[ with .page ]]
-function [[ .ID ]]Form() {
+function [[ .ID ]]Form({ appState }) {
   const history = useHistory();
 
   [[range $field := .Form.Fields]]
@@ -727,10 +731,21 @@ function [[ .ID ]]Form() {
       [[end]]
     };
 
-    fetch("[[ .Form.Submit.URL ]]", {
+    const fetchOptions = {
       method: "[[ .Form.Submit.Method ]]",
       body: JSON.stringify(payload),
-    })
+      headers: {}
+    };
+
+    [[ if .Form.Submit.Header ]]
+      if (appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]]) {
+        const headerPrefix = "[[ .Form.Submit.Header.Value.Prefix ]]";
+        const headerValue = appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]];
+        fetchOptions.headers["[[ .Form.Submit.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+      }
+    [[ end ]]
+
+    fetch("[[ .Form.Submit.URL ]]", fetchOptions)
       .then(async (response) => {
         var data;
 
