@@ -228,7 +228,18 @@ type Submit struct {
 	Label     string
 	URL       string
 	Method    string
+	Header    *Header
 	OnSuccess *OnSubmitSuccess
+}
+
+type Header struct {
+	Key   string
+	Value HeaderValue
+}
+
+type HeaderValue struct {
+	Prefix            string
+	AppStateFieldPath string
 }
 
 type OnSubmitSuccess struct {
