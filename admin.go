@@ -84,11 +84,22 @@ type PageConfig struct {
 	URL            string
 }
 
+type OnListRowClick struct {
+	RedirectURL string
+}
+
+type ListRowConfig struct {
+	DataRowFieldName string
+	ParamKey         string
+	OnClick          *OnListRowClick
+}
+
 type ListPageConfig struct {
 	PageConfig
-	MainButton *MainButton
-	Title      string
-	DataLoader *dataloader.DataLoader
+	MainButton    *MainButton
+	Title         string
+	DataLoader    *dataloader.DataLoader
+	ListRowConfig *ListRowConfig
 }
 
 type EditPageConfig struct {
@@ -133,9 +144,10 @@ type MainButton struct {
 type LListPage struct {
 	page page
 
-	MainButton *MainButton
-	Title      string
-	DataLoader *dataloader.DataLoader
+	MainButton    *MainButton
+	Title         string
+	DataLoader    *dataloader.DataLoader
+	ListRowConfig *ListRowConfig
 }
 
 func NewListPage(p ListPageConfig) Pager {
@@ -148,7 +160,7 @@ func NewListPage(p ListPageConfig) Pager {
 		url:            p.URL,
 	}
 
-	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader}
+	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig}
 }
 
 func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
