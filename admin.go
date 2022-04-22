@@ -105,7 +105,9 @@ type ListPageConfig struct {
 type EditPageConfig struct {
 	PageConfig
 
-	Form Form
+	ParamKey   string
+	DataLoader *dataloader.DataLoader
+	Form       Form
 }
 
 func NewPage(p PageConfig) Pager {
@@ -173,7 +175,9 @@ func (p *LListPage) URL() string          { return p.page.url }
 type EEditPage struct {
 	page page
 
-	Form Form
+	ParamKey   string
+	DataLoader *dataloader.DataLoader
+	Form       Form
 }
 
 func (p *EEditPage) Icon() icon.Icon      { return p.page.icon }
@@ -190,7 +194,7 @@ func NewEditPage(p EditPageConfig) Pager {
 		url:   p.URL,
 	}
 
-	return &EEditPage{page: page, Form: p.Form}
+	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey}
 }
 
 type SSideFormPage struct {
@@ -378,12 +382,17 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return page.(*LListPage)
 	}
 
+	wrapEditPage := func(page Pager) *EEditPage {
+		return page.(*EEditPage)
+	}
+
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
 		"IsNotNil":      isNotNil,
 		"Wrap":          wrap,
 		"WrapPage":      wrapPage,
 		"WrapMenuIcons": wrapMenuIcons,
 		"WrapListPage":  wrapListPage,
+		"WrapEditPage":  wrapEditPage,
 	}).Parse(jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
