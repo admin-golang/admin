@@ -562,6 +562,8 @@ function [[ .ID ]]Dashboard() {
 [[ with .page ]]
 [[ $listPage := WrapListPage . ]]
 function [[ .ID ]]List({ appState }) {
+  const history = useHistory();
+
   function createData(name: string, calories: number, fat: number) {
     return { name, calories, fat };
   }
@@ -628,6 +630,15 @@ function [[ .ID ]]List({ appState }) {
     setPage(0);
   };
 
+  [[ if $listPage.ListRowConfig ]]
+  const handleTableRowClick = ({ [[ $listPage.ListRowConfig.DataRowFieldName ]] }) => {
+    const redirectURL = "[[ $listPage.ListRowConfig.OnClick.RedirectURL ]]";
+    const paramKey = "[[ $listPage.ListRowConfig.ParamKey ]]";
+    const redirectTo = redirectURL.replace(paramKey, [[ $listPage.ListRowConfig.DataRowFieldName ]]);
+    history.push(redirectTo);
+  };
+  [[ end ]]
+
   return (
     <Layout>
       <Grid item xs={12} md={12} lg={12}>
@@ -684,7 +695,11 @@ function [[ .ID ]]List({ appState }) {
                   ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   : rows
                 ).map((row, idx) => (
-                  <TableRow sx={{ cursor: "pointer" }} hover key={idx}>
+                  <TableRow sx={{ cursor: "pointer" }} hover key={idx}
+                    [[ if $listPage.ListRowConfig ]]
+                      onClick={() => { handleTableRowClick({ [[ $listPage.ListRowConfig.DataRowFieldName ]]: row["[[ $listPage.ListRowConfig.DataRowFieldName ]]"] }) }}
+                    [[ end ]]
+                  >
                     {rowsProps.map((rowProp, idj) => (
                       <TableCell key={idj} component="th" scope="row">
                         {rowsMeta.components?.[rowProp] === 'text' ? row[rowProp] : null}
