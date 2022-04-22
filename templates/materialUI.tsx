@@ -573,7 +573,11 @@ function [[ .ID ]]List({ appState }) {
   const [rowsMeta, setRowsMeta] = React.useState<Object>({headers: []});
   const [rowsProps, setRowsProps] = React.useState<Array>([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  [[ if $listPage.Pagination ]]
+    const [rowsPerPage, setRowsPerPage] = React.useState([[ $listPage.Pagination.RowsPerPage ]]);
+  [[ else ]]
+    const [rowsPerPage, setRowsPerPage] = React.useState(20);
+  [[ end ]]
 
   [[ if $listPage.DataLoader ]]
   useEffect(() => {

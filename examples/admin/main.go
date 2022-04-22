@@ -60,6 +60,9 @@ func main() {
 					},
 				},
 			}),
+			Pagination: &admin.PaginationConfig{
+				RowsPerPage: 10,
+			},
 			ListRowConfig: &admin.ListRowConfig{
 				DataRowFieldName: "id",
 				ParamKey:         ":id",
