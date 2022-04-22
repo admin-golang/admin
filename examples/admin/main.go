@@ -415,21 +415,24 @@ func releases(w http.ResponseWriter, r *http.Request) {
 			{
 				ID:          "go1.16",
 				Name:        "Go 1.16",
+				Description: "Go 1.16 description",
 				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
 				URL:         "https://go.dev/doc/go1.16",
 			},
 			{
 				ID:          "go1.15",
 				Name:        "Go 1.15",
+				Description: "Go 1.15 description",
 				ReleaseDate: "Tue Aug 11 19:01:57 2020 +0000",
 				URL:         "https://go.dev/doc/go1.15",
 			},
 		},
 		Meta: dataloader.Meta{
-			Headers: []string{"ID", "Name", "Release Date", "URL"},
+			Headers: []string{"ID", "Name", "Description", "Release Date", "URL"},
 			Components: map[string]string{
 				"id":           "text",
 				"name":         "text",
+				"description":  "text",
 				"release_date": "text",
 				"url":          "link",
 			},
