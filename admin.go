@@ -94,11 +94,16 @@ type ListRowConfig struct {
 	OnClick          *OnListRowClick
 }
 
+type PaginationConfig struct {
+	RowsPerPage int
+}
+
 type ListPageConfig struct {
 	PageConfig
 	MainButton    *MainButton
 	Title         string
 	DataLoader    *dataloader.DataLoader
+	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
 }
 
@@ -149,6 +154,7 @@ type LListPage struct {
 	MainButton    *MainButton
 	Title         string
 	DataLoader    *dataloader.DataLoader
+	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
 }
 
@@ -162,7 +168,7 @@ func NewListPage(p ListPageConfig) Pager {
 		url:            p.URL,
 	}
 
-	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig}
+	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination}
 }
 
 func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
