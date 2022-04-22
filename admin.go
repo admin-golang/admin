@@ -272,12 +272,25 @@ func NewFormPage(p FormPageConfig) Pager {
 
 type Pages []Pager
 
+type SearchParamValue struct {
+	FromLocation   bool
+	SearchParamKey string
+}
+
+type SearchParam struct {
+	Key   string
+	Value SearchParamValue
+}
+
+type SearchParams []SearchParam
+
 type Submit struct {
-	Label     string
-	URL       string
-	Method    string
-	Header    *Header
-	OnSuccess *OnSubmitSuccess
+	Label        string
+	URL          string
+	SearchParams *SearchParams
+	Method       string
+	Header       *Header
+	OnSuccess    *OnSubmitSuccess
 }
 
 type Header struct {

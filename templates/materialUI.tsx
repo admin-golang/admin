@@ -892,7 +892,6 @@ function [[ .ID ]]Form({ appState }) {
 function [[ .ID ]]Edit({ appState }) {
   const history = useHistory();
   const params = useParams();
-  console.log("[params]: ", params);
 
   [[ if .DataLoader ]]
   useEffect(() => {
@@ -965,7 +964,17 @@ function [[ .ID ]]Edit({ appState }) {
       }
     [[ end ]]
 
-    fetch("[[ .Form.Submit.URL ]]", fetchOptions)
+    let fetchURL = "[[ .Form.Submit.URL ]]";
+    [[ if .Form.Submit.SearchParams ]]
+      [[ range $searchParam := .Form.Submit.SearchParams ]]
+        [[ if $searchParam.Value.FromLocation ]]
+          const param[[ $searchParam.Value.SearchParamKey ]]Value = params["[[ $searchParam.Value.SearchParamKey ]]"];
+          fetchURL = fetchURL.replace("[[ $searchParam.Key ]]", param[[ $searchParam.Value.SearchParamKey ]]Value);
+        [[ end ]]
+      [[ end ]]
+    [[ end ]]
+
+    fetch(fetchURL, fetchOptions)
       .then(async (response) => {
         var data;
 
