@@ -59,6 +59,13 @@ func main() {
 					},
 				},
 			}),
+			ListRowConfig: &admin.ListRowConfig{
+				DataRowFieldName: "id",
+				ParamKey:         ":id",
+				OnClick: &admin.OnListRowClick{
+					RedirectURL: "/releases/:id",
+				},
+			},
 		}),
 		admin.NewEditPage(admin.EditPageConfig{
 			PageConfig: admin.PageConfig{
@@ -381,6 +388,7 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 }
 
 type Release struct {
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	ReleaseDate string `json:"release_date"`
 	URL         string `json:"url"`
@@ -390,19 +398,22 @@ func releases(w http.ResponseWriter, r *http.Request) {
 	resp := dataloader.Response{
 		Data: []Release{
 			{
+				ID:          "go1.16",
 				Name:        "Go 1.16",
 				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
 				URL:         "https://go.dev/doc/go1.16",
 			},
 			{
+				ID:          "go1.15",
 				Name:        "Go 1.15",
 				ReleaseDate: "Tue Aug 11 19:01:57 2020 +0000",
 				URL:         "https://go.dev/doc/go1.15",
 			},
 		},
 		Meta: dataloader.Meta{
-			Headers: []string{"Name", "Release Date", "URL"},
+			Headers: []string{"ID", "Name", "Release Date", "URL"},
 			Components: map[string]string{
+				"id":           "text",
 				"name":         "text",
 				"release_date": "text",
 				"url":          "link",
