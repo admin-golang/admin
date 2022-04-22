@@ -46,6 +46,7 @@ const (
 	SideFormPage
 	ListPage
 	FormPage
+	EditPage
 )
 
 type Field struct {
@@ -88,6 +89,12 @@ type ListPageConfig struct {
 	MainButton *MainButton
 	Title      string
 	DataLoader *dataloader.DataLoader
+}
+
+type EditPageConfig struct {
+	PageConfig
+
+	Form Form
 }
 
 func NewPage(p PageConfig) Pager {
@@ -150,6 +157,29 @@ func (p *LListPage) IsDefault() bool      { return p.page.isDefault }
 func (p *LListPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
 func (p *LListPage) Type() PageType       { return p.page.ttype }
 func (p *LListPage) URL() string          { return p.page.url }
+
+type EEditPage struct {
+	page page
+
+	Form Form
+}
+
+func (p *EEditPage) Icon() icon.Icon      { return p.page.icon }
+func (p *EEditPage) ID() string           { return p.page.id }
+func (p *EEditPage) IsDefault() bool      { return p.page.isDefault }
+func (p *EEditPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
+func (p *EEditPage) Type() PageType       { return p.page.ttype }
+func (p *EEditPage) URL() string          { return p.page.url }
+
+func NewEditPage(p EditPageConfig) Pager {
+	page := page{
+		id:    p.ID,
+		ttype: p.Type,
+		url:   p.URL,
+	}
+
+	return &EEditPage{page: page, Form: p.Form}
+}
 
 type SSideFormPage struct {
 	page page
@@ -359,6 +389,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SideFormPage      PageType
 		ListPage          PageType
 		FormPage          PageType
+		EditPage          PageType
 		AccountCircleIcon icon.IconType
 		NotificationsIcon icon.IconType
 	}{
@@ -368,6 +399,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SideFormPage:      SideFormPage,
 		ListPage:          ListPage,
 		FormPage:          FormPage,
+		EditPage:          EditPage,
 		AccountCircleIcon: icon.AccountCircle,
 		NotificationsIcon: icon.Notifications,
 	}
