@@ -60,6 +60,63 @@ func main() {
 				},
 			}),
 		}),
+		admin.NewEditPage(admin.EditPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "EditRelease",
+				URL:  "/releases/:release_id",
+				Type: admin.EditPage,
+			},
+			Form: admin.Form{
+				Navigation: navigation.New(navigation.Config{
+					Items: navigation.Items{
+						navigation.Item{
+							Label: "Releases",
+							URL:   "/releases",
+						},
+					},
+					Active: navigation.Item{
+						Label: "Edit",
+					},
+				}),
+				ID:    "ReleasesEdit",
+				Title: "Edit Release",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:         "Name",
+						Type:       admin.InputText,
+						Label:      "Name",
+						IsRequired: true,
+						Value:      "",
+						FullWidth:  true,
+					},
+					admin.Field{
+						ID:           "Description",
+						Type:         admin.InputText,
+						Label:        "Description",
+						IsRequired:   true,
+						Value:        "",
+						IsMultiline:  true,
+						NumberOfRows: 4,
+						FullWidth:    true,
+					},
+				},
+				Submit: admin.Submit{
+					Label:  "Edit",
+					URL:    "/releases",
+					Method: http.MethodPut,
+					Header: &admin.Header{
+						Key: "Authorization",
+						Value: admin.HeaderValue{
+							Prefix:            "Bearer ",
+							AppStateFieldPath: "currentUser?.token",
+						},
+					},
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/releases",
+					},
+				},
+			},
+		}),
 		admin.NewListPage(admin.ListPageConfig{
 			PageConfig: admin.PageConfig{
 				ID:   "Packages",
