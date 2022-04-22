@@ -7,9 +7,11 @@ import (
 	"testing"
 
 	"github.com/admin-golang/admin"
+	"github.com/admin-golang/admin/dataloader"
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
 	"github.com/admin-golang/admin/menu"
+	"github.com/admin-golang/admin/navigation"
 )
 
 func TestAdmin(t *testing.T) {
@@ -91,6 +93,75 @@ func newTestAdmin() admin.Admin {
 					Label:  "Create",
 					URL:    "/packages/create",
 					Method: http.MethodPost,
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/packages",
+					},
+				},
+			},
+		}),
+		admin.NewEditPage(admin.EditPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "EditPackage",
+				URL:  "/packages/:package_id",
+				Type: admin.EditPage,
+			},
+			ParamKey: "package_id",
+			DataLoader: dataloader.New(dataloader.Config{
+				URL:    "/package",
+				Method: http.MethodGet,
+				HeaderConfig: &dataloader.HeaderConfig{
+					Key: "Authorization",
+					ValueConfig: dataloader.HeaderValueConfig{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser?.token",
+					},
+				},
+			}),
+			Form: admin.Form{
+				Navigation: navigation.New(navigation.Config{
+					Items: navigation.Items{
+						navigation.Item{
+							Label: "Packages",
+							URL:   "/packages",
+						},
+					},
+					Active: navigation.Item{
+						Label: "Edit",
+					},
+				}),
+				ID:    "PackagesEdit",
+				Title: "Edit Package",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:         "name",
+						Type:       admin.InputText,
+						Label:      "Name",
+						IsRequired: true,
+						Value:      "",
+						FullWidth:  true,
+					},
+					admin.Field{
+						ID:           "description",
+						Type:         admin.InputText,
+						Label:        "Description",
+						IsRequired:   true,
+						Value:        "",
+						IsMultiline:  true,
+						NumberOfRows: 4,
+						FullWidth:    true,
+					},
+				},
+				Submit: admin.Submit{
+					Label:  "Edit",
+					URL:    "/packages",
+					Method: http.MethodPut,
+					Header: &admin.Header{
+						Key: "Authorization",
+						Value: admin.HeaderValue{
+							Prefix:            "Bearer ",
+							AppStateFieldPath: "currentUser?.token",
+						},
+					},
 					OnSuccess: &admin.OnSubmitSuccess{
 						RedirectURL: "/packages",
 					},
