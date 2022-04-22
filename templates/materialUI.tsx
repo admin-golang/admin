@@ -53,7 +53,8 @@ const {
   Route,
   Redirect,
   useHistory,
-  useLocation
+  useLocation,
+  useParams
 } = ReactRouterDOM;
 
 const theme = createTheme({
@@ -887,8 +888,52 @@ function [[ .ID ]]Form({ appState }) {
 
 [[define "Edit"]]
 [[ with .page ]]
+[[ $editPage := WrapEditPage . ]]
 function [[ .ID ]]Edit({ appState }) {
   const history = useHistory();
+  const params = useParams();
+  console.log("[params]: ", params);
+
+  [[ if .DataLoader ]]
+  useEffect(() => {
+    const abortCtrl = new AbortController();
+    const fetchOptions = { method: "[[ $editPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
+    [[ if $editPage.DataLoader.Header ]]
+      if (appState?.[[ $editPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
+        const headerPrefix = "[[ $editPage.DataLoader.Header.Value.Prefix ]]";
+        const headerValue = appState?.[[ $editPage.DataLoader.Header.Value.AppStateFieldPath ]];
+        fetchOptions.headers["[[ $editPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+      }
+    [[ end ]]
+
+    const fetchURLParam = params["[[ $editPage.ParamKey ]]"];
+    const fetchURL = `[[ $editPage.DataLoader.URL ]]/${fetchURLParam}`;
+
+    fetch(fetchURL, fetchOptions)
+      .then(async (response) => {
+        var resp: any;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          resp = await response.json();
+        } else {
+          resp = await response.text();
+        }
+
+        if (response.ok) {
+          [[ range $field := .Form.Fields ]]
+            set[[$field.ID]](resp.data[ "[[$field.ID]]" ])
+          [[ end ]]
+        } else {
+        }
+      })
+      .catch(err => {
+        if (err.name === "AbortError") return;
+        throw err;
+      });
+
+      return () => { abortCtrl.abort() };
+  }, []);
+  [[end]]
 
   [[range $field := .Form.Fields]]
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
