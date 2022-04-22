@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/admin-golang/admin"
 	"github.com/admin-golang/admin/dataloader"
@@ -73,6 +74,18 @@ func main() {
 				URL:  "/releases/:release_id",
 				Type: admin.EditPage,
 			},
+			ParamKey: "release_id",
+			DataLoader: dataloader.New(dataloader.Config{
+				URL:    "/show-release",
+				Method: http.MethodGet,
+				HeaderConfig: &dataloader.HeaderConfig{
+					Key: "Authorization",
+					ValueConfig: dataloader.HeaderValueConfig{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser?.token",
+					},
+				},
+			}),
 			Form: admin.Form{
 				Navigation: navigation.New(navigation.Config{
 					Items: navigation.Items{
@@ -89,7 +102,7 @@ func main() {
 				Title: "Edit Release",
 				Fields: admin.Fields{
 					admin.Field{
-						ID:         "Name",
+						ID:         "name",
 						Type:       admin.InputText,
 						Label:      "Name",
 						IsRequired: true,
@@ -97,7 +110,7 @@ func main() {
 						FullWidth:  true,
 					},
 					admin.Field{
-						ID:           "Description",
+						ID:           "description",
 						Type:         admin.InputText,
 						Label:        "Description",
 						IsRequired:   true,
@@ -330,6 +343,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("/admin", admin)
+	mux.Handle("/show-release/", showRelease())
 	mux.HandleFunc("/sign-in", signIn)
 	mux.HandleFunc("/releases", releases)
 	mux.HandleFunc("/packages", packages)
@@ -390,6 +404,7 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 type Release struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
+	Description string `json:"description"`
 	ReleaseDate string `json:"release_date"`
 	URL         string `json:"url"`
 }
@@ -430,6 +445,32 @@ func releases(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(b)
+}
+
+func showRelease() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		releaseID := strings.Split(r.URL.String(), "/")[2]
+
+		resp := dataloader.Response{
+			Data: Release{
+				ID:          releaseID,
+				Name:        fmt.Sprintf("Go %s", releaseID),
+				Description: fmt.Sprintf("Go %s description", releaseID),
+				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
+				URL:         fmt.Sprintf("https://go.dev/doc/%s", releaseID),
+			},
+		}
+
+		b, err := json.Marshal(resp)
+		if err != nil {
+			log.Printf("failed to serialize release: %+v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		w.Write(b)
+	})
 }
 
 type Package struct {
