@@ -53,7 +53,8 @@ const {
   Route,
   Redirect,
   useHistory,
-  useLocation
+  useLocation,
+  useParams
 } = ReactRouterDOM;
 
 const theme = createTheme({
@@ -274,6 +275,13 @@ function App() {
           	[[ if eq $page.Type $.SideFormPage ]]
 							<[[ $page.ID ]]SideForm handleSetAppState={handleSetAppState} />
           	[[ end ]]
+          	[[ if eq $page.Type $.EditPage ]]
+              <AppContext.Consumer>
+              {appState => (
+              <[[ $page.ID ]]Edit appState={appState} />
+              )}
+              </AppContext.Consumer>
+          	[[ end ]]
           </Route>
           [[ if $page.IsDefault ]]
             <Redirect exact from="/" to="[[ $page.URL ]]" />
@@ -417,6 +425,10 @@ ReactDOM.render(
   [[ if eq $page.Type $.FormPage ]]
     [[template "Form"(WrapPage $.Layout $page $.Pages)]]
   [[end]]
+
+  [[ if eq $page.Type $.EditPage ]]
+    [[template "Edit"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
 [[end]]
 
 [[ if and .Layout .Layout.Menu ]]
@@ -551,6 +563,8 @@ function [[ .ID ]]Dashboard() {
 [[ with .page ]]
 [[ $listPage := WrapListPage . ]]
 function [[ .ID ]]List({ appState }) {
+  const history = useHistory();
+
   function createData(name: string, calories: number, fat: number) {
     return { name, calories, fat };
   }
@@ -617,6 +631,15 @@ function [[ .ID ]]List({ appState }) {
     setPage(0);
   };
 
+  [[ if $listPage.ListRowConfig ]]
+  const handleTableRowClick = ({ [[ $listPage.ListRowConfig.DataRowFieldName ]] }) => {
+    const redirectURL = "[[ $listPage.ListRowConfig.OnClick.RedirectURL ]]";
+    const paramKey = "[[ $listPage.ListRowConfig.ParamKey ]]";
+    const redirectTo = redirectURL.replace(paramKey, [[ $listPage.ListRowConfig.DataRowFieldName ]]);
+    history.push(redirectTo);
+  };
+  [[ end ]]
+
   return (
     <Layout>
       <Grid item xs={12} md={12} lg={12}>
@@ -673,7 +696,11 @@ function [[ .ID ]]List({ appState }) {
                   ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   : rows
                 ).map((row, idx) => (
-                  <TableRow key={idx}>
+                  <TableRow sx={{ cursor: "pointer" }} hover key={idx}
+                    [[ if $listPage.ListRowConfig ]]
+                      onClick={() => { handleTableRowClick({ [[ $listPage.ListRowConfig.DataRowFieldName ]]: row["[[ $listPage.ListRowConfig.DataRowFieldName ]]"] }) }}
+                    [[ end ]]
+                  >
                     {rowsProps.map((rowProp, idj) => (
                       <TableCell key={idj} component="th" scope="row">
                         {rowsMeta.components?.[rowProp] === 'text' ? row[rowProp] : null}
@@ -812,14 +839,14 @@ function [[ .ID ]]Form({ appState }) {
               [[ range $field := .Form.Fields ]]
             	  [[ if eq $field.Type 0 ]]
                   <Grid item xs={12}>
-                    <Grid xs={12} md={6}>
+                    <Grid item xs={12} md={6}>
                     [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
                     </Grid>
                   </Grid>
             	  [[ end ]]
             	  [[ if eq $field.Type 1 ]]
                   <Grid item xs={12}>
-                    <Grid xs={12} md={6}>
+                    <Grid item xs={12} md={6}>
                     [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
                     </Grid>
                   </Grid>
@@ -850,6 +877,183 @@ function [[ .ID ]]Form({ appState }) {
                 </Link>*/}
             </Grid>
           </Grid>
+        </Box>
+        </Paper>
+        </Grid>
+    </Layout>
+  );
+}
+[[ end ]]
+[[end]]
+
+[[define "Edit"]]
+[[ with .page ]]
+[[ $editPage := WrapEditPage . ]]
+function [[ .ID ]]Edit({ appState }) {
+  const history = useHistory();
+  const params = useParams();
+  console.log("[params]: ", params);
+
+  [[ if .DataLoader ]]
+  useEffect(() => {
+    const abortCtrl = new AbortController();
+    const fetchOptions = { method: "[[ $editPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
+    [[ if $editPage.DataLoader.Header ]]
+      if (appState?.[[ $editPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
+        const headerPrefix = "[[ $editPage.DataLoader.Header.Value.Prefix ]]";
+        const headerValue = appState?.[[ $editPage.DataLoader.Header.Value.AppStateFieldPath ]];
+        fetchOptions.headers["[[ $editPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+      }
+    [[ end ]]
+
+    const fetchURLParam = params["[[ $editPage.ParamKey ]]"];
+    const fetchURL = `[[ $editPage.DataLoader.URL ]]/${fetchURLParam}`;
+
+    fetch(fetchURL, fetchOptions)
+      .then(async (response) => {
+        var resp: any;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          resp = await response.json();
+        } else {
+          resp = await response.text();
+        }
+
+        if (response.ok) {
+          [[ range $field := .Form.Fields ]]
+            set[[$field.ID]](resp.data[ "[[$field.ID]]" ])
+          [[ end ]]
+        } else {
+        }
+      })
+      .catch(err => {
+        if (err.name === "AbortError") return;
+        throw err;
+      });
+
+      return () => { abortCtrl.abort() };
+  }, []);
+  [[end]]
+
+  [[range $field := .Form.Fields]]
+  const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
+  const handle[[$field.ID]]Change = (e) => {
+    set[[$field.ID]](e.target.value);
+  };
+  [[end]]
+
+  const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const payload = {
+      [[range $field := .Form.Fields]]
+        "[[$field.ID]]": [[$field.ID]],
+      [[end]]
+    };
+
+    const fetchOptions = {
+      method: "[[ .Form.Submit.Method ]]",
+      body: JSON.stringify(payload),
+      headers: {}
+    };
+
+    [[ if .Form.Submit.Header ]]
+      if (appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]]) {
+        const headerPrefix = "[[ .Form.Submit.Header.Value.Prefix ]]";
+        const headerValue = appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]];
+        fetchOptions.headers["[[ .Form.Submit.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+      }
+    [[ end ]]
+
+    fetch("[[ .Form.Submit.URL ]]", fetchOptions)
+      .then(async (response) => {
+        var data;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
+
+        if (response.ok) {
+          [[ if .Form.Submit.OnSuccess ]]
+          history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
+          [[ end ]]
+        } else {
+          setAlertMessage(data);
+          setIsSnackbarOpen(true);
+        }
+
+        return data;
+      });
+  };
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const handleSnackbarClose = () => {
+    setIsSnackbarOpen(false);
+  };
+
+  return (
+    <Layout>
+      <Grid container>
+        <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
+          <Breadcrumbs aria-label="breadcrumb">
+            [[ if .Form.Navigation ]]
+            [[ range $i, $nav := .Form.Navigation.Items ]]
+            <Link
+              underline="hover"
+              color="inherit"
+              href="#[[ $nav.URL ]]"
+            >
+              [[ $nav.Label ]]
+            </Link>
+            [[ end ]]
+            <Typography color="text.primary">[[ .Form.Navigation.Active.Label ]]</Typography>
+            [[ end ]]
+          </Breadcrumbs>
+        </Grid>
+      </Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        <Paper
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            height: 640,
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            [[ .Form.Title ]]
+          </Typography>
+          <Divider />
+          <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              [[ range $field := .Form.Fields ]]
+            	  [[ if eq $field.Type 0 ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
+                    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
+                  </Grid>
+            	  [[ end ]]
+            	  [[ if eq $field.Type 1 ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
+                    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
+                  </Grid>
+            	  [[ end ]]
+            	[[ end ]]
+            </Grid>
+          <Button
+            type="submit"
+            fullWidth={false}
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            [[ .Form.Submit.Label ]]
+            </Button>
         </Box>
         </Paper>
         </Grid>

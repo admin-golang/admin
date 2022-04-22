@@ -46,6 +46,7 @@ const (
 	SideFormPage
 	ListPage
 	FormPage
+	EditPage
 )
 
 type Field struct {
@@ -83,11 +84,30 @@ type PageConfig struct {
 	URL            string
 }
 
+type OnListRowClick struct {
+	RedirectURL string
+}
+
+type ListRowConfig struct {
+	DataRowFieldName string
+	ParamKey         string
+	OnClick          *OnListRowClick
+}
+
 type ListPageConfig struct {
 	PageConfig
-	MainButton *MainButton
-	Title      string
+	MainButton    *MainButton
+	Title         string
+	DataLoader    *dataloader.DataLoader
+	ListRowConfig *ListRowConfig
+}
+
+type EditPageConfig struct {
+	PageConfig
+
+	ParamKey   string
 	DataLoader *dataloader.DataLoader
+	Form       Form
 }
 
 func NewPage(p PageConfig) Pager {
@@ -126,9 +146,10 @@ type MainButton struct {
 type LListPage struct {
 	page page
 
-	MainButton *MainButton
-	Title      string
-	DataLoader *dataloader.DataLoader
+	MainButton    *MainButton
+	Title         string
+	DataLoader    *dataloader.DataLoader
+	ListRowConfig *ListRowConfig
 }
 
 func NewListPage(p ListPageConfig) Pager {
@@ -141,7 +162,7 @@ func NewListPage(p ListPageConfig) Pager {
 		url:            p.URL,
 	}
 
-	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader}
+	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig}
 }
 
 func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
@@ -150,6 +171,31 @@ func (p *LListPage) IsDefault() bool      { return p.page.isDefault }
 func (p *LListPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
 func (p *LListPage) Type() PageType       { return p.page.ttype }
 func (p *LListPage) URL() string          { return p.page.url }
+
+type EEditPage struct {
+	page page
+
+	ParamKey   string
+	DataLoader *dataloader.DataLoader
+	Form       Form
+}
+
+func (p *EEditPage) Icon() icon.Icon      { return p.page.icon }
+func (p *EEditPage) ID() string           { return p.page.id }
+func (p *EEditPage) IsDefault() bool      { return p.page.isDefault }
+func (p *EEditPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
+func (p *EEditPage) Type() PageType       { return p.page.ttype }
+func (p *EEditPage) URL() string          { return p.page.url }
+
+func NewEditPage(p EditPageConfig) Pager {
+	page := page{
+		id:    p.ID,
+		ttype: p.Type,
+		url:   p.URL,
+	}
+
+	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey}
+}
 
 type SSideFormPage struct {
 	page page
@@ -336,12 +382,17 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return page.(*LListPage)
 	}
 
+	wrapEditPage := func(page Pager) *EEditPage {
+		return page.(*EEditPage)
+	}
+
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
 		"IsNotNil":      isNotNil,
 		"Wrap":          wrap,
 		"WrapPage":      wrapPage,
 		"WrapMenuIcons": wrapMenuIcons,
 		"WrapListPage":  wrapListPage,
+		"WrapEditPage":  wrapEditPage,
 	}).Parse(jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
@@ -359,6 +410,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SideFormPage      PageType
 		ListPage          PageType
 		FormPage          PageType
+		EditPage          PageType
 		AccountCircleIcon icon.IconType
 		NotificationsIcon icon.IconType
 	}{
@@ -368,6 +420,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SideFormPage:      SideFormPage,
 		ListPage:          ListPage,
 		FormPage:          FormPage,
+		EditPage:          EditPage,
 		AccountCircleIcon: icon.AccountCircle,
 		NotificationsIcon: icon.Notifications,
 	}
