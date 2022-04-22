@@ -121,8 +121,17 @@ func main() {
 					},
 				},
 				Submit: admin.Submit{
-					Label:  "Edit",
-					URL:    "/releases",
+					Label: "Edit",
+					URL:   "/releases/:release_id",
+					SearchParams: &admin.SearchParams{
+						admin.SearchParam{
+							Key: ":release_id",
+							Value: admin.SearchParamValue{
+								FromLocation:   true,
+								SearchParamKey: "release_id",
+							},
+						},
+					},
 					Method: http.MethodPut,
 					Header: &admin.Header{
 						Key: "Authorization",
