@@ -31,6 +31,8 @@ const {
   Alert,
   Menu,
   MenuItem,
+  Tabs,
+  Tab,
   TableContainer,
   Table,
   TableBody,
@@ -517,6 +519,79 @@ function [[$item.ID]]MenuItem() {
 }
 [[end]]
 [[end]]
+
+interface LinkTabProps {
+  label?: string;
+  href?: string;
+}
+
+function LinkTab(props: LinkTabProps) {
+  const history = useHistory();
+  return (
+    <Tab
+      component="a"
+      onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        event.preventDefault();
+        history.push(props.href);
+      }}
+      {...props}
+    />
+  );
+}
+
+[[ range $page := .Pages ]]
+function [[ $page.ID]]NavTabs(props) {
+  [[ if eq (len $page.NavTabs) 0 ]]
+  return null;
+  [[ else ]]
+  const params = useParams();
+
+  [[ range $navTab := $page.NavTabs ]]
+  const [[ $page.ID]][[ $navTab.ID]]redirectURL = (href: string): string => {
+    let redirectURL = href;
+    [[ if $navTab.SearchParams ]]
+      [[ range $searchParam := $navTab.SearchParams ]]
+        [[ if $searchParam.Value.FromLocation ]]
+        const param = params["[[ $searchParam.Value.SearchParamKey ]]"];
+        redirectURL = href.replace("[[ $searchParam.Key ]]", param);
+        return redirectURL;
+        [[ end ]]
+      [[ end ]]
+    [[ else ]]
+      return redirectURL;
+    [[ end ]]
+  };
+  [[ end ]]
+
+  let navTabURLsIdx = {};
+  [[ range $idx, $navTab := $page.NavTabs ]]
+    let [[ $navTab.ID ]]navTabURL = "[[ $navTab.URL ]]";
+    [[ if $navTab.SearchParams ]]
+      [[ range $searchParam := $navTab.SearchParams ]]
+        [[ if $searchParam.Value.FromLocation ]]
+        const [[ $navTab.ID ]]navTabURLParam = params["[[ $searchParam.Value.SearchParamKey ]]"];
+        [[ $navTab.ID ]]navTabURL = [[ $navTab.ID ]]navTabURL.replace("[[ $searchParam.Key ]]", [[ $navTab.ID ]]navTabURLParam);
+        [[ end ]]
+      [[ end ]]
+    [[ end ]]
+    navTabURLsIdx[ [[ $navTab.ID ]]navTabURL ] = [[ $idx ]];
+  [[ end ]]
+
+  const location = useLocation();
+  const currentTab = navTabURLsIdx[location.pathname];
+
+  return (
+    <Box {...props}>
+      <Tabs value={currentTab} aria-label="nav tabs">
+        [[ range $navTab := $page.NavTabs ]]
+        <LinkTab label="[[ $navTab.Label ]]" href={[[ $page.ID]][[ $navTab.ID]]redirectURL("[[ $navTab.URL ]]")} />
+        [[ end ]]
+     </Tabs>
+    </Box>
+  );
+  [[ end ]]
+}
+[[ end ]]
 
 [[end]] [[/* JSX end */]]
 
@@ -1036,10 +1111,17 @@ function [[ .ID ]]Edit({ appState }) {
             height: 640,
           }}
         >
-          <Typography component="h1" variant="h5">
-            [[ .Form.Title ]]
-          </Typography>
-          <Divider />
+          [[ if ne .Form.Title "" ]]
+          <Box sx={{ pb: 2}}>
+            <Typography component="h1" variant="h5">
+              [[ .Form.Title ]]
+            </Typography>
+            <Divider />
+          </Box>
+          [[ end ]]
+          <[[ .ID ]]NavTabs
+            sx={{width: "100%", pb: 1, mt: [[ if eq .Form.Title "" ]] -2 [[else]] 0 [[ end ]]}}
+          />
           <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               [[ range $field := .Form.Fields ]]
