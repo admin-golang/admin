@@ -69,6 +69,7 @@ type Pager interface {
 	Type() PageType
 	Icon() icon.Icon
 	ToolbarEnabled() bool
+	NavTabs() navigation.NavTabs
 }
 
 type Page struct {
@@ -82,6 +83,7 @@ type PageConfig struct {
 	ToolbarEnabled bool
 	Type           PageType
 	URL            string
+	NavTabs        navigation.NavTabs
 }
 
 type OnListRowClick struct {
@@ -123,6 +125,7 @@ func NewPage(p PageConfig) Pager {
 		toolbarEnabled: p.ToolbarEnabled,
 		ttype:          p.Type,
 		url:            p.URL,
+		navTabs:        p.NavTabs,
 	}
 	return &Page{page}
 }
@@ -134,14 +137,16 @@ type page struct {
 	toolbarEnabled bool
 	ttype          PageType
 	url            string
+	navTabs        navigation.NavTabs
 }
 
-func (p *Page) Icon() icon.Icon      { return p.page.icon }
-func (p *Page) ID() string           { return p.page.id }
-func (p *Page) IsDefault() bool      { return p.page.isDefault }
-func (p *Page) ToolbarEnabled() bool { return p.page.toolbarEnabled }
-func (p *Page) Type() PageType       { return p.page.ttype }
-func (p *Page) URL() string          { return p.page.url }
+func (p *Page) Icon() icon.Icon             { return p.page.icon }
+func (p *Page) ID() string                  { return p.page.id }
+func (p *Page) IsDefault() bool             { return p.page.isDefault }
+func (p *Page) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
+func (p *Page) Type() PageType              { return p.page.ttype }
+func (p *Page) URL() string                 { return p.page.url }
+func (p *Page) NavTabs() navigation.NavTabs { return p.page.navTabs }
 
 type MainButton struct {
 	Label string
@@ -166,17 +171,19 @@ func NewListPage(p ListPageConfig) Pager {
 		toolbarEnabled: p.ToolbarEnabled,
 		ttype:          p.Type,
 		url:            p.URL,
+		navTabs:        p.NavTabs,
 	}
 
 	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination}
 }
 
-func (p *LListPage) Icon() icon.Icon      { return p.page.icon }
-func (p *LListPage) ID() string           { return p.page.id }
-func (p *LListPage) IsDefault() bool      { return p.page.isDefault }
-func (p *LListPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
-func (p *LListPage) Type() PageType       { return p.page.ttype }
-func (p *LListPage) URL() string          { return p.page.url }
+func (p *LListPage) Icon() icon.Icon             { return p.page.icon }
+func (p *LListPage) ID() string                  { return p.page.id }
+func (p *LListPage) IsDefault() bool             { return p.page.isDefault }
+func (p *LListPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
+func (p *LListPage) Type() PageType              { return p.page.ttype }
+func (p *LListPage) URL() string                 { return p.page.url }
+func (p *LListPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
 
 type EEditPage struct {
 	page page
@@ -186,18 +193,20 @@ type EEditPage struct {
 	Form       Form
 }
 
-func (p *EEditPage) Icon() icon.Icon      { return p.page.icon }
-func (p *EEditPage) ID() string           { return p.page.id }
-func (p *EEditPage) IsDefault() bool      { return p.page.isDefault }
-func (p *EEditPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
-func (p *EEditPage) Type() PageType       { return p.page.ttype }
-func (p *EEditPage) URL() string          { return p.page.url }
+func (p *EEditPage) Icon() icon.Icon             { return p.page.icon }
+func (p *EEditPage) ID() string                  { return p.page.id }
+func (p *EEditPage) IsDefault() bool             { return p.page.isDefault }
+func (p *EEditPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
+func (p *EEditPage) Type() PageType              { return p.page.ttype }
+func (p *EEditPage) URL() string                 { return p.page.url }
+func (p *EEditPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
 
 func NewEditPage(p EditPageConfig) Pager {
 	page := page{
-		id:    p.ID,
-		ttype: p.Type,
-		url:   p.URL,
+		id:      p.ID,
+		ttype:   p.Type,
+		url:     p.URL,
+		navTabs: p.NavTabs,
 	}
 
 	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey}
@@ -211,12 +220,13 @@ type SSideFormPage struct {
 	FooterLabel     string
 }
 
-func (p *SSideFormPage) Icon() icon.Icon      { return p.page.icon }
-func (p *SSideFormPage) ID() string           { return p.page.id }
-func (p *SSideFormPage) IsDefault() bool      { return p.page.isDefault }
-func (p *SSideFormPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
-func (p *SSideFormPage) Type() PageType       { return p.page.ttype }
-func (p *SSideFormPage) URL() string          { return p.page.url }
+func (p *SSideFormPage) Icon() icon.Icon             { return p.page.icon }
+func (p *SSideFormPage) ID() string                  { return p.page.id }
+func (p *SSideFormPage) IsDefault() bool             { return p.page.isDefault }
+func (p *SSideFormPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
+func (p *SSideFormPage) Type() PageType              { return p.page.ttype }
+func (p *SSideFormPage) URL() string                 { return p.page.url }
+func (p *SSideFormPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
 
 type SideFormPageConfig struct {
 	PageConfig
@@ -234,6 +244,7 @@ func NewSideFormPage(p SideFormPageConfig) Pager {
 		toolbarEnabled: p.ToolbarEnabled,
 		ttype:          p.Type,
 		url:            p.URL,
+		navTabs:        p.NavTabs,
 	}
 
 	return &SSideFormPage{
@@ -250,12 +261,13 @@ type FFormPage struct {
 	Form Form
 }
 
-func (p *FFormPage) Icon() icon.Icon      { return p.page.icon }
-func (p *FFormPage) ID() string           { return p.page.id }
-func (p *FFormPage) IsDefault() bool      { return p.page.isDefault }
-func (p *FFormPage) ToolbarEnabled() bool { return p.page.toolbarEnabled }
-func (p *FFormPage) Type() PageType       { return p.page.ttype }
-func (p *FFormPage) URL() string          { return p.page.url }
+func (p *FFormPage) Icon() icon.Icon             { return p.page.icon }
+func (p *FFormPage) ID() string                  { return p.page.id }
+func (p *FFormPage) IsDefault() bool             { return p.page.isDefault }
+func (p *FFormPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
+func (p *FFormPage) Type() PageType              { return p.page.ttype }
+func (p *FFormPage) URL() string                 { return p.page.url }
+func (p *FFormPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
 
 type FormPageConfig struct {
 	PageConfig
@@ -271,6 +283,7 @@ func NewFormPage(p FormPageConfig) Pager {
 		toolbarEnabled: p.ToolbarEnabled,
 		ttype:          p.Type,
 		url:            p.URL,
+		navTabs:        p.NavTabs,
 	}
 
 	return &FFormPage{page: page, Form: p.Form}
@@ -278,22 +291,10 @@ func NewFormPage(p FormPageConfig) Pager {
 
 type Pages []Pager
 
-type SearchParamValue struct {
-	FromLocation   bool
-	SearchParamKey string
-}
-
-type SearchParam struct {
-	Key   string
-	Value SearchParamValue
-}
-
-type SearchParams []SearchParam
-
 type Submit struct {
 	Label        string
 	URL          string
-	SearchParams *SearchParams
+	SearchParams *navigation.SearchParams
 	Method       string
 	Header       *Header
 	OnSuccess    *OnSubmitSuccess
