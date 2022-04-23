@@ -23,3 +23,24 @@ func New(c Config) *Navigation {
 		Active: c.Active,
 	}
 }
+
+type NavTab struct {
+	ID           string
+	Label        string
+	URL          string
+	SearchParams *SearchParams
+}
+
+type NavTabs []NavTab
+
+type SearchParamValue struct {
+	FromLocation   bool
+	SearchParamKey string
+}
+
+type SearchParam struct {
+	Key   string
+	Value SearchParamValue
+}
+
+type SearchParams []SearchParam
