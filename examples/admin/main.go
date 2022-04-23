@@ -76,6 +76,36 @@ func main() {
 				ID:   "EditRelease",
 				URL:  "/releases/:release_id",
 				Type: admin.EditPage,
+				NavTabs: navigation.NavTabs{
+					navigation.NavTab{
+						ID:    "details",
+						Label: "Details",
+						URL:   "/releases/:release_id",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+					navigation.NavTab{
+						ID:    "notes",
+						Label: "Notes",
+						URL:   "/releases/:release_id/notes",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+				},
 			},
 			ParamKey: "release_id",
 			DataLoader: dataloader.New(dataloader.Config{
@@ -101,8 +131,7 @@ func main() {
 						Label: "Edit",
 					},
 				}),
-				ID:    "ReleasesEdit",
-				Title: "Edit Release",
+				ID: "ReleasesEdit",
 				Fields: admin.Fields{
 					admin.Field{
 						ID:         "name",
@@ -126,10 +155,109 @@ func main() {
 				Submit: admin.Submit{
 					Label: "Edit",
 					URL:   "/releases/:release_id",
-					SearchParams: &admin.SearchParams{
-						admin.SearchParam{
+					SearchParams: &navigation.SearchParams{
+						navigation.SearchParam{
 							Key: ":release_id",
-							Value: admin.SearchParamValue{
+							Value: navigation.SearchParamValue{
+								FromLocation:   true,
+								SearchParamKey: "release_id",
+							},
+						},
+					},
+					Method: http.MethodPut,
+					Header: &admin.Header{
+						Key: "Authorization",
+						Value: admin.HeaderValue{
+							Prefix:            "Bearer ",
+							AppStateFieldPath: "currentUser?.token",
+						},
+					},
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/releases",
+					},
+				},
+			},
+		}),
+		admin.NewEditPage(admin.EditPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "EditReleaseNotes",
+				URL:  "/releases/:release_id/notes",
+				Type: admin.EditPage,
+				NavTabs: navigation.NavTabs{
+					navigation.NavTab{
+						ID:    "details",
+						Label: "Details",
+						URL:   "/releases/:release_id",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+					navigation.NavTab{
+						ID:    "notes",
+						Label: "Notes",
+						URL:   "/releases/:release_id/notes",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+				},
+			},
+			ParamKey: "release_id",
+			DataLoader: dataloader.New(dataloader.Config{
+				URL:    "/show-release",
+				Method: http.MethodGet,
+				HeaderConfig: &dataloader.HeaderConfig{
+					Key: "Authorization",
+					ValueConfig: dataloader.HeaderValueConfig{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser?.token",
+					},
+				},
+			}),
+			Form: admin.Form{
+				Navigation: navigation.New(navigation.Config{
+					Items: navigation.Items{
+						navigation.Item{
+							Label: "Releases",
+							URL:   "/releases",
+						},
+					},
+					Active: navigation.Item{
+						Label: "Edit",
+					},
+				}),
+				ID: "ReleasesEdit",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:           "notes",
+						Type:         admin.InputText,
+						Label:        "Notes",
+						IsRequired:   true,
+						Value:        "",
+						IsMultiline:  true,
+						NumberOfRows: 4,
+						FullWidth:    true,
+					},
+				},
+				Submit: admin.Submit{
+					Label: "Edit",
+					URL:   "/releases/:release_id",
+					SearchParams: &navigation.SearchParams{
+						navigation.SearchParam{
+							Key: ":release_id",
+							Value: navigation.SearchParamValue{
 								FromLocation:   true,
 								SearchParamKey: "release_id",
 							},
