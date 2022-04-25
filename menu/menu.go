@@ -1,6 +1,9 @@
 package menu
 
-import "github.com/admin-golang/admin/icon"
+import (
+	"github.com/admin-golang/admin/event"
+	"github.com/admin-golang/admin/icon"
+)
 
 type Badge struct {
 	Content int
@@ -28,8 +31,9 @@ func New() *Menu {
 }
 
 type PopoverItem struct {
-	Label string
-	Icon  *icon.PopoverIcon
+	Label   string
+	Icon    *icon.PopoverIcon
+	OnClick *event.OnClick
 }
 
 type PopoverItems []PopoverItem
