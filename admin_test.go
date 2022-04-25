@@ -8,10 +8,12 @@ import (
 
 	"github.com/admin-golang/admin"
 	"github.com/admin-golang/admin/dataloader"
+	"github.com/admin-golang/admin/event"
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
 	"github.com/admin-golang/admin/menu"
 	"github.com/admin-golang/admin/navigation"
+	"github.com/admin-golang/admin/state"
 )
 
 func TestAdmin(t *testing.T) {
@@ -239,6 +241,12 @@ func newTestAdmin() admin.Admin {
 								Label: "Logout",
 								Icon: &icon.PopoverIcon{
 									Type: icon.Logout,
+								},
+								OnClick: &event.OnClick{
+									Actions: state.Actions{
+										state.NewActionRedirect("/sign-in"),
+										state.NewActionClearAppState(),
+									},
 								},
 							},
 						},

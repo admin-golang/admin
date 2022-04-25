@@ -241,6 +241,11 @@ function App() {
     localStorage.setItem(AppStateLocalStorageKey, JSON.stringify(state));
   };
 
+  const handleClearAppState = () => {
+    setAppState(initialAppState);
+    localStorage.removeItem(AppStateLocalStorageKey);
+  }
+
   let defaultPageURL = "";
   [[ range $page := .Pages ]]
     [[ if $page.IsDefault ]]
@@ -258,19 +263,19 @@ function App() {
           <Route exact path="[[$page.URL]]">
           { shouldRedirect ? <Redirect to={defaultPageURL} />: null }
           [[ if eq $page.Type $.DashboardPage ]]
-							<[[ $page.ID ]]Dashboard />
+							<[[ $page.ID ]]Dashboard handleClearAppState={handleClearAppState} />
           	[[ end ]]
           	[[ if eq $page.Type $.ListPage ]]
               <AppContext.Consumer>
               {appState => (
-							<[[ $page.ID ]]List appState={appState} />
+							<[[ $page.ID ]]List appState={appState} handleClearAppState={handleClearAppState} />
               )}
               </AppContext.Consumer>
           	[[ end ]]
             [[ if eq $page.Type $.FormPage ]]
               <AppContext.Consumer>
               {appState => (
-              <[[ $page.ID ]]Form appState={appState} />
+              <[[ $page.ID ]]Form appState={appState} handleClearAppState={handleClearAppState} />
               )}
               </AppContext.Consumer>
             [[ end ]]
@@ -280,7 +285,7 @@ function App() {
           	[[ if eq $page.Type $.EditPage ]]
               <AppContext.Consumer>
               {appState => (
-              <[[ $page.ID ]]Edit appState={appState} />
+              <[[ $page.ID ]]Edit appState={appState} handleClearAppState={handleClearAppState} />
               )}
               </AppContext.Consumer>
           	[[ end ]]
@@ -295,7 +300,7 @@ function App() {
   );
 }
 
-function Layout({ children }) {
+function Layout({ children, handleClearAppState }) {
   const [open, setOpen] = React.useState(true);
 
   const toggleDrawer = () => {
@@ -435,7 +440,9 @@ ReactDOM.render(
 
 [[ if and .Layout .Layout.Menu ]]
 [[range $item := .Layout.Menu.Items]]
-function [[$item.ID]]MenuItem() {
+function [[$item.ID]]MenuItem({ handleClearAppState }) {
+  const history = useHistory();
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -445,6 +452,17 @@ function [[$item.ID]]MenuItem() {
   };
   const isMenuOpen = Boolean(anchorEl);
   const menuId = 'primary-search-account-menu';
+
+  const handleMenuItemClick = (actions) => {
+    for(let action of actions) {
+      if(action.type === "[[ $.ClearAppStateAction ]]") {
+        handleClearAppState();
+      }
+      if(action.type === "[[ $.RedirectAction ]]") {
+        history.push(action.redirect_url);
+      }
+    }
+  };
 
   return (
     <>
@@ -492,7 +510,12 @@ function [[$item.ID]]MenuItem() {
           onClose={handleMenuClose}
         >
           [[ range $popoverItem := $item.Popover.Items ]]
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem
+              [[ if $popoverItem.OnClick ]]
+              [[ $actions := Marshal $popoverItem.OnClick.Actions ]]
+              onClick={() => { handleMenuItemClick([[ $actions ]]) }}
+              [[ end ]]
+            >
               [[ if IsNotNil $popoverItem.Icon ]]
                 <ListItemIcon>
 
@@ -597,10 +620,10 @@ function [[ $page.ID]]NavTabs(props) {
 
 [[define "Dashboard"]]
 [[ with .page ]]
-function [[ .ID ]]Dashboard() {
+function [[ .ID ]]Dashboard({ handleClearAppState }) {
 [[ end ]]
   return (
-    <Layout>
+    <Layout handleClearAppState={handleClearAppState}>
       <Grid item xs={12} md={8} lg={9}>
         <Paper
           sx={{
@@ -637,7 +660,7 @@ function [[ .ID ]]Dashboard() {
 [[define "List"]]
 [[ with .page ]]
 [[ $listPage := WrapListPage . ]]
-function [[ .ID ]]List({ appState }) {
+function [[ .ID ]]List({ appState, handleClearAppState }) {
   const history = useHistory();
 
   function createData(name: string, calories: number, fat: number) {
@@ -720,7 +743,7 @@ function [[ .ID ]]List({ appState }) {
   [[ end ]]
 
   return (
-    <Layout>
+    <Layout handleClearAppState={handleClearAppState} >
       <Grid item xs={12} md={12} lg={12}>
         <Paper
           sx={{
@@ -818,7 +841,7 @@ function [[ .ID ]]List({ appState }) {
 
 [[define "Form"]]
 [[ with .page ]]
-function [[ .ID ]]Form({ appState }) {
+function [[ .ID ]]Form({ appState, handleClearAppState }) {
   const history = useHistory();
 
   [[range $field := .Form.Fields]]
@@ -881,7 +904,7 @@ function [[ .ID ]]Form({ appState }) {
   };
 
   return (
-    <Layout>
+    <Layout handleClearAppState={handleClearAppState}>
       <Grid container>
         <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
           <Breadcrumbs aria-label="breadcrumb">
@@ -968,7 +991,7 @@ function [[ .ID ]]Form({ appState }) {
 [[define "Edit"]]
 [[ with .page ]]
 [[ $editPage := WrapEditPage . ]]
-function [[ .ID ]]Edit({ appState }) {
+function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   const history = useHistory();
   const params = useParams();
 
@@ -1083,7 +1106,7 @@ function [[ .ID ]]Edit({ appState }) {
   };
 
   return (
-    <Layout>
+    <Layout handleClearAppState={handleClearAppState}>
       <Grid container>
         <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
           <Breadcrumbs aria-label="breadcrumb">
@@ -1299,7 +1322,7 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
 
 [[define "MenuIcons"]]
   [[range $item := .menu.Items]]
-    <[[$item.ID]]MenuItem />
+    <[[$item.ID]]MenuItem handleClearAppState={handleClearAppState} />
   [[end]]
 [[end]]
 

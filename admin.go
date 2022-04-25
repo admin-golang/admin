@@ -3,6 +3,7 @@ package admin
 import (
 	"bytes"
 	_ "embed"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"github.com/admin-golang/admin/layout"
 	"github.com/admin-golang/admin/menu"
 	"github.com/admin-golang/admin/navigation"
+	"github.com/admin-golang/admin/state"
 )
 
 //go:embed templates/materialUI.tsx
@@ -406,6 +408,11 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return page.(*EEditPage)
 	}
 
+	marshal := func(v interface{}) template.JS {
+		d, _ := json.Marshal(v)
+		return template.JS(d)
+	}
+
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
 		"IsNotNil":      isNotNil,
 		"Wrap":          wrap,
@@ -413,6 +420,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"WrapMenuIcons": wrapMenuIcons,
 		"WrapListPage":  wrapListPage,
 		"WrapEditPage":  wrapEditPage,
+		"Marshal":       marshal,
 	}).Parse(jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
@@ -424,25 +432,29 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var jsxWriter bytes.Buffer
 
 	jsxData := struct {
-		Layout            *layout.Layout
-		Pages             Pages
-		DashboardPage     PageType
-		SideFormPage      PageType
-		ListPage          PageType
-		FormPage          PageType
-		EditPage          PageType
-		AccountCircleIcon icon.IconType
-		NotificationsIcon icon.IconType
+		Layout              *layout.Layout
+		Pages               Pages
+		DashboardPage       PageType
+		SideFormPage        PageType
+		ListPage            PageType
+		FormPage            PageType
+		EditPage            PageType
+		RedirectAction      state.ActionType
+		ClearAppStateAction state.ActionType
+		AccountCircleIcon   icon.IconType
+		NotificationsIcon   icon.IconType
 	}{
-		Layout:            ad.layout,
-		Pages:             ad.pages,
-		DashboardPage:     DashboardPage,
-		SideFormPage:      SideFormPage,
-		ListPage:          ListPage,
-		FormPage:          FormPage,
-		EditPage:          EditPage,
-		AccountCircleIcon: icon.AccountCircle,
-		NotificationsIcon: icon.Notifications,
+		Layout:              ad.layout,
+		Pages:               ad.pages,
+		DashboardPage:       DashboardPage,
+		SideFormPage:        SideFormPage,
+		ListPage:            ListPage,
+		FormPage:            FormPage,
+		EditPage:            EditPage,
+		RedirectAction:      state.Redirect,
+		ClearAppStateAction: state.ClearAppState,
+		AccountCircleIcon:   icon.AccountCircle,
+		NotificationsIcon:   icon.Notifications,
 	}
 
 	if err := jsxTemplate.Execute(&jsxWriter, jsxData); err != nil {
