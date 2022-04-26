@@ -39,6 +39,7 @@ type FieldType uint
 const (
 	InputPassword FieldType = iota
 	InputText
+	InputFile
 )
 
 type PageType uint
@@ -49,6 +50,7 @@ const (
 	ListPage
 	FormPage
 	EditPage
+	UploadPage
 )
 
 type Field struct {
@@ -212,6 +214,41 @@ func NewEditPage(p EditPageConfig) Pager {
 	}
 
 	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey}
+}
+
+type UUploadPage struct {
+	page page
+
+	ParamKey   string
+	DataLoader *dataloader.DataLoader
+	Form       Form
+}
+
+func (p *UUploadPage) Icon() icon.Icon             { return p.page.icon }
+func (p *UUploadPage) ID() string                  { return p.page.id }
+func (p *UUploadPage) IsDefault() bool             { return p.page.isDefault }
+func (p *UUploadPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
+func (p *UUploadPage) Type() PageType              { return p.page.ttype }
+func (p *UUploadPage) URL() string                 { return p.page.url }
+func (p *UUploadPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
+
+type UploadPageConfig struct {
+	PageConfig
+
+	ParamKey   string
+	DataLoader *dataloader.DataLoader
+	Form       Form
+}
+
+func NewUploadPage(p UploadPageConfig) Pager {
+	page := page{
+		id:      p.ID,
+		ttype:   p.Type,
+		url:     p.URL,
+		navTabs: p.NavTabs,
+	}
+
+	return &UUploadPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey}
 }
 
 type SSideFormPage struct {
@@ -408,19 +445,24 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return page.(*EEditPage)
 	}
 
+	wrapUploadPage := func(page Pager) *UUploadPage {
+		return page.(*UUploadPage)
+	}
+
 	marshal := func(v interface{}) template.JS {
 		d, _ := json.Marshal(v)
 		return template.JS(d)
 	}
 
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
-		"IsNotNil":      isNotNil,
-		"Wrap":          wrap,
-		"WrapPage":      wrapPage,
-		"WrapMenuIcons": wrapMenuIcons,
-		"WrapListPage":  wrapListPage,
-		"WrapEditPage":  wrapEditPage,
-		"Marshal":       marshal,
+		"IsNotNil":       isNotNil,
+		"Wrap":           wrap,
+		"WrapPage":       wrapPage,
+		"WrapMenuIcons":  wrapMenuIcons,
+		"WrapListPage":   wrapListPage,
+		"WrapEditPage":   wrapEditPage,
+		"WrapUploadPage": wrapUploadPage,
+		"Marshal":        marshal,
 	}).Parse(jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
@@ -439,6 +481,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ListPage            PageType
 		FormPage            PageType
 		EditPage            PageType
+		UploadPage          PageType
 		RedirectAction      state.ActionType
 		ClearAppStateAction state.ActionType
 		AccountCircleIcon   icon.IconType
@@ -451,6 +494,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ListPage:            ListPage,
 		FormPage:            FormPage,
 		EditPage:            EditPage,
+		UploadPage:          UploadPage,
 		RedirectAction:      state.Redirect,
 		ClearAppStateAction: state.ClearAppState,
 		AccountCircleIcon:   icon.AccountCircle,
