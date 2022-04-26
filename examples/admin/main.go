@@ -107,6 +107,20 @@ func main() {
 							},
 						},
 					},
+					navigation.NavTab{
+						ID:    "uploadImage",
+						Label: "Upload Image",
+						URL:   "/releases/:release_id/images/upload",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
 				},
 			},
 			ParamKey: "release_id",
@@ -204,6 +218,20 @@ func main() {
 						ID:    "notes",
 						Label: "Notes",
 						URL:   "/releases/:release_id/notes",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+					navigation.NavTab{
+						ID:    "uploadImage",
+						Label: "Upload Image",
+						URL:   "/releases/:release_id/images/upload",
 						SearchParams: &navigation.SearchParams{
 							navigation.SearchParam{
 								Key: ":release_id",
@@ -429,6 +457,119 @@ func main() {
 						SetAppState:          true,
 						SetAppStateFieldName: "currentUser",
 						RedirectURL:          "/dashboard",
+					},
+				},
+			},
+		}),
+		admin.NewUploadPage(admin.UploadPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:   "UploadImage",
+				URL:  "/releases/:release_id/images/upload",
+				Type: admin.UploadPage,
+				NavTabs: navigation.NavTabs{
+					navigation.NavTab{
+						ID:    "details",
+						Label: "Details",
+						URL:   "/releases/:release_id",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+					navigation.NavTab{
+						ID:    "notes",
+						Label: "Notes",
+						URL:   "/releases/:release_id/notes",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+					navigation.NavTab{
+						ID:    "uploadImage",
+						Label: "Upload Image",
+						URL:   "/releases/:release_id/images/upload",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+				},
+			},
+			ParamKey: "release_id",
+			DataLoader: dataloader.New(dataloader.Config{
+				URL:    "/show-release",
+				Method: http.MethodGet,
+				HeaderConfig: &dataloader.HeaderConfig{
+					Key: "Authorization",
+					ValueConfig: dataloader.HeaderValueConfig{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser?.token",
+					},
+				},
+			}),
+			Form: admin.Form{
+				Navigation: navigation.New(navigation.Config{
+					Items: navigation.Items{
+						navigation.Item{
+							Label: "Releases",
+							URL:   "/releases",
+						},
+					},
+					Active: navigation.Item{
+						Label: "Edit",
+					},
+				}),
+				ID: "ReleasesUploadFile",
+				Fields: admin.Fields{
+					admin.Field{
+						ID:           "notesDocs",
+						Type:         admin.InputFile,
+						Label:        "Docs",
+						IsRequired:   true,
+						Value:        "",
+						IsMultiline:  true,
+						NumberOfRows: 4,
+						FullWidth:    true,
+					},
+				},
+				Submit: admin.Submit{
+					Label: "Upload",
+					URL:   "/releases/:release_id/images/upload",
+					SearchParams: &navigation.SearchParams{
+						navigation.SearchParam{
+							Key: ":release_id",
+							Value: navigation.SearchParamValue{
+								FromLocation:   true,
+								SearchParamKey: "release_id",
+							},
+						},
+					},
+					Method: http.MethodPost,
+					Header: &admin.Header{
+						Key: "Authorization",
+						Value: admin.HeaderValue{
+							Prefix:            "Bearer ",
+							AppStateFieldPath: "currentUser?.token",
+						},
+					},
+					OnSuccess: &admin.OnSubmitSuccess{
+						RedirectURL: "/releases",
 					},
 				},
 			},
