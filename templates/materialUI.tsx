@@ -76,6 +76,12 @@ const theme = createTheme({
   },
 });
 
+const Input = styled('input')({
+  display: 'none',
+});
+
+[[ template "FileField" ]]
+
 function LightBulbIcon(props) {
   return (
     <SvgIcon {...props}>
@@ -289,6 +295,13 @@ function App() {
               )}
               </AppContext.Consumer>
           	[[ end ]]
+            [[ if eq $page.Type $.UploadPage ]]
+              <AppContext.Consumer>
+              {appState => (
+              <[[ $page.ID ]]Upload appState={appState} handleClearAppState={handleClearAppState} />
+              )}
+              </AppContext.Consumer>
+            [[ end ]]
           </Route>
           [[ if $page.IsDefault ]]
             <Redirect exact from="/" to="[[ $page.URL ]]" />
@@ -435,6 +448,10 @@ ReactDOM.render(
 
   [[ if eq $page.Type $.EditPage ]]
     [[template "Edit"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
+
+  [[ if eq $page.Type $.UploadPage ]]
+    [[template "Upload"(WrapPage $.Layout $page $.Pages)]]
   [[end]]
 [[end]]
 
@@ -1181,6 +1198,186 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
 [[ end ]]
 [[end]]
 
+[[define "Upload"]]
+[[ with .page ]]
+[[ $uploadPage := WrapUploadPage . ]]
+function [[ .ID ]]Upload({ appState, handleClearAppState }) {
+  const history = useHistory();
+  const params = useParams();
+
+  const [ dataLoaderResult, setDataLoaderResult ] = useState();
+
+  [[ if .DataLoader ]]
+  useEffect(() => {
+    const abortCtrl = new AbortController();
+    const fetchOptions = { method: "[[ $uploadPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
+    [[ if $uploadPage.DataLoader.Header ]]
+      if (appState?.[[ $uploadPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
+        const headerPrefix = "[[ $uploadPage.DataLoader.Header.Value.Prefix ]]";
+        const headerValue = appState?.[[ $uploadPage.DataLoader.Header.Value.AppStateFieldPath ]];
+        fetchOptions.headers["[[ $uploadPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+      }
+    [[ end ]]
+
+    const fetchURLParam = params["[[ $uploadPage.ParamKey ]]"];
+    const fetchURL = `[[ $uploadPage.DataLoader.URL ]]/${fetchURLParam}`;
+
+    fetch(fetchURL, fetchOptions)
+      .then(async (response) => {
+        var resp: any;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          resp = await response.json();
+        } else {
+          resp = await response.text();
+        }
+
+        if (response.ok) {
+          setDataLoaderResult(resp.data);
+        } else {
+        }
+      })
+      .catch(err => {
+        if (err.name === "AbortError") return;
+        throw err;
+      });
+
+      return () => { abortCtrl.abort() };
+  }, []);
+  [[end]]
+
+
+  const [ formData, setFormData ] = useState(new FormData());
+
+  const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const fetchOptions = {
+      method: "[[ .Form.Submit.Method ]]",
+      body: formData,
+      headers: {}
+    };
+
+    [[ if .Form.Submit.Header ]]
+      if (appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]]) {
+        const headerPrefix = "[[ .Form.Submit.Header.Value.Prefix ]]";
+        const headerValue = appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]];
+        fetchOptions.headers["[[ .Form.Submit.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+      }
+    [[ end ]]
+
+    let fetchURL = "[[ .Form.Submit.URL ]]";
+    [[ if .Form.Submit.SearchParams ]]
+      [[ range $searchParam := .Form.Submit.SearchParams ]]
+        [[ if $searchParam.Value.FromLocation ]]
+          const param[[ $searchParam.Value.SearchParamKey ]]Value = params["[[ $searchParam.Value.SearchParamKey ]]"];
+          fetchURL = fetchURL.replace("[[ $searchParam.Key ]]", param[[ $searchParam.Value.SearchParamKey ]]Value);
+        [[ end ]]
+      [[ end ]]
+    [[ end ]]
+
+    fetch(fetchURL, fetchOptions)
+      .then(async (response) => {
+        var data;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
+
+        if (response.ok) {
+          [[ if .Form.Submit.OnSuccess ]]
+          history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
+          [[ end ]]
+        } else {
+          setAlertMessage(data);
+          setIsSnackbarOpen(true);
+        }
+
+        return data;
+      });
+  };
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const handleSnackbarClose = () => {
+    setIsSnackbarOpen(false);
+  };
+
+  const handleSetFile = (file) => {
+    formData.append('file', file);
+  };
+
+  return (
+    <Layout handleClearAppState={handleClearAppState}>
+      <Grid container>
+        <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
+          <Breadcrumbs aria-label="breadcrumb">
+            [[ if .Form.Navigation ]]
+            [[ range $i, $nav := .Form.Navigation.Items ]]
+            <Link
+              underline="hover"
+              color="inherit"
+              href="#[[ $nav.URL ]]"
+            >
+              [[ $nav.Label ]]
+            </Link>
+            [[ end ]]
+            <Typography color="text.primary">[[ .Form.Navigation.Active.Label ]]</Typography>
+            [[ end ]]
+          </Breadcrumbs>
+        </Grid>
+      </Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        <Paper
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            height: 640,
+          }}
+        >
+          [[ if ne .Form.Title "" ]]
+          <Box sx={{ pb: 2}}>
+            <Typography component="h1" variant="h5">
+              [[ .Form.Title ]]
+            </Typography>
+            <Divider />
+          </Box>
+          [[ end ]]
+          <[[ .ID ]]NavTabs
+            sx={{width: "100%", pb: 1, mt: [[ if eq .Form.Title "" ]] -2 [[else]] 0 [[ end ]]}}
+          />
+          <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              [[ range $field := .Form.Fields ]]
+                [[ if eq $field.Type 2 ]]
+                  <Grid item xs={4}>
+                    <Grid item xs={4} md={4}>
+                    <FileField id={"[[ $field.ID ]]"} handleSetFile={handleSetFile} />
+                    </Grid>
+                  </Grid>
+                [[ end ]]
+              [[ end ]]
+            </Grid>
+          <Button
+            type="submit"
+            fullWidth={false}
+            variant="contained"
+            sx={{ mt: 8, mb: 2 }}
+          >
+            [[ .Form.Submit.Label ]]
+            </Button>
+        </Box>
+        </Paper>
+        </Grid>
+    </Layout>
+  );
+}
+[[ end ]]
+[[end]]
+
 [[define "SideForm"]]
 [[ with .page ]]
 function [[ .ID ]]SideForm({ handleSetAppState }) {
@@ -1326,6 +1523,23 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   [[end]]
 [[end]]
 
+[[define "PasswordField"]]
+<TextField
+  variant = "outlined"
+  margin = "normal"
+  required = { [[ .isRequired]]}
+  fullWidth
+  id = "[[ .label ]]"
+  label = "[[ .label ]]"
+  type = "password"
+  name = "password"
+  autoComplete = "off"
+  autoFocus = { false}
+  value = { [[ .ID]]}
+  onChange = { handle[[ .ID]]Change }
+/>
+[[end]]
+
 [[define "TextField"]]
 <TextField
   variant = "outlined"
@@ -1344,19 +1558,27 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
 />
 [[end]]
 
-[[define "PasswordField"]]
-<TextField
-  variant = "outlined"
-  margin = "normal"
-  required = { [[ .isRequired]]}
-  fullWidth
-  id = "[[ .label ]]"
-  label = "[[ .label ]]"
-  type = "password"
-  name = "password"
-  autoComplete = "off"
-  autoFocus = { false}
-  value = { [[ .ID]]}
-  onChange = { handle[[ .ID]]Change }
-/>
+[[define "FileField"]]
+function FileField({ id, handleSetFile }) {
+  const [ imgSrc, setImgSrc ] = useState();
+
+  const handleInputChange = (e) => {
+    const objectURL = window.URL.createObjectURL(e.target.files[0]);
+    setImgSrc(objectURL);
+    handleSetFile(e.target.files[0]);
+  };
+
+  return (
+    <label htmlFor="contained-button-file">
+      <Box>
+        <img id={id} alt="" width="200" height="200" src={imgSrc}/>
+      </Box>
+      <Input accept="image/*" id="contained-button-file" multiple type="file"
+       onChange={handleInputChange} />
+      <Button variant="contained" component="span">
+        Select File
+      </Button>
+    </label>
+  );
+}
 [[end]]
