@@ -380,9 +380,17 @@ func NewEditImagesPage() admin.Pager {
 			NavTabs:    releasesNavTabs,
 			Navigation: navigationEditRelease,
 		},
-		ParamKey: "release_id",
 		DataLoader: dataloader.New(dataloader.Config{
-			URL:    "/releases",
+			URL: "/releases/:release_id/images",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
 			Method: http.MethodGet,
 			HeaderConfig: &dataloader.HeaderConfig{
 				Key: "Authorization",
