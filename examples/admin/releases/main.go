@@ -9,6 +9,18 @@ import (
 	"github.com/admin-golang/admin/navigation"
 )
 
+var navigationEditRelease *navigation.Navigation = navigation.New(navigation.Config{
+	Items: navigation.Items{
+		navigation.Item{
+			Label: "Releases",
+			URL:   "/releases",
+		},
+	},
+	Active: navigation.Item{
+		Label: "Edit",
+	},
+})
+
 var releasesNavTabs navigation.NavTabs = navigation.NavTabs{
 	navigation.NavTab{
 		ID:    "details",
@@ -129,18 +141,8 @@ func NewEditPage() admin.Pager {
 			},
 		}),
 		Form: admin.Form{
-			Navigation: navigation.New(navigation.Config{
-				Items: navigation.Items{
-					navigation.Item{
-						Label: "Releases",
-						URL:   "/releases",
-					},
-				},
-				Active: navigation.Item{
-					Label: "Edit",
-				},
-			}),
-			ID: "ReleasesEdit",
+			Navigation: navigationEditRelease,
+			ID:         "ReleasesEdit",
 			Fields: admin.Fields{
 				admin.Field{
 					ID:         "name",
@@ -210,18 +212,8 @@ func NewEditNotesPage() admin.Pager {
 			},
 		}),
 		Form: admin.Form{
-			Navigation: navigation.New(navigation.Config{
-				Items: navigation.Items{
-					navigation.Item{
-						Label: "Releases",
-						URL:   "/releases",
-					},
-				},
-				Active: navigation.Item{
-					Label: "Edit",
-				},
-			}),
-			ID: "ReleasesEdit",
+			Navigation: navigationEditRelease,
+			ID:         "ReleasesEdit",
 			Fields: admin.Fields{
 				admin.Field{
 					ID:           "notes",
@@ -274,19 +266,9 @@ func NewCreatePage() admin.Pager {
 			ToolbarEnabled: false,
 		},
 		Form: admin.Form{
-			Navigation: navigation.New(navigation.Config{
-				Items: navigation.Items{
-					navigation.Item{
-						Label: "Releases",
-						URL:   "/releases",
-					},
-				},
-				Active: navigation.Item{
-					Label: "Create",
-				},
-			}),
-			ID:    "ReleasesCreate",
-			Title: "New Release",
+			Navigation: navigationEditRelease,
+			ID:         "ReleasesCreate",
+			Title:      "New Release",
 			Fields: admin.Fields{
 				admin.Field{
 					ID:         "Name",
@@ -347,18 +329,8 @@ func NewImageUploadPage() admin.Pager {
 			},
 		}),
 		Form: admin.Form{
-			Navigation: navigation.New(navigation.Config{
-				Items: navigation.Items{
-					navigation.Item{
-						Label: "Releases",
-						URL:   "/releases",
-					},
-				},
-				Active: navigation.Item{
-					Label: "Edit",
-				},
-			}),
-			ID: "ReleasesUploadFile",
+			Navigation: navigationEditRelease,
+			ID:         "ReleasesUploadFile",
 			Fields: admin.Fields{
 				admin.Field{
 					ID:           "notesDocs",
@@ -400,16 +372,17 @@ func NewImageUploadPage() admin.Pager {
 }
 
 func NewEditImagesPage() admin.Pager {
-	return admin.NewEditPage(admin.EditPageConfig{
+	return admin.NewCardListPage(admin.CardListPageConfig{
 		PageConfig: admin.PageConfig{
-			ID:      "EditReleaseImages",
-			URL:     "/releases/:release_id/images",
-			Type:    admin.EditPage,
-			NavTabs: releasesNavTabs,
+			ID:         "EditReleaseImages",
+			URL:        "/releases/:release_id/images",
+			Type:       admin.CardListPage,
+			NavTabs:    releasesNavTabs,
+			Navigation: navigationEditRelease,
 		},
 		ParamKey: "release_id",
 		DataLoader: dataloader.New(dataloader.Config{
-			URL:    "/show-release",
+			URL:    "/releases",
 			Method: http.MethodGet,
 			HeaderConfig: &dataloader.HeaderConfig{
 				Key: "Authorization",
@@ -419,55 +392,5 @@ func NewEditImagesPage() admin.Pager {
 				},
 			},
 		}),
-		Form: admin.Form{
-			Navigation: navigation.New(navigation.Config{
-				Items: navigation.Items{
-					navigation.Item{
-						Label: "Releases",
-						URL:   "/releases",
-					},
-				},
-				Active: navigation.Item{
-					Label: "Edit",
-				},
-			}),
-			ID: "ReleasesEdit",
-			Fields: admin.Fields{
-				admin.Field{
-					ID:           "notes",
-					Type:         admin.InputText,
-					Label:        "Notes",
-					IsRequired:   true,
-					Value:        "",
-					IsMultiline:  true,
-					NumberOfRows: 4,
-					FullWidth:    true,
-				},
-			},
-			Submit: admin.Submit{
-				Label: "Edit",
-				URL:   "/releases/:release_id",
-				SearchParams: &navigation.SearchParams{
-					navigation.SearchParam{
-						Key: ":release_id",
-						Value: navigation.SearchParamValue{
-							FromLocation:   true,
-							SearchParamKey: "release_id",
-						},
-					},
-				},
-				Method: http.MethodPut,
-				Header: &admin.Header{
-					Key: "Authorization",
-					Value: admin.HeaderValue{
-						Prefix:            "Bearer ",
-						AppStateFieldPath: "currentUser?.token",
-					},
-				},
-				OnSuccess: &admin.OnSubmitSuccess{
-					RedirectURL: "/releases",
-				},
-			},
-		},
 	})
 }
