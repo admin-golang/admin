@@ -46,6 +46,10 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		url := fmt.Sprintf("http://%s/admin", r.Host)
+		http.Redirect(w, r, url, http.StatusFound)
+	})
 	mux.Handle("/admin", admin)
 	mux.Handle("/show-release/", showRelease())
 	mux.HandleFunc("/sign-in", signIn)
