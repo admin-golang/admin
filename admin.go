@@ -51,6 +51,7 @@ const (
 	FormPage
 	EditPage
 	UploadPage
+	CardListPage
 )
 
 type Field struct {
@@ -74,6 +75,7 @@ type Pager interface {
 	Icon() icon.Icon
 	ToolbarEnabled() bool
 	NavTabs() navigation.NavTabs
+	Navigation() *navigation.Navigation
 }
 
 type Page struct {
@@ -88,6 +90,7 @@ type PageConfig struct {
 	Type           PageType
 	URL            string
 	NavTabs        navigation.NavTabs
+	Navigation     *navigation.Navigation
 }
 
 type OnListRowClick struct {
@@ -142,15 +145,17 @@ type page struct {
 	ttype          PageType
 	url            string
 	navTabs        navigation.NavTabs
+	navigation     *navigation.Navigation
 }
 
-func (p *Page) Icon() icon.Icon             { return p.page.icon }
-func (p *Page) ID() string                  { return p.page.id }
-func (p *Page) IsDefault() bool             { return p.page.isDefault }
-func (p *Page) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
-func (p *Page) Type() PageType              { return p.page.ttype }
-func (p *Page) URL() string                 { return p.page.url }
-func (p *Page) NavTabs() navigation.NavTabs { return p.page.navTabs }
+func (p *Page) Icon() icon.Icon                    { return p.page.icon }
+func (p *Page) ID() string                         { return p.page.id }
+func (p *Page) IsDefault() bool                    { return p.page.isDefault }
+func (p *Page) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *Page) Type() PageType                     { return p.page.ttype }
+func (p *Page) URL() string                        { return p.page.url }
+func (p *Page) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *Page) Navigation() *navigation.Navigation { return p.page.navigation }
 
 type MainButton struct {
 	Label string
@@ -167,6 +172,15 @@ type LListPage struct {
 	ListRowConfig *ListRowConfig
 }
 
+func (p *LListPage) Icon() icon.Icon                    { return p.page.icon }
+func (p *LListPage) ID() string                         { return p.page.id }
+func (p *LListPage) IsDefault() bool                    { return p.page.isDefault }
+func (p *LListPage) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *LListPage) Type() PageType                     { return p.page.ttype }
+func (p *LListPage) URL() string                        { return p.page.url }
+func (p *LListPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *LListPage) Navigation() *navigation.Navigation { return p.page.navigation }
+
 func NewListPage(p ListPageConfig) Pager {
 	page := page{
 		icon:           p.Icon,
@@ -181,13 +195,50 @@ func NewListPage(p ListPageConfig) Pager {
 	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination}
 }
 
-func (p *LListPage) Icon() icon.Icon             { return p.page.icon }
-func (p *LListPage) ID() string                  { return p.page.id }
-func (p *LListPage) IsDefault() bool             { return p.page.isDefault }
-func (p *LListPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
-func (p *LListPage) Type() PageType              { return p.page.ttype }
-func (p *LListPage) URL() string                 { return p.page.url }
-func (p *LListPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
+type CardListPageConfig struct {
+	PageConfig
+	ParamKey      string
+	MainButton    *MainButton
+	Title         string
+	DataLoader    *dataloader.DataLoader
+	Pagination    *PaginationConfig
+	ListRowConfig *ListRowConfig
+}
+
+type CCardListPage struct {
+	page page
+
+	ParamKey      string
+	MainButton    *MainButton
+	Title         string
+	DataLoader    *dataloader.DataLoader
+	Pagination    *PaginationConfig
+	ListRowConfig *ListRowConfig
+}
+
+func (p *CCardListPage) Icon() icon.Icon                    { return p.page.icon }
+func (p *CCardListPage) ID() string                         { return p.page.id }
+func (p *CCardListPage) IsDefault() bool                    { return p.page.isDefault }
+func (p *CCardListPage) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *CCardListPage) Type() PageType                     { return p.page.ttype }
+func (p *CCardListPage) URL() string                        { return p.page.url }
+func (p *CCardListPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *CCardListPage) Navigation() *navigation.Navigation { return p.page.navigation }
+
+func NewCardListPage(p CardListPageConfig) Pager {
+	page := page{
+		icon:           p.Icon,
+		id:             p.ID,
+		isDefault:      p.IsDefault,
+		toolbarEnabled: p.ToolbarEnabled,
+		ttype:          p.Type,
+		url:            p.URL,
+		navTabs:        p.NavTabs,
+		navigation:     p.Navigation,
+	}
+
+	return &CCardListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination, ParamKey: p.ParamKey}
+}
 
 type EEditPage struct {
 	page page
@@ -197,13 +248,14 @@ type EEditPage struct {
 	Form       Form
 }
 
-func (p *EEditPage) Icon() icon.Icon             { return p.page.icon }
-func (p *EEditPage) ID() string                  { return p.page.id }
-func (p *EEditPage) IsDefault() bool             { return p.page.isDefault }
-func (p *EEditPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
-func (p *EEditPage) Type() PageType              { return p.page.ttype }
-func (p *EEditPage) URL() string                 { return p.page.url }
-func (p *EEditPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
+func (p *EEditPage) Icon() icon.Icon                    { return p.page.icon }
+func (p *EEditPage) ID() string                         { return p.page.id }
+func (p *EEditPage) IsDefault() bool                    { return p.page.isDefault }
+func (p *EEditPage) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *EEditPage) Type() PageType                     { return p.page.ttype }
+func (p *EEditPage) URL() string                        { return p.page.url }
+func (p *EEditPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *EEditPage) Navigation() *navigation.Navigation { return p.page.navigation }
 
 func NewEditPage(p EditPageConfig) Pager {
 	page := page{
@@ -224,13 +276,14 @@ type UUploadPage struct {
 	Form       Form
 }
 
-func (p *UUploadPage) Icon() icon.Icon             { return p.page.icon }
-func (p *UUploadPage) ID() string                  { return p.page.id }
-func (p *UUploadPage) IsDefault() bool             { return p.page.isDefault }
-func (p *UUploadPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
-func (p *UUploadPage) Type() PageType              { return p.page.ttype }
-func (p *UUploadPage) URL() string                 { return p.page.url }
-func (p *UUploadPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
+func (p *UUploadPage) Icon() icon.Icon                    { return p.page.icon }
+func (p *UUploadPage) ID() string                         { return p.page.id }
+func (p *UUploadPage) IsDefault() bool                    { return p.page.isDefault }
+func (p *UUploadPage) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *UUploadPage) Type() PageType                     { return p.page.ttype }
+func (p *UUploadPage) URL() string                        { return p.page.url }
+func (p *UUploadPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *UUploadPage) Navigation() *navigation.Navigation { return p.page.navigation }
 
 type UploadPageConfig struct {
 	PageConfig
@@ -259,13 +312,14 @@ type SSideFormPage struct {
 	FooterLabel     string
 }
 
-func (p *SSideFormPage) Icon() icon.Icon             { return p.page.icon }
-func (p *SSideFormPage) ID() string                  { return p.page.id }
-func (p *SSideFormPage) IsDefault() bool             { return p.page.isDefault }
-func (p *SSideFormPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
-func (p *SSideFormPage) Type() PageType              { return p.page.ttype }
-func (p *SSideFormPage) URL() string                 { return p.page.url }
-func (p *SSideFormPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
+func (p *SSideFormPage) Icon() icon.Icon                    { return p.page.icon }
+func (p *SSideFormPage) ID() string                         { return p.page.id }
+func (p *SSideFormPage) IsDefault() bool                    { return p.page.isDefault }
+func (p *SSideFormPage) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *SSideFormPage) Type() PageType                     { return p.page.ttype }
+func (p *SSideFormPage) URL() string                        { return p.page.url }
+func (p *SSideFormPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *SSideFormPage) Navigation() *navigation.Navigation { return p.page.navigation }
 
 type SideFormPageConfig struct {
 	PageConfig
@@ -300,13 +354,14 @@ type FFormPage struct {
 	Form Form
 }
 
-func (p *FFormPage) Icon() icon.Icon             { return p.page.icon }
-func (p *FFormPage) ID() string                  { return p.page.id }
-func (p *FFormPage) IsDefault() bool             { return p.page.isDefault }
-func (p *FFormPage) ToolbarEnabled() bool        { return p.page.toolbarEnabled }
-func (p *FFormPage) Type() PageType              { return p.page.ttype }
-func (p *FFormPage) URL() string                 { return p.page.url }
-func (p *FFormPage) NavTabs() navigation.NavTabs { return p.page.navTabs }
+func (p *FFormPage) Icon() icon.Icon                    { return p.page.icon }
+func (p *FFormPage) ID() string                         { return p.page.id }
+func (p *FFormPage) IsDefault() bool                    { return p.page.isDefault }
+func (p *FFormPage) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *FFormPage) Type() PageType                     { return p.page.ttype }
+func (p *FFormPage) URL() string                        { return p.page.url }
+func (p *FFormPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *FFormPage) Navigation() *navigation.Navigation { return p.page.navigation }
 
 type FormPageConfig struct {
 	PageConfig
@@ -441,6 +496,10 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return page.(*LListPage)
 	}
 
+	wrapCardListPage := func(page Pager) *CCardListPage {
+		return page.(*CCardListPage)
+	}
+
 	wrapEditPage := func(page Pager) *EEditPage {
 		return page.(*EEditPage)
 	}
@@ -455,14 +514,15 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
-		"IsNotNil":       isNotNil,
-		"Wrap":           wrap,
-		"WrapPage":       wrapPage,
-		"WrapMenuIcons":  wrapMenuIcons,
-		"WrapListPage":   wrapListPage,
-		"WrapEditPage":   wrapEditPage,
-		"WrapUploadPage": wrapUploadPage,
-		"Marshal":        marshal,
+		"IsNotNil":         isNotNil,
+		"Wrap":             wrap,
+		"WrapPage":         wrapPage,
+		"WrapMenuIcons":    wrapMenuIcons,
+		"WrapListPage":     wrapListPage,
+		"WrapCardListPage": wrapCardListPage,
+		"WrapEditPage":     wrapEditPage,
+		"WrapUploadPage":   wrapUploadPage,
+		"Marshal":          marshal,
 	}).Parse(jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
@@ -479,6 +539,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DashboardPage       PageType
 		SideFormPage        PageType
 		ListPage            PageType
+		CardListPage        PageType
 		FormPage            PageType
 		EditPage            PageType
 		UploadPage          PageType
@@ -492,6 +553,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DashboardPage:       DashboardPage,
 		SideFormPage:        SideFormPage,
 		ListPage:            ListPage,
+		CardListPage:        CardListPage,
 		FormPage:            FormPage,
 		EditPage:            EditPage,
 		UploadPage:          UploadPage,
