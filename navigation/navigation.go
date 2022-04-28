@@ -34,13 +34,13 @@ type NavTab struct {
 type NavTabs []NavTab
 
 type SearchParamValue struct {
-	FromLocation   bool
-	SearchParamKey string
+	FromLocation   bool   `json:"fromLocation"`
+	SearchParamKey string `json:"searchParamKey"`
 }
 
 type SearchParam struct {
-	Key   string
-	Value SearchParamValue
+	Key   string           `json:"key"`
+	Value SearchParamValue `json:"value"`
 }
 
 type SearchParams []SearchParam
