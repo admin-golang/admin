@@ -88,6 +88,8 @@ const Input = styled('input')({
 
 [[ template "MediaCard" ]]
 
+[[ template "DataLoader" ]]
+
 function LightBulbIcon(props) {
   return (
     <SvgIcon {...props}>
@@ -877,39 +879,13 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
   const [ data, setData ] = useState([]);
 
   [[ if $listPage.DataLoader ]]
-  useEffect(() => {
-    const abortCtrl = new AbortController();
-    const fetchOptions = { method: "[[ $listPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
-    [[ if $listPage.DataLoader.Header ]]
-      if (appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
-        const headerPrefix = "[[ $listPage.DataLoader.Header.Value.Prefix ]]";
-        const headerValue = appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]];
-        fetchOptions.headers["[[ $listPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+    [[ $dataLoader := Marshal $listPage.DataLoader ]]
+    const [ response ] = useDataLoader(appState, [[ $dataLoader ]], "[[ .ParamKey ]]");
+    useEffect(() => {
+      if(response && response.data) {
+        setData(response.data);
       }
-    [[ end ]]
-
-    fetch("[[ $listPage.DataLoader.URL ]]", fetchOptions)
-      .then(async (response) => {
-        var resp: any;
-
-        if (response.headers.get("content-type").includes("application/json")) {
-          resp = await response.json();
-        } else {
-          resp = await response.text();
-        }
-
-        if (response.ok) {
-          setData(resp.data);
-        } else {
-        }
-      })
-      .catch(err => {
-        if (err.name === "AbortError") return;
-        throw error;
-      });
-
-      return () => { abortCtrl.abort() };
-  }, []);
+    }, [ response ]);
   [[end]]
 
   return (
@@ -947,8 +923,8 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
             <Grid container spacing={2} sx={{ mt: 3 }}>
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', gap: 4 }}>
-                  {data.map((row, idx) => (
-                    <MediaCard sx={{ minWidth: 240, mb: 2 }} imgURL={"https://source.unsplash.com/random/?golang"} />
+                  {data.map((d, idx) => (
+                    <MediaCard key={idx} sx={{ minWidth: 240, mb: 2 }} imgURL={"https://source.unsplash.com/random/?golang"} />
                   ))}
                 </Box>
               </Grid>
@@ -1702,5 +1678,60 @@ function MediaCard({ imgURL, imgALT, ...props }) {
       />
     </Card>
   );
+}
+[[ end ]]
+
+[[ define "DataLoader" ]]
+function useDataLoader(appState, dataLoader, paramKey) {
+  const [ response, setResponse ] = useState();
+  const params = useParams();
+
+  useEffect(() => {
+    const abortCtrl = new AbortController();
+    const fetchOptions = { method: dataLoader.method, headers: {}, signal: abortCtrl.signal };
+
+    if(dataLoader.header) {
+      if (appState && appState[dataLoader.header.value.appStateFieldPath]) {
+        const headerPrefix = dataLoader.header.value.prefix;
+        const headerValue = appState[dataLoader.header.value.appStateFieldPath];
+        fetchOptions.headers[dataLoader.header.key] = `${headerPrefix}${headerValue}`;
+      }
+    }
+
+    let fetchURL = dataLoader.url;
+
+    if(dataLoader.searchParams) {
+      dataLoader.searchParams.map((searchParam) => {
+        if(searchParam.value.fromLocation) {
+          const param = params[searchParam.value.searchParamKey];
+          fetchURL = fetchURL.replace(searchParam.key, param);
+        }
+      });
+    }
+
+    fetch(fetchURL, fetchOptions)
+      .then(async (response) => {
+        var resp: any;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          resp = await response.json();
+        } else {
+          resp = await response.text();
+        }
+
+        if (response.ok) {
+          setResponse(resp);
+        } else {
+        }
+      })
+      .catch(err => {
+        if (err.name === "AbortError") return;
+        throw error;
+      });
+
+      return () => { abortCtrl.abort() };
+  }, []);
+
+  return [ response ];
 }
 [[ end ]]
