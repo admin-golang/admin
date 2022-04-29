@@ -30,7 +30,7 @@ var antDesignUIJSXTemplateText string
 type UITheme int8
 
 const (
-	MaterialUI UITheme = iota
+	MaterialUI UITheme = iota + 1
 	AntDesignUI
 )
 
