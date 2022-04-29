@@ -77,40 +77,95 @@ func TestNewAdmin(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestServeHTTPJSXTemplateParse(t *testing.T) {
-	jsxTemplateText := "[[.unclosed action"
+	tests := []struct {
+		subTestName        string
+		jsxTemplateText    string
+		adminTemplateText  string
+		admin              func(jsxTemplateText string, adminTemplateText string) admin.Admin
+		expectedStatusCode int
+	}{
+		{
+			subTestName:     "Handles JSX template text parse errors",
+			jsxTemplateText: "[[.unclosed action",
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					JSXTemplateText: &jsxTemplateText,
+					Layout:          layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+		{
+			subTestName:       "Handles Admin template text parse errors",
+			adminTemplateText: "[[.unclosed action",
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					AdminTemplateText: &adminTemplateText,
+					Layout:            layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+	}
 
-	admin := admin.New(&admin.Config{
-		JSXTemplateText: &jsxTemplateText,
-		Layout:          layout.New(&layout.Config{}),
-	})
+	for _, tt := range tests {
+		t.Run(tt.subTestName, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+			tt.admin(tt.jsxTemplateText, tt.adminTemplateText).ServeHTTP(w, r)
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/", nil)
-	admin.ServeHTTP(w, r)
-
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+			if w.Code != tt.expectedStatusCode {
+				t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+			}
+		})
 	}
 }
 
 func TestServeHTTPJSXTemplateExecute(t *testing.T) {
-	jsxTemplateText := `[[ template "test-not-found" ]]`
+	tests := []struct {
+		subTestName        string
+		jsxTemplateText    string
+		adminTemplateText  string
+		admin              func(jsxTemplateText string, adminTemplateText string) admin.Admin
+		expectedStatusCode int
+	}{
+		{
+			subTestName:     "Handles JSX template text execute errors",
+			jsxTemplateText: `[[ template "test-not-found" ]]`,
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					JSXTemplateText: &jsxTemplateText,
+					Layout:          layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+		{
+			subTestName:       "Handles Admin template text execute errors",
+			adminTemplateText: `[[ template "test-not-found" ]]`,
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					AdminTemplateText: &adminTemplateText,
+					Layout:            layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+	}
 
-	admin := admin.New(&admin.Config{
-		JSXTemplateText: &jsxTemplateText,
-		Layout:          layout.New(&layout.Config{}),
-	})
+	for _, tt := range tests {
+		t.Run(tt.subTestName, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+			tt.admin(tt.jsxTemplateText, tt.adminTemplateText).ServeHTTP(w, r)
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/", nil)
-	admin.ServeHTTP(w, r)
-
-	if w.Code != http.StatusInternalServerError {
-		t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+			if w.Code != tt.expectedStatusCode {
+				t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+			}
+		})
 	}
 }
 
