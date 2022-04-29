@@ -877,13 +877,17 @@ function [[ .ID ]]List({ appState, handleClearAppState }) {
 function [[ .ID ]]CardList({ appState, handleClearAppState }) {
   const history = useHistory();
   const [ data, setData ] = useState([]);
+  const [ meta, setMeta ] = useState({});
 
   [[ if $listPage.DataLoader ]]
     [[ $dataLoader := Marshal $listPage.DataLoader ]]
     const [ response ] = useDataLoader(appState, [[ $dataLoader ]], "[[ .ParamKey ]]");
     useEffect(() => {
-      if(response && response.data) {
+      if(response?.data) {
         setData(response.data);
+      }
+      if(response?.meta) {
+        setMeta(response.meta);
       }
     }, [ response ]);
   [[end]]
@@ -924,7 +928,12 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', gap: 4 }}>
                   {data.map((d, idx) => (
-                    <MediaCard key={idx} sx={{ minWidth: 240, mb: 2 }} imgURL={"https://source.unsplash.com/random/?golang"} />
+                    <MediaCard
+                      key={idx}
+                      sx={{ minWidth: 240, mb: 2 }}
+                      imgURL={d[meta.mediaCardComponent.propsMapper.imgURL]}
+                      imgALT={d[meta.mediaCardComponent.propsMapper.imgALT]}
+                    />
                   ))}
                 </Box>
               </Grid>
