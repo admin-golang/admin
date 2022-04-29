@@ -1700,9 +1700,10 @@ function useDataLoader(appState, dataLoader, paramKey) {
     const fetchOptions = { method: dataLoader.method, headers: {}, signal: abortCtrl.signal };
 
     if(dataLoader.header) {
-      if (appState && appState[dataLoader.header.value.appStateFieldPath]) {
+      const parts = dataLoader.header.value.appStateFieldPath.split('.');
+      const headerValue = parts.reduce((prev, current) => { return prev && prev[current]; }, appState);
+      if(headerValue) {
         const headerPrefix = dataLoader.header.value.prefix;
-        const headerValue = appState[dataLoader.header.value.appStateFieldPath];
         fetchOptions.headers[dataLoader.header.key] = `${headerPrefix}${headerValue}`;
       }
     }
