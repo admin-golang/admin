@@ -419,11 +419,12 @@ type Form struct {
 }
 
 type Config struct {
-	DebugMode       bool
-	Layout          *layout.Layout
-	UITheme         UITheme
-	Pages           Pages
-	JSXTemplateText *string
+	DebugMode         bool
+	Layout            *layout.Layout
+	UITheme           UITheme
+	Pages             Pages
+	JSXTemplateText   *string
+	AdminTemplateText *string
 }
 
 type (
@@ -432,11 +433,12 @@ type (
 	}
 
 	admin struct {
-		debugMode       bool
-		layout          *layout.Layout
-		pages           Pages
-		uiTheme         UITheme
-		jsxTemplateText string
+		debugMode         bool
+		layout            *layout.Layout
+		pages             Pages
+		uiTheme           UITheme
+		jsxTemplateText   string
+		adminTemplateText string
 	}
 )
 
@@ -585,7 +587,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		AntDesignUI: AntDesignUI,
 	}
 
-	adminTemplate, err := newTemplate("Admin").Parse(adminTemplateText)
+	adminTemplate, err := newTemplate("Admin").Parse(ad.adminTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
 
@@ -615,16 +617,23 @@ func New(config *Config) Admin {
 		}
 	}
 
+	adminTemplateText := config.AdminTemplateText
+	if config.AdminTemplateText == nil {
+		tmpl := defaultAdminTemplateText
+		adminTemplateText = &tmpl
+	}
+
 	return &admin{
-		debugMode:       config.DebugMode,
-		layout:          config.Layout,
-		pages:           config.Pages,
-		uiTheme:         config.UITheme,
-		jsxTemplateText: *jsxTemplateText,
+		debugMode:         config.DebugMode,
+		layout:            config.Layout,
+		pages:             config.Pages,
+		uiTheme:           config.UITheme,
+		jsxTemplateText:   *jsxTemplateText,
+		adminTemplateText: *adminTemplateText,
 	}
 }
 
-const adminTemplateText string = `
+const defaultAdminTemplateText string = `
 [[- define "Admin" -]]
 
 <!DOCTYPE html>
