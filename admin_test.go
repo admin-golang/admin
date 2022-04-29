@@ -44,6 +44,77 @@ func TestAdmin(t *testing.T) {
 }
 
 func newTestAdmin() admin.Admin {
+	releasesNavTabs := navigation.NavTabs{
+		navigation.NavTab{
+			ID:    "details",
+			Label: "Details",
+			URL:   "/releases/:release_id",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+		navigation.NavTab{
+			ID:    "notes",
+			Label: "Notes",
+			URL:   "/releases/:release_id/notes",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+		navigation.NavTab{
+			ID:    "images",
+			Label: "Images",
+			URL:   "/releases/:release_id/images",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+		navigation.NavTab{
+			ID:    "uploadImage",
+			Label: "Upload Image",
+			URL:   "/releases/:release_id/images/upload",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+	}
+
+	navigationEditRelease := navigation.New(navigation.Config{
+		Items: navigation.Items{
+			navigation.Item{
+				Label: "Releases",
+				URL:   "/releases",
+			},
+		},
+		Active: navigation.Item{
+			Label: "Edit",
+		},
+	})
+
 	pages := admin.Pages{
 		admin.NewPage(admin.PageConfig{
 			ID:   "Dashboard",
@@ -212,53 +283,10 @@ func newTestAdmin() admin.Admin {
 		}),
 		admin.NewUploadPage(admin.UploadPageConfig{
 			PageConfig: admin.PageConfig{
-				ID:   "UploadImage",
-				URL:  "/releases/:release_id/images/upload",
-				Type: admin.UploadPage,
-				NavTabs: navigation.NavTabs{
-					navigation.NavTab{
-						ID:    "details",
-						Label: "Details",
-						URL:   "/releases/:release_id",
-						SearchParams: &navigation.SearchParams{
-							navigation.SearchParam{
-								Key: ":release_id",
-								Value: navigation.SearchParamValue{
-									FromLocation:   true,
-									SearchParamKey: "release_id",
-								},
-							},
-						},
-					},
-					navigation.NavTab{
-						ID:    "notes",
-						Label: "Notes",
-						URL:   "/releases/:release_id/notes",
-						SearchParams: &navigation.SearchParams{
-							navigation.SearchParam{
-								Key: ":release_id",
-								Value: navigation.SearchParamValue{
-									FromLocation:   true,
-									SearchParamKey: "release_id",
-								},
-							},
-						},
-					},
-					navigation.NavTab{
-						ID:    "uploadImage",
-						Label: "Upload Image",
-						URL:   "/releases/:release_id/images/upload",
-						SearchParams: &navigation.SearchParams{
-							navigation.SearchParam{
-								Key: ":release_id",
-								Value: navigation.SearchParamValue{
-									FromLocation:   true,
-									SearchParamKey: "release_id",
-								},
-							},
-						},
-					},
-				},
+				ID:      "UploadImage",
+				URL:     "/releases/:release_id/images/upload",
+				Type:    admin.UploadPage,
+				NavTabs: releasesNavTabs,
 			},
 			ParamKey: "release_id",
 			DataLoader: dataloader.New(dataloader.Config{
@@ -322,6 +350,35 @@ func newTestAdmin() admin.Admin {
 					},
 				},
 			},
+		}),
+		admin.NewCardListPage(admin.CardListPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:         "EditReleaseImages",
+				URL:        "/releases/:release_id/images",
+				Type:       admin.CardListPage,
+				NavTabs:    releasesNavTabs,
+				Navigation: navigationEditRelease,
+			},
+			DataLoader: dataloader.New(dataloader.Config{
+				URL: "/releases/:release_id/images",
+				SearchParams: &navigation.SearchParams{
+					navigation.SearchParam{
+						Key: ":release_id",
+						Value: navigation.SearchParamValue{
+							FromLocation:   true,
+							SearchParamKey: "release_id",
+						},
+					},
+				},
+				Method: http.MethodGet,
+				HeaderConfig: &dataloader.HeaderConfig{
+					Key: "Authorization",
+					ValueConfig: dataloader.HeaderValueConfig{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser?.token",
+					},
+				},
+			}),
 		}),
 	}
 
