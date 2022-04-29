@@ -56,9 +56,16 @@ func New(c Config) *DataLoader {
 	return dl
 }
 
+type PropsMapper map[string]string
+
+type MediaCardComponent struct {
+	PropsMapper PropsMapper `json:"propsMapper"`
+}
+
 type Meta struct {
-	Headers    []string          `json:"headers,omitempty"`
-	Components map[string]string `json:"components"`
+	Headers            []string           `json:"headers,omitempty"`
+	Components         map[string]string  `json:"components,omitempty"`
+	MediaCardComponent MediaCardComponent `json:"mediaCardComponent"`
 }
 
 type Response struct {
