@@ -43,6 +43,57 @@ func TestAdmin(t *testing.T) {
 	}
 }
 
+func TestServeHTTPJSXTemplateParse(t *testing.T) {
+	jsxTemplateText := "[[.unclosed action"
+
+	admin := admin.New(&admin.Config{
+		JSXTemplateText: &jsxTemplateText,
+		Layout:          layout.New(&layout.Config{}),
+	})
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/", nil)
+	admin.ServeHTTP(w, r)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+	}
+}
+
+func TestServeHTTPJSXTemplateExecute(t *testing.T) {
+	jsxTemplateText := `[[ template "test-not-found" ]]`
+
+	admin := admin.New(&admin.Config{
+		JSXTemplateText: &jsxTemplateText,
+		Layout:          layout.New(&layout.Config{}),
+	})
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/", nil)
+	admin.ServeHTTP(w, r)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+	}
+}
+
+func TestServeHTTPJSXTemplateTransform(t *testing.T) {
+	jsxTemplateText := "<>invalid jsx"
+
+	admin := admin.New(&admin.Config{
+		JSXTemplateText: &jsxTemplateText,
+		Layout:          layout.New(&layout.Config{}),
+	})
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/", nil)
+	admin.ServeHTTP(w, r)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+	}
+}
+
 func newTestAdmin() admin.Admin {
 	releasesNavTabs := navigation.NavTabs{
 		navigation.NavTab{
