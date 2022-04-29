@@ -46,15 +46,16 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	mux.Handle("/admin", admin)
+	mux.Handle("/show-release/", showRelease())
+	mux.HandleFunc("/sign-in", signIn)
+	mux.HandleFunc("/releases", allReleasesHandler)
+	mux.HandleFunc("/releases/", releasesHandler)
+	mux.HandleFunc("/packages", packagesHandler)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		url := fmt.Sprintf("http://%s/admin", r.Host)
 		http.Redirect(w, r, url, http.StatusFound)
 	})
-	mux.Handle("/admin", admin)
-	mux.Handle("/show-release/", showRelease())
-	mux.HandleFunc("/sign-in", signIn)
-	mux.HandleFunc("/releases", releasesHandler)
-	mux.HandleFunc("/packages", packagesHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -117,7 +118,13 @@ type Release struct {
 	URL         string `json:"url"`
 }
 
-func releasesHandler(w http.ResponseWriter, r *http.Request) {
+type ReleaseImage struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+func allReleasesHandler(w http.ResponseWriter, r *http.Request) {
 	resp := dataloader.Response{
 		Data: []Release{
 			{
@@ -156,6 +163,49 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(b)
+}
+
+func releasesHandler(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.String(), "/")
+
+	if parts[len(parts)-1] == "images" {
+		releaseID := parts[2]
+		resp := dataloader.Response{
+			Data: []ReleaseImage{
+				{
+					ID:   releaseID,
+					Name: releaseID,
+					URL:  "https://source.unsplash.com/random/?golang",
+				},
+				{
+					ID:   releaseID,
+					Name: releaseID,
+					URL:  "https://source.unsplash.com/random/?golang",
+				},
+			},
+			Meta: dataloader.Meta{
+				MediaCardComponent: dataloader.MediaCardComponent{
+					PropsMapper: dataloader.PropsMapper{
+						"imgURL": "url",
+						"imgALT": "name",
+					},
+				},
+			},
+		}
+
+		b, err := json.Marshal(resp)
+		if err != nil {
+			log.Printf("failed to serialize release images: %+v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		w.Write(b)
+		return
+	}
+
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func showRelease() http.Handler {
