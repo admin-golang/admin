@@ -419,10 +419,11 @@ type Form struct {
 }
 
 type Config struct {
-	DebugMode bool
-	Layout    *layout.Layout
-	UITheme   UITheme
-	Pages     Pages
+	DebugMode       bool
+	Layout          *layout.Layout
+	UITheme         UITheme
+	Pages           Pages
+	JSXTemplateText *string
 }
 
 type (
@@ -431,10 +432,11 @@ type (
 	}
 
 	admin struct {
-		debugMode bool
-		layout    *layout.Layout
-		pages     Pages
-		uiTheme   UITheme
+		debugMode       bool
+		layout          *layout.Layout
+		pages           Pages
+		uiTheme         UITheme
+		jsxTemplateText string
 	}
 )
 
@@ -443,25 +445,6 @@ func newTemplate(name string) *textTemplate.Template {
 }
 
 func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	materialUIJSXTemplateTextFn := func() string {
-		return materialUIJSXTemplateText
-	}
-
-	antDesignUIJSXTemplateTextFn := func() string {
-		return antDesignUIJSXTemplateText
-	}
-
-	var jsxTemplateText string
-
-	switch ad.uiTheme {
-	case MaterialUI:
-		jsxTemplateText = materialUIJSXTemplateTextFn()
-	case AntDesignUI:
-		jsxTemplateText = antDesignUIJSXTemplateTextFn()
-	default:
-		jsxTemplateText = materialUIJSXTemplateTextFn()
-	}
-
 	isNotNil := func(val interface{}) bool {
 		return !reflect.ValueOf(val).IsNil()
 	}
@@ -523,7 +506,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"WrapEditPage":     wrapEditPage,
 		"WrapUploadPage":   wrapUploadPage,
 		"Marshal":          marshal,
-	}).Parse(jsxTemplateText)
+	}).Parse(ad.jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
 
@@ -619,11 +602,25 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func New(config *Config) Admin {
+	jsxTemplateText := config.JSXTemplateText
+
+	if config.JSXTemplateText == nil {
+		switch config.UITheme {
+		case MaterialUI:
+			jsxTemplateText = &materialUIJSXTemplateText
+		case AntDesignUI:
+			jsxTemplateText = &antDesignUIJSXTemplateText
+		default:
+			jsxTemplateText = &materialUIJSXTemplateText
+		}
+	}
+
 	return &admin{
-		debugMode: config.DebugMode,
-		layout:    config.Layout,
-		pages:     config.Pages,
-		uiTheme:   config.UITheme,
+		debugMode:       config.DebugMode,
+		layout:          config.Layout,
+		pages:           config.Pages,
+		uiTheme:         config.UITheme,
+		jsxTemplateText: *jsxTemplateText,
 	}
 }
 
