@@ -41,7 +41,11 @@ const {
   TableFooter,
   TableHead,
   Breadcrumbs,
-  Chip
+  Chip,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions
 } = MaterialUI;
 
 const {
@@ -81,6 +85,10 @@ const Input = styled('input')({
 });
 
 [[ template "FileField" ]]
+
+[[ template "MediaCard" ]]
+
+[[ template "DataLoader" ]]
 
 function LightBulbIcon(props) {
   return (
@@ -277,7 +285,14 @@ function App() {
 							<[[ $page.ID ]]List appState={appState} handleClearAppState={handleClearAppState} />
               )}
               </AppContext.Consumer>
-          	[[ end ]]
+            [[ end ]]
+            [[ if eq $page.Type $.CardListPage ]]
+              <AppContext.Consumer>
+              {appState => (
+                <[[ $page.ID ]]CardList appState={appState} handleClearAppState={handleClearAppState} />
+              )}
+              </AppContext.Consumer>
+            [[ end ]]
             [[ if eq $page.Type $.FormPage ]]
               <AppContext.Consumer>
               {appState => (
@@ -440,6 +455,10 @@ ReactDOM.render(
 
   [[ if eq $page.Type $.ListPage ]]
     [[template "List"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
+
+  [[ if eq $page.Type $.CardListPage ]]
+    [[template "CardList"(WrapPage $.Layout $page $.Pages)]]
   [[end]]
 
   [[ if eq $page.Type $.FormPage ]]
@@ -680,10 +699,6 @@ function [[ .ID ]]Dashboard({ handleClearAppState }) {
 function [[ .ID ]]List({ appState, handleClearAppState }) {
   const history = useHistory();
 
-  function createData(name: string, calories: number, fat: number) {
-    return { name, calories, fat };
-  }
-
   const [rows, setRows] = React.useState<Array>([]);
   const [rowsMeta, setRowsMeta] = React.useState<Object>({headers: []});
   const [rowsProps, setRowsProps] = React.useState<Array>([]);
@@ -848,6 +863,81 @@ function [[ .ID ]]List({ appState, handleClearAppState }) {
               </TableFooter>
             </Table>
           </TableContainer>
+        </Paper>
+      </Grid>
+    </Layout>
+  );
+}
+[[ end ]]
+[[end]]
+
+[[define "CardList"]]
+[[ with .page ]]
+[[ $listPage := WrapCardListPage . ]]
+function [[ .ID ]]CardList({ appState, handleClearAppState }) {
+  const history = useHistory();
+  const [ data, setData ] = useState([]);
+  const [ meta, setMeta ] = useState({});
+
+  [[ if $listPage.DataLoader ]]
+    [[ $dataLoader := Marshal $listPage.DataLoader ]]
+    const [ response ] = useDataLoader(appState, [[ $dataLoader ]], "[[ .ParamKey ]]");
+    useEffect(() => {
+      if(response?.data) {
+        setData(response.data);
+      }
+      if(response?.meta) {
+        setMeta(response.meta);
+      }
+    }, [ response ]);
+  [[end]]
+
+  return (
+    <Layout handleClearAppState={handleClearAppState} >
+      <Grid container>
+        <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
+          <Breadcrumbs aria-label="breadcrumb">
+            [[ if .Navigation ]]
+            [[ range $i, $nav := .Navigation.Items ]]
+            <Link
+              underline="hover"
+              color="inherit"
+              href="#[[ $nav.URL ]]"
+            >
+              [[ $nav.Label ]]
+            </Link>
+            [[ end ]]
+            <Typography color="text.primary">[[ .Navigation.Active.Label ]]</Typography>
+            [[ end ]]
+          </Breadcrumbs>
+        </Grid>
+      </Grid>
+      <Grid item xs={12} md={12} lg={12}>
+        <Paper
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            height: (!data.length || data.length < 6) ? 640 : "100%"
+          }}
+        >
+          <[[ .ID ]]NavTabs
+            sx={{width: "100%", pb: 1, mt: -2}}
+          />
+            <Grid container spacing={2} sx={{ mt: 3 }}>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', gap: 4 }}>
+                  {data.map((d, idx) => (
+                    <MediaCard
+                      key={idx}
+                      sx={{ minWidth: 240, mb: 2 }}
+                      imgURL={d[meta.mediaCardComponent.propsMapper.imgURL]}
+                      imgALT={d[meta.mediaCardComponent.propsMapper.imgALT]}
+                    />
+                  ))}
+                </Box>
+              </Grid>
+            </Grid>
         </Paper>
       </Grid>
     </Layout>
@@ -1582,3 +1672,75 @@ function FileField({ id, handleSetFile }) {
   );
 }
 [[end]]
+
+[[ define "MediaCard" ]]
+function MediaCard({ imgURL, imgALT, ...props }) {
+  return (
+    <Card {...props}>
+      <CardContent>
+      </CardContent>
+      <CardMedia
+        component="img"
+        height="140"
+        image={imgURL}
+        alt={imgALT}
+      />
+    </Card>
+  );
+}
+[[ end ]]
+
+[[ define "DataLoader" ]]
+function useDataLoader(appState, dataLoader, paramKey) {
+  const [ response, setResponse ] = useState();
+  const params = useParams();
+
+  useEffect(() => {
+    const abortCtrl = new AbortController();
+    const fetchOptions = { method: dataLoader.method, headers: {}, signal: abortCtrl.signal };
+
+    if(dataLoader.header) {
+      if (appState && appState[dataLoader.header.value.appStateFieldPath]) {
+        const headerPrefix = dataLoader.header.value.prefix;
+        const headerValue = appState[dataLoader.header.value.appStateFieldPath];
+        fetchOptions.headers[dataLoader.header.key] = `${headerPrefix}${headerValue}`;
+      }
+    }
+
+    let fetchURL = dataLoader.url;
+
+    if(dataLoader.searchParams) {
+      dataLoader.searchParams.map((searchParam) => {
+        if(searchParam.value.fromLocation) {
+          const param = params[searchParam.value.searchParamKey];
+          fetchURL = fetchURL.replace(searchParam.key, param);
+        }
+      });
+    }
+
+    fetch(fetchURL, fetchOptions)
+      .then(async (response) => {
+        var resp: any;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          resp = await response.json();
+        } else {
+          resp = await response.text();
+        }
+
+        if (response.ok) {
+          setResponse(resp);
+        } else {
+        }
+      })
+      .catch(err => {
+        if (err.name === "AbortError") return;
+        throw error;
+      });
+
+      return () => { abortCtrl.abort() };
+  }, []);
+
+  return [ response ];
+}
+[[ end ]]

@@ -43,7 +43,221 @@ func TestAdmin(t *testing.T) {
 	}
 }
 
+func TestNewAdmin(t *testing.T) {
+	tests := []struct {
+		subTestName string
+		admin       admin.Admin
+	}{
+		{
+			subTestName: "MaterialUI",
+			admin: admin.New(&admin.Config{
+				Layout:  layout.New(&layout.Config{}),
+				UITheme: admin.MaterialUI,
+			}),
+		},
+		{
+			subTestName: "AntDesignUI",
+			admin: admin.New(&admin.Config{
+				Layout:  layout.New(&layout.Config{}),
+				UITheme: admin.AntDesignUI,
+			}),
+		},
+		{
+			subTestName: "defaults UI theme",
+			admin: admin.New(&admin.Config{
+				Layout: layout.New(&layout.Config{}),
+			}),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.subTestName, func(t *testing.T) {
+			if tt.admin == nil {
+				t.Fatalf("got: %v, expected non nil", tt.admin)
+			}
+		})
+	}
+}
+
+func TestServeHTTPJSXTemplateParse(t *testing.T) {
+	tests := []struct {
+		subTestName        string
+		jsxTemplateText    string
+		adminTemplateText  string
+		admin              func(jsxTemplateText string, adminTemplateText string) admin.Admin
+		expectedStatusCode int
+	}{
+		{
+			subTestName:     "Handles JSX template text parse errors",
+			jsxTemplateText: "[[.unclosed action",
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					JSXTemplateText: &jsxTemplateText,
+					Layout:          layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+		{
+			subTestName:       "Handles Admin template text parse errors",
+			adminTemplateText: "[[.unclosed action",
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					AdminTemplateText: &adminTemplateText,
+					Layout:            layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.subTestName, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+			tt.admin(tt.jsxTemplateText, tt.adminTemplateText).ServeHTTP(w, r)
+
+			if w.Code != tt.expectedStatusCode {
+				t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+			}
+		})
+	}
+}
+
+func TestServeHTTPJSXTemplateExecute(t *testing.T) {
+	tests := []struct {
+		subTestName        string
+		jsxTemplateText    string
+		adminTemplateText  string
+		admin              func(jsxTemplateText string, adminTemplateText string) admin.Admin
+		expectedStatusCode int
+	}{
+		{
+			subTestName:     "Handles JSX template text execute errors",
+			jsxTemplateText: `[[ template "test-not-found" ]]`,
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					JSXTemplateText: &jsxTemplateText,
+					Layout:          layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+		{
+			subTestName:       "Handles Admin template text execute errors",
+			adminTemplateText: `[[ template "test-not-found" ]]`,
+			admin: func(jsxTemplateText string, adminTemplateText string) admin.Admin {
+				return admin.New(&admin.Config{
+					AdminTemplateText: &adminTemplateText,
+					Layout:            layout.New(&layout.Config{}),
+				})
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.subTestName, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/", nil)
+			tt.admin(tt.jsxTemplateText, tt.adminTemplateText).ServeHTTP(w, r)
+
+			if w.Code != tt.expectedStatusCode {
+				t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+			}
+		})
+	}
+}
+
+func TestServeHTTPJSXTemplateTransform(t *testing.T) {
+	jsxTemplateText := "<>invalid jsx"
+
+	admin := admin.New(&admin.Config{
+		JSXTemplateText: &jsxTemplateText,
+		Layout:          layout.New(&layout.Config{}),
+	})
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/", nil)
+	admin.ServeHTTP(w, r)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("got: %v, want: %v", w.Code, http.StatusInternalServerError)
+	}
+}
+
 func newTestAdmin() admin.Admin {
+	releasesNavTabs := navigation.NavTabs{
+		navigation.NavTab{
+			ID:    "details",
+			Label: "Details",
+			URL:   "/releases/:release_id",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+		navigation.NavTab{
+			ID:    "notes",
+			Label: "Notes",
+			URL:   "/releases/:release_id/notes",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+		navigation.NavTab{
+			ID:    "images",
+			Label: "Images",
+			URL:   "/releases/:release_id/images",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+		navigation.NavTab{
+			ID:    "uploadImage",
+			Label: "Upload Image",
+			URL:   "/releases/:release_id/images/upload",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
+		},
+	}
+
+	navigationEditRelease := navigation.New(navigation.Config{
+		Items: navigation.Items{
+			navigation.Item{
+				Label: "Releases",
+				URL:   "/releases",
+			},
+		},
+		Active: navigation.Item{
+			Label: "Edit",
+		},
+	})
+
 	pages := admin.Pages{
 		admin.NewPage(admin.PageConfig{
 			ID:   "Dashboard",
@@ -212,53 +426,10 @@ func newTestAdmin() admin.Admin {
 		}),
 		admin.NewUploadPage(admin.UploadPageConfig{
 			PageConfig: admin.PageConfig{
-				ID:   "UploadImage",
-				URL:  "/releases/:release_id/images/upload",
-				Type: admin.UploadPage,
-				NavTabs: navigation.NavTabs{
-					navigation.NavTab{
-						ID:    "details",
-						Label: "Details",
-						URL:   "/releases/:release_id",
-						SearchParams: &navigation.SearchParams{
-							navigation.SearchParam{
-								Key: ":release_id",
-								Value: navigation.SearchParamValue{
-									FromLocation:   true,
-									SearchParamKey: "release_id",
-								},
-							},
-						},
-					},
-					navigation.NavTab{
-						ID:    "notes",
-						Label: "Notes",
-						URL:   "/releases/:release_id/notes",
-						SearchParams: &navigation.SearchParams{
-							navigation.SearchParam{
-								Key: ":release_id",
-								Value: navigation.SearchParamValue{
-									FromLocation:   true,
-									SearchParamKey: "release_id",
-								},
-							},
-						},
-					},
-					navigation.NavTab{
-						ID:    "uploadImage",
-						Label: "Upload Image",
-						URL:   "/releases/:release_id/images/upload",
-						SearchParams: &navigation.SearchParams{
-							navigation.SearchParam{
-								Key: ":release_id",
-								Value: navigation.SearchParamValue{
-									FromLocation:   true,
-									SearchParamKey: "release_id",
-								},
-							},
-						},
-					},
-				},
+				ID:      "UploadImage",
+				URL:     "/releases/:release_id/images/upload",
+				Type:    admin.UploadPage,
+				NavTabs: releasesNavTabs,
 			},
 			ParamKey: "release_id",
 			DataLoader: dataloader.New(dataloader.Config{
@@ -322,6 +493,35 @@ func newTestAdmin() admin.Admin {
 					},
 				},
 			},
+		}),
+		admin.NewCardListPage(admin.CardListPageConfig{
+			PageConfig: admin.PageConfig{
+				ID:         "EditReleaseImages",
+				URL:        "/releases/:release_id/images",
+				Type:       admin.CardListPage,
+				NavTabs:    releasesNavTabs,
+				Navigation: navigationEditRelease,
+			},
+			DataLoader: dataloader.New(dataloader.Config{
+				URL: "/releases/:release_id/images",
+				SearchParams: &navigation.SearchParams{
+					navigation.SearchParam{
+						Key: ":release_id",
+						Value: navigation.SearchParamValue{
+							FromLocation:   true,
+							SearchParamKey: "release_id",
+						},
+					},
+				},
+				Method: http.MethodGet,
+				HeaderConfig: &dataloader.HeaderConfig{
+					Key: "Authorization",
+					ValueConfig: dataloader.HeaderValueConfig{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser?.token",
+					},
+				},
+			}),
 		}),
 	}
 

@@ -1,19 +1,22 @@
 package dataloader
 
+import "github.com/admin-golang/admin/navigation"
+
 type DataLoader struct {
-	URL    string
-	Method string
-	Header *Header
+	URL          string                   `json:"url"`
+	SearchParams *navigation.SearchParams `json:"searchParams"`
+	Method       string                   `json:"method"`
+	Header       *Header                  `json:"header"`
 }
 
 type Header struct {
-	Key   string
-	Value HeaderValue
+	Key   string      `json:"key"`
+	Value HeaderValue `json:"value"`
 }
 
 type HeaderValue struct {
-	Prefix            string
-	AppStateFieldPath string
+	Prefix            string `json:"prefix"`
+	AppStateFieldPath string `json:"appStateFieldPath"`
 }
 
 type HeaderValueConfig struct {
@@ -30,12 +33,14 @@ type Config struct {
 	URL          string
 	Method       string
 	HeaderConfig *HeaderConfig
+	SearchParams *navigation.SearchParams
 }
 
 func New(c Config) *DataLoader {
 	dl := &DataLoader{
-		Method: c.Method,
-		URL:    c.URL,
+		Method:       c.Method,
+		URL:          c.URL,
+		SearchParams: c.SearchParams,
 	}
 
 	if c.HeaderConfig != nil {
@@ -51,9 +56,16 @@ func New(c Config) *DataLoader {
 	return dl
 }
 
+type PropsMapper map[string]string
+
+type MediaCardComponent struct {
+	PropsMapper PropsMapper `json:"propsMapper"`
+}
+
 type Meta struct {
-	Headers    []string          `json:"headers,omitempty"`
-	Components map[string]string `json:"components"`
+	Headers            []string           `json:"headers,omitempty"`
+	Components         map[string]string  `json:"components,omitempty"`
+	MediaCardComponent MediaCardComponent `json:"mediaCardComponent"`
 }
 
 type Response struct {
