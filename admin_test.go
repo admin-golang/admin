@@ -43,6 +43,43 @@ func TestAdmin(t *testing.T) {
 	}
 }
 
+func TestNewAdmin(t *testing.T) {
+	tests := []struct {
+		subTestName string
+		admin       admin.Admin
+	}{
+		{
+			subTestName: "MaterialUI",
+			admin: admin.New(&admin.Config{
+				Layout:  layout.New(&layout.Config{}),
+				UITheme: admin.MaterialUI,
+			}),
+		},
+		{
+			subTestName: "AntDesignUI",
+			admin: admin.New(&admin.Config{
+				Layout:  layout.New(&layout.Config{}),
+				UITheme: admin.AntDesignUI,
+			}),
+		},
+		{
+			subTestName: "defaults UI theme",
+			admin: admin.New(&admin.Config{
+				Layout: layout.New(&layout.Config{}),
+			}),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.subTestName, func(t *testing.T) {
+			if tt.admin == nil {
+				t.Fatalf("got: %v, expected non nil", tt.admin)
+			}
+		})
+	}
+
+}
+
 func TestServeHTTPJSXTemplateParse(t *testing.T) {
 	jsxTemplateText := "[[.unclosed action"
 
