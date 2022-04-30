@@ -88,7 +88,9 @@ const Input = styled('input')({
 
 [[ template "MediaCard" ]]
 
-[[ template "DataLoader" ]]
+[[ template "useDataLoader" ]]
+
+[[ template "useRouteWithSearchParams" ]]
 
 function LightBulbIcon(props) {
   return (
@@ -1339,6 +1341,13 @@ function [[ .ID ]]Upload({ appState, handleClearAppState }) {
 
   const [ formData, setFormData ] = useState(new FormData());
 
+  let onSuccessRedirectURL = null;
+  [[ if .Form.Submit.OnSuccess ]]
+  [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
+  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
+  onSuccessRedirectURL = redirectURLWithSearchParams;
+  [[ end ]]
+
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -1377,9 +1386,9 @@ function [[ .ID ]]Upload({ appState, handleClearAppState }) {
         }
 
         if (response.ok) {
-          [[ if .Form.Submit.OnSuccess ]]
-          history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
-          [[ end ]]
+          if(onSuccessRedirectURL) {
+            history.push(onSuccessRedirectURL);
+          }
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);
@@ -1690,7 +1699,7 @@ function MediaCard({ imgURL, imgALT, ...props }) {
 }
 [[ end ]]
 
-[[ define "DataLoader" ]]
+[[ define "useDataLoader" ]]
 function useDataLoader(appState, dataLoader, paramKey) {
   const [ response, setResponse ] = useState();
   const params = useParams();
@@ -1743,5 +1752,24 @@ function useDataLoader(appState, dataLoader, paramKey) {
   }, []);
 
   return [ response ];
+}
+[[ end ]]
+
+[[ define "useRouteWithSearchParams" ]]
+function useRouteWithSearchParams({ url, searchParams }) {
+  const params = useParams();
+
+  let route = url;
+
+  if(searchParams) {
+    searchParams.map((searchParam) => {
+      if(searchParam.value.fromLocation) {
+        const param = params[searchParam.value.searchParamKey];
+        route = route.replace(searchParam.key, param);
+      }
+    });
+  }
+
+  return [ route ];
 }
 [[ end ]]

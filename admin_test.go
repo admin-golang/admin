@@ -310,7 +310,9 @@ func newTestAdmin() admin.Admin {
 					URL:    "/packages/create",
 					Method: http.MethodPost,
 					OnSuccess: &admin.OnSubmitSuccess{
-						RedirectURL: "/packages",
+						RedirectURL: &admin.RedirectURL{
+							URL: "/packages",
+						},
 					},
 				},
 			},
@@ -379,7 +381,9 @@ func newTestAdmin() admin.Admin {
 						},
 					},
 					OnSuccess: &admin.OnSubmitSuccess{
-						RedirectURL: "/packages",
+						RedirectURL: &admin.RedirectURL{
+							URL: "/packages",
+						},
 					},
 				},
 			},
@@ -419,7 +423,9 @@ func newTestAdmin() admin.Admin {
 					URL:    "/sign-in",
 					Method: "POST",
 					OnSuccess: &admin.OnSubmitSuccess{
-						RedirectURL: "/dashboard",
+						RedirectURL: &admin.RedirectURL{
+							URL: "/dashboard",
+						},
 					},
 				},
 			},
@@ -489,7 +495,9 @@ func newTestAdmin() admin.Admin {
 						},
 					},
 					OnSuccess: &admin.OnSubmitSuccess{
-						RedirectURL: "/releases",
+						RedirectURL: &admin.RedirectURL{
+							URL: "/releases",
+						},
 					},
 				},
 			},
