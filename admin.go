@@ -404,10 +404,15 @@ type HeaderValue struct {
 	AppStateFieldPath string
 }
 
+type RedirectURL struct {
+	URL          string                   `json:"url"`
+	SearchParams *navigation.SearchParams `json:"searchParams"`
+}
+
 type OnSubmitSuccess struct {
 	SetAppState          bool
 	SetAppStateFieldName string
-	RedirectURL          string
+	RedirectURL          *RedirectURL
 }
 
 type Form struct {
