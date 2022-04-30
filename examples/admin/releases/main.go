@@ -184,7 +184,9 @@ func NewEditPage() admin.Pager {
 					},
 				},
 				OnSuccess: &admin.OnSubmitSuccess{
-					RedirectURL: "/releases",
+					RedirectURL: &admin.RedirectURL{
+						URL: "/releases",
+					},
 				},
 			},
 		},
@@ -247,7 +249,9 @@ func NewEditNotesPage() admin.Pager {
 					},
 				},
 				OnSuccess: &admin.OnSubmitSuccess{
-					RedirectURL: "/releases",
+					RedirectURL: &admin.RedirectURL{
+						URL: "/releases",
+					},
 				},
 			},
 		},
@@ -301,7 +305,9 @@ func NewCreatePage() admin.Pager {
 					},
 				},
 				OnSuccess: &admin.OnSubmitSuccess{
-					RedirectURL: "/releases",
+					RedirectURL: &admin.RedirectURL{
+						URL: "/releases",
+					},
 				},
 			},
 		},
@@ -364,7 +370,18 @@ func NewImageUploadPage() admin.Pager {
 					},
 				},
 				OnSuccess: &admin.OnSubmitSuccess{
-					RedirectURL: "/releases",
+					RedirectURL: &admin.RedirectURL{
+						URL: "/releases/:release_id/images",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
 				},
 			},
 		},

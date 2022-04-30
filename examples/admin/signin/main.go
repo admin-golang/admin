@@ -49,7 +49,9 @@ func NewFormPage() (admin.Pager, error) {
 				OnSuccess: &admin.OnSubmitSuccess{
 					SetAppState:          true,
 					SetAppStateFieldName: "currentUser",
-					RedirectURL:          "/dashboard",
+					RedirectURL: &admin.RedirectURL{
+						URL: "/dashboard",
+					},
 				},
 			},
 		},

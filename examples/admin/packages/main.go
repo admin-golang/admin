@@ -58,7 +58,9 @@ func NewCreatePage() admin.Pager {
 				URL:    "/packages/create",
 				Method: http.MethodPost,
 				OnSuccess: &admin.OnSubmitSuccess{
-					RedirectURL: "/packages",
+					RedirectURL: &admin.RedirectURL{
+						URL: "/packages",
+					},
 				},
 			},
 		},
