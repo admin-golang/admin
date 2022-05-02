@@ -1779,7 +1779,7 @@ function useRouteWithSearchParams({ url, searchParams }) {
   let route = url;
 
   if(!searchParams) {
-    return route;
+    return [ route ];
   }
 
   searchParams.map((searchParam) => {
