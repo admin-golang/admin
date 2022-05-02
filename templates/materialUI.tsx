@@ -84,6 +84,8 @@ const Input = styled('input')({
   display: 'none',
 });
 
+[[ template "types" ]]
+
 [[ template "FileField" ]]
 
 [[ template "MediaCard" ]]
@@ -960,6 +962,13 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
   };
   [[end]]
 
+  let onSuccessRedirectURL = null;
+  [[ if .Form.Submit.OnSuccess ]]
+  [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
+  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
+  onSuccessRedirectURL = redirectURLWithSearchParams;
+  [[ end ]]
+
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -994,9 +1003,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
         }
 
         if (response.ok) {
-          [[ if .Form.Submit.OnSuccess ]]
-          history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
-          [[ end ]]
+          onSuccessRedirectURL && history.push(onSuccessRedirectURL);
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);
@@ -1152,6 +1159,13 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   };
   [[end]]
 
+  let onSuccessRedirectURL = null;
+  [[ if .Form.Submit.OnSuccess ]]
+  [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
+  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
+  onSuccessRedirectURL = redirectURLWithSearchParams;
+  [[ end ]]
+
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -1196,9 +1210,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
         }
 
         if (response.ok) {
-          [[ if .Form.Submit.OnSuccess ]]
-          history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
-          [[ end ]]
+          onSuccessRedirectURL && history.push(onSuccessRedirectURL);
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);
@@ -1386,9 +1398,7 @@ function [[ .ID ]]Upload({ appState, handleClearAppState }) {
         }
 
         if (response.ok) {
-          if(onSuccessRedirectURL) {
-            history.push(onSuccessRedirectURL);
-          }
+          onSuccessRedirectURL && history.push(onSuccessRedirectURL);
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);
@@ -1489,6 +1499,13 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   };
   [[end]]
 
+  let onSuccessRedirectURL = null;
+  [[ if .Form.Submit.OnSuccess ]]
+  [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
+  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
+  onSuccessRedirectURL = redirectURLWithSearchParams;
+  [[ end ]]
+
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -1516,8 +1533,8 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
             [[ if .Form.Submit.OnSuccess.SetAppState ]]
               handleSetAppState({ [[ .Form.Submit.OnSuccess.SetAppStateFieldName ]]: data });
             [[ end ]]
-            history.push("[[ .Form.Submit.OnSuccess.RedirectURL ]]");
           [[ end ]]
+          onSuccessRedirectURL && history.push(onSuccessRedirectURL);
         } else {
           setAlertMessage(data);
           setIsSnackbarOpen(true);
@@ -1761,15 +1778,34 @@ function useRouteWithSearchParams({ url, searchParams }) {
 
   let route = url;
 
-  if(searchParams) {
-    searchParams.map((searchParam) => {
-      if(searchParam.value.fromLocation) {
-        const param = params[searchParam.value.searchParamKey];
-        route = route.replace(searchParam.key, param);
-      }
-    });
+  if(!searchParams) {
+    return route;
   }
 
+  searchParams.map((searchParam) => {
+    if(searchParam.value.fromLocation) {
+      const param = params[searchParam.value.searchParamKey];
+      route = route.replace(searchParam.key, param);
+    }
+  });
+
   return [ route ];
+}
+[[ end ]]
+
+[[ define "types" ]]
+interface SearchParamValue {
+  fromLocation: boolean;
+  searchParamKey: string;
+}
+
+interface SearchParams {
+  key: string;
+  value: SearchParamValue;
+}
+
+interface RedirectURL {
+  url: string;
+  searchParams: SearchParam[];
 }
 [[ end ]]
