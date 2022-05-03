@@ -958,7 +958,11 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
   [[range $field := .Form.Fields]]
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
   const handle[[$field.ID]]Change = (e) => {
+    [[ if eq $field.Type 3 ]]
+    set[[$field.ID]](Number(e.target.value));
+    [[ else ]]
     set[[$field.ID]](e.target.value);
+    [[ end ]]
   };
   [[end]]
 
@@ -1162,7 +1166,11 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   [[range $field := .Form.Fields]]
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
   const handle[[$field.ID]]Change = (e) => {
+    [[ if eq $field.Type 3 ]]
+    set[[$field.ID]](Number(e.target.value));
+    [[ else ]]
     set[[$field.ID]](e.target.value);
+    [[ end ]]
   };
   [[end]]
 
