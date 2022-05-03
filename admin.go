@@ -40,6 +40,7 @@ const (
 	InputPassword FieldType = iota
 	InputText
 	InputFile
+	InputNumber
 )
 
 type PageType uint

@@ -958,7 +958,11 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
   [[range $field := .Form.Fields]]
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
   const handle[[$field.ID]]Change = (e) => {
+    [[ if eq $field.Type 3 ]]
+    set[[$field.ID]](Number(e.target.value));
+    [[ else ]]
     set[[$field.ID]](e.target.value);
+    [[ end ]]
   };
   [[end]]
 
@@ -1069,6 +1073,13 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
                     </Grid>
                   </Grid>
             	  [[ end ]]
+                [[ if eq $field.Type 3 ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
+                    [[ template "InputNumber" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
+                  </Grid>
+                [[ end ]]
             	[[ end ]]
             {/*<FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -1155,7 +1166,11 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   [[range $field := .Form.Fields]]
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
   const handle[[$field.ID]]Change = (e) => {
+    [[ if eq $field.Type 3 ]]
+    set[[$field.ID]](Number(e.target.value));
+    [[ else ]]
     set[[$field.ID]](e.target.value);
+    [[ end ]]
   };
   [[end]]
 
@@ -1283,6 +1298,13 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
                     </Grid>
                   </Grid>
             	  [[ end ]]
+                [[ if eq $field.Type 3 ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
+                    [[ template "InputNumber" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
+                  </Grid>
+                [[ end ]]
             	[[ end ]]
             </Grid>
           <Button
@@ -1670,6 +1692,23 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   autoComplete = "off"
   autoFocus = { false}
   value = { [[ .ID]]}
+  onChange = { handle[[ .ID]]Change }
+/>
+[[end]]
+
+[[define "NumberField"]]
+<TextField
+  variant = "outlined"
+  margin = "normal"
+  required = { [[ .isRequired ]] }
+  fullWidth
+  id = "[[ .label ]]"
+  label = "[[ .label ]]"
+  type = "number"
+  name = "[[ .ID ]]"
+  autoComplete = "off"
+  autoFocus = { false }
+  value = { [[ .ID]] }
   onChange = { handle[[ .ID]]Change }
 />
 [[end]]
