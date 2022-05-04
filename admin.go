@@ -41,6 +41,7 @@ const (
 	InputText
 	InputFile
 	InputNumber
+	InputCents
 )
 
 type PageType uint
