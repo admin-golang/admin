@@ -94,6 +94,8 @@ const Input = styled('input')({
 
 [[ template "useRouteWithSearchParams" ]]
 
+[[ template "SnackbarWrapper" ]]
+
 function LightBulbIcon(props) {
   return (
     <SvgIcon {...props}>
@@ -1116,6 +1118,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
 [[end]]
 
 [[define "Edit"]]
+[[ $inputCentsType := .inputTypes.inputCents ]]
 [[ with .page ]]
 [[ $editPage := WrapEditPage . ]]
 function [[ .ID ]]Edit({ appState, handleClearAppState }) {
@@ -1149,7 +1152,11 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
 
         if (response.ok) {
           [[ range $field := .Form.Fields ]]
-            set[[$field.ID]](resp.data[ "[[$field.ID]]" ])
+            [[ if eq $field.Type $inputCentsType ]]
+              set[[$field.ID]](resp.data[ "[[$field.ID]]" ] / 100);
+            [[ else ]]
+              set[[$field.ID]](resp.data[ "[[$field.ID]]" ]);
+            [[ end ]]
           [[ end ]]
         } else {
         }
@@ -1167,6 +1174,8 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
   const handle[[$field.ID]]Change = (e) => {
     [[ if eq $field.Type 3 ]]
+    set[[$field.ID]](Number(e.target.value));
+    [[ else if eq $field.Type $inputCentsType ]]
     set[[$field.ID]](Number(e.target.value));
     [[ else ]]
     set[[$field.ID]](e.target.value);
@@ -1189,6 +1198,19 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
         "[[$field.ID]]": [[$field.ID]],
       [[end]]
     };
+
+    [[range $field := .Form.Fields]]
+      [[ if eq $field.Type $inputCentsType ]]
+        const parts[[$field.ID]] = (payload["[[$field.ID]]"]+ "").split(".");
+        if(parts[[$field.ID]].length > 1 && parts[[$field.ID]][1].length > 2) {
+          setAlertMessage(`[[$field.Label]] contains invalid cents value: ${payload["[[$field.ID]]"]}`);
+          setIsSnackbarOpen(true);
+          return;
+        } else {
+          payload["[[$field.ID]]"] = Math.round(payload["[[$field.ID]]"] * 100);
+        }
+      [[ end ]]
+    [[end]]
 
     const fetchOptions = {
       method: "[[ .Form.Submit.Method ]]",
@@ -1243,6 +1265,15 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
 
   return (
     <Layout handleClearAppState={handleClearAppState}>
+      <SnackbarWrapper
+        isSnackbarOpen={isSnackbarOpen}
+        handleSnackbarClose={handleSnackbarClose}
+        vertical={"top"}
+        horizontal={"center"}
+        severity={"error"}
+        message={alertMessage}
+        autoHideDuration={null}
+      />
       <Grid container>
         <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
           <Breadcrumbs aria-label="breadcrumb">
@@ -1299,6 +1330,13 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
                   </Grid>
             	  [[ end ]]
                 [[ if eq $field.Type 3 ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={6}>
+                    [[ template "NumberField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
+                  </Grid>
+                [[ end ]]
+                [[ if eq $field.Type $inputCentsType ]]
                   <Grid item xs={12}>
                     <Grid item xs={12} md={6}>
                     [[ template "NumberField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
@@ -1846,5 +1884,22 @@ interface SearchParams {
 interface RedirectURL {
   url: string;
   searchParams: SearchParam[];
+}
+[[ end ]]
+
+[[ define "SnackbarWrapper" ]]
+function SnackbarWrapper({ isSnackbarOpen, handleSnackbarClose, vertical, horizontal, severity, message, autoHideDuration }) {
+  return (
+    <Snackbar
+      open={isSnackbarOpen}
+      autoHideDuration={6000}
+      onClose={handleSnackbarClose}
+      anchorOrigin={{ vertical, horizontal }}
+      autoHideDuration={autoHideDuration}>
+        <Alert onClose={handleSnackbarClose} severity={severity}>
+          {message}
+        </Alert>
+    </Snackbar>
+  );
 }
 [[ end ]]
