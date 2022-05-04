@@ -1076,7 +1076,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
                 [[ if eq $field.Type 3 ]]
                   <Grid item xs={12}>
                     <Grid item xs={12} md={6}>
-                    [[ template "InputNumber" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    [[ template "NumberField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
                     </Grid>
                   </Grid>
                 [[ end ]]
@@ -1301,7 +1301,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
                 [[ if eq $field.Type 3 ]]
                   <Grid item xs={12}>
                     <Grid item xs={12} md={6}>
-                    [[ template "InputNumber" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    [[ template "NumberField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
                     </Grid>
                   </Grid>
                 [[ end ]]
@@ -1701,7 +1701,7 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   variant = "outlined"
   margin = "normal"
   required = { [[ .isRequired ]] }
-  fullWidth
+  fullWidth = { [[ .fullWidth ]] }
   id = "[[ .label ]]"
   label = "[[ .label ]]"
   type = "number"

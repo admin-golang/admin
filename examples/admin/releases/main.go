@@ -162,6 +162,14 @@ func NewEditPage() admin.Pager {
 					NumberOfRows: 4,
 					FullWidth:    true,
 				},
+				admin.Field{
+					ID:         "version",
+					Type:       admin.InputNumber,
+					Label:      "Version",
+					IsRequired: true,
+					Value:      "",
+					FullWidth:  false,
+				},
 			},
 			Submit: admin.Submit{
 				Label: "Edit",
