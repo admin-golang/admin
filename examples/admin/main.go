@@ -116,6 +116,8 @@ type Release struct {
 	Description string `json:"description"`
 	ReleaseDate string `json:"release_date"`
 	URL         string `json:"url"`
+	TestCents   int    `json:"test_cents"`
+	TestNumber  int    `json:"test_number"`
 }
 
 type ReleaseImage struct {
@@ -219,6 +221,8 @@ func showRelease() http.Handler {
 				Description: fmt.Sprintf("Go %s description", releaseID),
 				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
 				URL:         fmt.Sprintf("https://go.dev/doc/%s", releaseID),
+				TestCents:   1012,
+				TestNumber:  10,
 			},
 		}
 
