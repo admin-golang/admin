@@ -475,6 +475,9 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			"layout": layout,
 			"page":   page,
 			"pages":  pages,
+			"inputTypes": map[string]interface{}{
+				"inputCents": InputCents,
+			},
 		}
 	}
 

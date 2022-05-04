@@ -1118,6 +1118,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
 [[end]]
 
 [[define "Edit"]]
+[[ $inputCentsType := .inputTypes.inputCents ]]
 [[ with .page ]]
 [[ $editPage := WrapEditPage . ]]
 function [[ .ID ]]Edit({ appState, handleClearAppState }) {
@@ -1151,7 +1152,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
 
         if (response.ok) {
           [[ range $field := .Form.Fields ]]
-            [[ if eq $field.Type 4 ]]
+            [[ if eq $field.Type $inputCentsType ]]
               set[[$field.ID]](resp.data[ "[[$field.ID]]" ] / 100);
             [[ else ]]
               set[[$field.ID]](resp.data[ "[[$field.ID]]" ]);
@@ -1174,7 +1175,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   const handle[[$field.ID]]Change = (e) => {
     [[ if eq $field.Type 3 ]]
     set[[$field.ID]](Number(e.target.value));
-    [[ else if eq $field.Type 4 ]]
+    [[ else if eq $field.Type $inputCentsType ]]
     set[[$field.ID]](Number(e.target.value));
     [[ else ]]
     set[[$field.ID]](e.target.value);
@@ -1199,7 +1200,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
     };
 
     [[range $field := .Form.Fields]]
-      [[ if eq $field.Type 4 ]]
+      [[ if eq $field.Type $inputCentsType ]]
         const parts[[$field.ID]] = (payload["[[$field.ID]]"]+ "").split(".");
         if(parts[[$field.ID]].length > 1 && parts[[$field.ID]][1].length > 2) {
           setAlertMessage(`[[$field.Label]] contains invalid cents value: ${payload["[[$field.ID]]"]}`);
@@ -1335,7 +1336,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
                     </Grid>
                   </Grid>
                 [[ end ]]
-                [[ if eq $field.Type 4 ]]
+                [[ if eq $field.Type $inputCentsType ]]
                   <Grid item xs={12}>
                     <Grid item xs={12} md={6}>
                     [[ template "NumberField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
