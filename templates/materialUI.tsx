@@ -88,6 +88,8 @@ const Input = styled('input')({
 
 [[ template "FileField" ]]
 
+[[ template "MultiField" ]]
+
 [[ template "MediaCard" ]]
 
 [[ template "useDataLoader" ]]
@@ -164,6 +166,22 @@ function LogoutIcon(props) {
   return (
     <SvgIcon {...props}>
       <path d="M0 0h24v24H0z" fill="none" /><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+    </SvgIcon>
+  );
+}
+
+function AddIcon(props) {
+  return (
+    <SvgIcon viewBox={"0 0 48 48"} {...props}>
+      <path d="M22.5 38V25.5H10V22.5H22.5V10H25.5V22.5H38V25.5H25.5V38Z"/>
+    </SvgIcon>
+  );
+}
+
+function RemoveIcon(props) {
+  return (
+    <SvgIcon viewBox={"0 0 48 48"} {...props}>
+      <path d="M10 25.5V22.5H38V25.5Z"/>
     </SvgIcon>
   );
 }
@@ -1119,6 +1137,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
 
 [[define "Edit"]]
 [[ $inputCentsType := .inputTypes.inputCents ]]
+[[ $inputMultiType := .inputTypes.inputMulti ]]
 [[ with .page ]]
 [[ $editPage := WrapEditPage . ]]
 function [[ .ID ]]Edit({ appState, handleClearAppState }) {
@@ -1177,6 +1196,8 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
     set[[$field.ID]](Number(e.target.value));
     [[ else if eq $field.Type $inputCentsType ]]
     set[[$field.ID]](Number(e.target.value));
+    [[ else if eq $field.Type $inputMultiType ]]
+    set[[$field.ID]](e);
     [[ else ]]
     set[[$field.ID]](e.target.value);
     [[ end ]]
@@ -1298,7 +1319,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
             p: 4,
             display: 'flex',
             flexDirection: 'column',
-            height: 640,
+            height: '100%',
           }}
         >
           [[ if ne .Form.Title "" ]]
@@ -1340,6 +1361,17 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
                   <Grid item xs={12}>
                     <Grid item xs={12} md={6}>
                     [[ template "NumberField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
+                  </Grid>
+                [[ end ]]
+                [[ if eq $field.Type $inputMultiType ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={12}>
+                      <MultiField
+                        initialValue={[[ $field.ID ]]}
+                        meta={[[ Marshal $field.Fields ]]}
+                        handleChange={handle[[$field.ID]]Change}
+                      />
                     </Grid>
                   </Grid>
                 [[ end ]]
@@ -1775,6 +1807,78 @@ function FileField({ id, handleSetFile }) {
   );
 }
 [[end]]
+
+[[ define "MultiField" ]]
+function MultiField({ initialValue, meta, handleChange }) {
+  if(!initialValue) return null;
+  const [ lines, setLines ] = useState([...initialValue]);
+  const handleAddClick = () => {
+    const newLine = [];
+    meta.map((fieldMeta) => {
+      const field = {};
+      field["id"] = fieldMeta.id;
+      field[fieldMeta.id] = "";
+      newLine.push(field);
+    });
+    setLines([...lines, newLine]);
+  };
+  const handleRemoveClick = (line, idx) => {
+    const newLines = [...lines];
+    newLines.splice(idx, 1);
+    setLines(newLines);
+  };
+  const handleLineChange = (e, field, fieldMeta) => {
+    field[fieldMeta.id] = e.target.value;
+    handleChange([...lines]);
+  };
+  const fieldID = (fieldMeta, i, j) => {
+    return `${fieldMeta.id}-${i}-${j}`;
+  };
+  const multiFieldLine = (line, idx) => {
+    return (
+      <Grid item container xs spacing={2} sx={{pt: 3}} key={idx}>
+        {meta.map((fieldMeta, j) => {
+          const fields = line.filter((field) => field.id === fieldMeta.id);
+          if(!fields.length) return;
+          const field = fields[0];
+          return (
+            <Grid item xs={fieldMeta.width} key={fieldID(fieldMeta, idx, j)}>
+              <TextField fullWidth={fieldMeta.fullWidth} label={fieldMeta.label} value={field[fieldMeta.id]} onChange={(e) => handleLineChange(e, field, fieldMeta)} />
+            </Grid>
+          );
+        })}
+        <Grid item xs={2}>
+          <Button
+            size="small"
+            variant="outlined"
+            sx={{mt: 1, height: 25, width: 30, minWidth: "auto"}}
+            onClick={() => (handleRemoveClick(line, idx)) }
+          >
+            <RemoveIcon fontSize="small" />
+          </Button>
+        </Grid>
+      </Grid>
+    );
+  };
+  const fullWidth = meta.reduce((prev, current) => (prev + current.width), 0);
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={12} spacing={2}>
+      {lines && lines.map((line, idx) => (multiFieldLine(line, idx)))}
+      </Grid>
+      <Grid item xs={fullWidth}>
+        <Button
+          size="small"
+          variant="outlined"
+          sx={{mt: 1, height: 25, width: "98%", minWidth: "auto", borderStyle: "dashed" }}
+          onClick={handleAddClick}>
+          <AddIcon fontSize="small" /> Add
+        </Button>
+      </Grid>
+    </Grid>
+  );
+}
+[[ end ]]
 
 [[ define "MediaCard" ]]
 function MediaCard({ imgURL, imgALT, ...props }) {
