@@ -178,6 +178,28 @@ func NewEditPage() admin.Pager {
 					Value:      "",
 					FullWidth:  false,
 				},
+				admin.Field{
+					ID:         "test_input_multi",
+					Type:       admin.InputMulti,
+					Label:      "Test Input Multi",
+					IsRequired: true,
+					Value:      "",
+					FullWidth:  false,
+					Fields: admin.Fields{
+						admin.Field{
+							ID:        "label",
+							Label:     "Label",
+							FullWidth: true,
+							Width:     3,
+						},
+						admin.Field{
+							ID:        "values",
+							Label:     "Values",
+							FullWidth: true,
+							Width:     5,
+						},
+					},
+				},
 			},
 			Submit: admin.Submit{
 				Label: "Edit",
