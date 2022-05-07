@@ -42,6 +42,7 @@ const (
 	InputFile
 	InputNumber
 	InputCents
+	InputMulti
 )
 
 type PageType uint
@@ -57,14 +58,16 @@ const (
 )
 
 type Field struct {
-	ID           string
-	Label        string
+	ID           string `json:"id"`
+	Label        string `json:"label"`
 	Type         FieldType
 	IsRequired   bool
-	FullWidth    bool
+	FullWidth    bool `json:"fullWidth"`
 	Value        string
 	IsMultiline  bool
 	NumberOfRows int
+	Fields       Fields
+	Width        int `json:"width"`
 }
 
 type Fields []Field
@@ -477,6 +480,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			"pages":  pages,
 			"inputTypes": map[string]interface{}{
 				"inputCents": InputCents,
+				"inputMulti": InputMulti,
 			},
 		}
 	}
