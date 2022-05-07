@@ -110,14 +110,25 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+type Label struct {
+	ID    string `json:"id"`
+	Label string `json:"label"`
+}
+
+type Values struct {
+	ID     string `json:"id"`
+	Values string `json:"values"`
+}
+
 type Release struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	ReleaseDate string `json:"release_date"`
-	URL         string `json:"url"`
-	TestCents   int    `json:"test_cents"`
-	TestNumber  int    `json:"test_number"`
+	ID             string          `json:"id"`
+	Name           string          `json:"name"`
+	Description    string          `json:"description"`
+	ReleaseDate    string          `json:"release_date"`
+	URL            string          `json:"url"`
+	TestCents      int             `json:"test_cents"`
+	TestNumber     int             `json:"test_number"`
+	TestInputMulti [][]interface{} `json:"test_input_multi"`
 }
 
 type ReleaseImage struct {
@@ -214,15 +225,22 @@ func showRelease() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		releaseID := strings.Split(r.URL.String(), "/")[2]
 
+		testInputMulti := [][]interface{}{
+			[]interface{}{Label{ID: "label", Label: "label-1"}, Values{ID: "values", Values: "values-1"}},
+			[]interface{}{Label{ID: "label", Label: "label-2"}, Values{ID: "values", Values: "values-2"}},
+			[]interface{}{Label{ID: "label", Label: "label-3"}, Values{ID: "values", Values: "values-3"}},
+		}
+
 		resp := dataloader.Response{
 			Data: Release{
-				ID:          releaseID,
-				Name:        fmt.Sprintf("Go %s", releaseID),
-				Description: fmt.Sprintf("Go %s description", releaseID),
-				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
-				URL:         fmt.Sprintf("https://go.dev/doc/%s", releaseID),
-				TestCents:   1012,
-				TestNumber:  10,
+				ID:             releaseID,
+				Name:           fmt.Sprintf("Go %s", releaseID),
+				Description:    fmt.Sprintf("Go %s description", releaseID),
+				ReleaseDate:    "Tue Feb 16 18:08:40 2021 +0000",
+				URL:            fmt.Sprintf("https://go.dev/doc/%s", releaseID),
+				TestCents:      1012,
+				TestNumber:     10,
+				TestInputMulti: testInputMulti,
 			},
 		}
 
