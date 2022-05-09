@@ -1826,6 +1826,7 @@ function MultiField({ initialValue, meta, handleChange }) {
     const newLines = [...lines];
     newLines.splice(idx, 1);
     setLines(newLines);
+    handleChange([...newLines]);
   };
   const handleLineChange = (e, field, fieldMeta) => {
     field[fieldMeta.id] = e.target.value;
