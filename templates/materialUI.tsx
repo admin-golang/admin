@@ -63,13 +63,20 @@ const {
   useParams
 } = ReactRouterDOM;
 
+[[ $palettePrimaryMain := "#556cd6" ]]
+[[ $paletteSecondaryMain := "#19857b" ]]
+[[ if .Layout.Theme ]]
+[[ $palettePrimaryMain = .Layout.Theme.Palette.Primary.Main ]]
+[[ $paletteSecondaryMain = .Layout.Theme.Palette.Secondary.Main ]]
+[[ end ]]
+
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#556cd6",
+      main: "[[ $palettePrimaryMain ]]",
     },
     secondary: {
-      main: "#19857b",
+      main: "[[ $paletteSecondaryMain ]]",
     },
     error: {
       main: colors.red.A400,
