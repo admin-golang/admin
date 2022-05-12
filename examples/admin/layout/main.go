@@ -53,5 +53,15 @@ func NewLayout() *layout.Layout {
 		},
 		Title:       "Admin Title",
 		FooterLabel: "Copyright © Your Website 2022.",
+		Theme: &layout.Theme{
+			Palette: layout.Palette{
+				Primary: layout.PaletteColor{
+					Main: "#00acc1",
+				},
+				Secondary: layout.PaletteColor{
+					Main: "#b2ebf2",
+				},
+			},
+		},
 	})
 }
