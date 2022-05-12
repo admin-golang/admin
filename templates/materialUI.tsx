@@ -368,6 +368,19 @@ function Layout({ children, handleClearAppState }) {
 
   const location = useLocation();
 
+  const isSelected = (pageURL, currentURL): boolean => {
+    if(!pageURL || !currentURL) return false;
+
+    const pageURLParts = pageURL.split("/");
+    const currentURLParts = currentURL.split("/");
+
+    if(pageURLParts.length < 2 || currentURLParts.length < 2) {
+      return false;
+    }
+
+    return pageURLParts[1] === currentURLParts[1];
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -421,8 +434,9 @@ function Layout({ children, handleClearAppState }) {
           [[ range $page := .Pages ]]
           [[ if $page.ToolbarEnabled ]]
   					<div>
-            <Link href="#[[ $page.URL ]]">
-              <ListItem button selected={"[[ $page.URL ]]" === location.pathname}>
+            <Link href="#[[ $page.URL ]]" sx={{ textDecoration: "none" }}>
+              <ListItem button
+                selected={isSelected("[[ $page.URL ]]", location.pathname)}>
                 <ListItemIcon>
                   [[ if eq $page.Icon.Type 2 ]]
   					        <DashboardIcon />
