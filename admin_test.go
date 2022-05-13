@@ -186,6 +186,72 @@ func TestServeHTTPJSXTemplateTransform(t *testing.T) {
 	}
 }
 
+func TestPages(t *testing.T) {
+	pageConfig := admin.PageConfig{
+		Navigation: &navigation.Navigation{},
+		Header:     &admin.PageHeader{ID: "test"},
+	}
+	tests := []struct {
+		subTestName string
+		pageConfig  admin.PageConfig
+		pager       admin.Pager
+	}{
+		{
+			subTestName: "Page",
+			pager:       admin.NewPage(pageConfig),
+		},
+		{
+			subTestName: "ListPage",
+			pager: admin.NewListPage(admin.ListPageConfig{
+				PageConfig: pageConfig,
+			}),
+		},
+		{
+			subTestName: "CardListPage",
+			pager: admin.NewCardListPage(admin.CardListPageConfig{
+				PageConfig: pageConfig,
+			}),
+		},
+		{
+			subTestName: "EditPage",
+			pager: admin.NewEditPage(admin.EditPageConfig{
+				PageConfig: pageConfig,
+			}),
+		},
+		{
+			subTestName: "UploadPage",
+			pager: admin.NewUploadPage(admin.UploadPageConfig{
+				PageConfig: pageConfig,
+			}),
+		},
+		{
+			subTestName: "SideFormPage",
+			pager: admin.NewSideFormPage(admin.SideFormPageConfig{
+				PageConfig: pageConfig,
+			}),
+		},
+		{
+			subTestName: "FormPage",
+			pager: admin.NewFormPage(admin.FormPageConfig{
+				PageConfig: pageConfig,
+			}),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.subTestName, func(t *testing.T) {
+			if tt.pager.Icon() != pageConfig.Icon {
+				t.Fatalf("got: %v, want: %v", tt.pager.PageHeader(), pageConfig.Header)
+			}
+			if tt.pager.Navigation() != pageConfig.Navigation {
+				t.Fatalf("got: %v, want: %v", tt.pager.Navigation(), pageConfig.Navigation)
+			}
+			if tt.pager.PageHeader() != pageConfig.Header {
+				t.Fatalf("got: %v, want: %v", tt.pager.PageHeader(), pageConfig.Header)
+			}
+		})
+	}
+}
+
 func newTestAdmin() admin.Admin {
 	releasesNavTabs := navigation.NavTabs{
 		navigation.NavTab{
