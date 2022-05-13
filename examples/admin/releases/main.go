@@ -143,6 +143,10 @@ func NewEditPage() admin.Pager {
 		Form: admin.Form{
 			Navigation: navigationEditRelease,
 			ID:         "ReleasesEdit",
+			Header: &admin.FormHeader{
+				ID:        "fromHeaderName",
+				FieldName: "name",
+			},
 			Fields: admin.Fields{
 				admin.Field{
 					ID:         "name",
@@ -253,7 +257,11 @@ func NewEditNotesPage() admin.Pager {
 		}),
 		Form: admin.Form{
 			Navigation: navigationEditRelease,
-			ID:         "ReleasesEdit",
+			Header: &admin.FormHeader{
+				ID:        "formHeaderName",
+				FieldName: "name",
+			},
+			ID: "ReleasesEdit",
 			Fields: admin.Fields{
 				admin.Field{
 					ID:           "notes",
