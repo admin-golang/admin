@@ -881,7 +881,7 @@ function [[ .ID ]]List({ appState, handleClearAppState }) {
                     [[ end ]]
                   >
                     {rowsProps.map((rowProp, idj) => (
-                      <TableCell key={idj} component="th" scope="row">
+                      rowsMeta.components?.[rowProp] && <TableCell key={idj} component="th" scope="row">
                         {rowsMeta.components?.[rowProp] === 'text' ? row[rowProp] : null}
                         {
                           rowsMeta.components?.[rowProp] === 'tag'
