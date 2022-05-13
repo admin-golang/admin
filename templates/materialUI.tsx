@@ -105,6 +105,8 @@ const Input = styled('input')({
 
 [[ template "SnackbarWrapper" ]]
 
+[[ template "PaperHeader" ]]
+
 function LightBulbIcon(props) {
   return (
     <SvgIcon {...props}>
@@ -1165,6 +1167,10 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   const history = useHistory();
   const params = useParams();
 
+  [[ if .Form.Header ]]
+    const [ [[ .Form.Header.ID ]], set[[ .Form.Header.ID ]] ] = useState();
+  [[ end ]]
+
   [[ if .DataLoader ]]
   useEffect(() => {
     const abortCtrl = new AbortController();
@@ -1191,6 +1197,9 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
         }
 
         if (response.ok) {
+          [[ if .Form.Header ]]
+            set[[ .Form.Header.ID ]](resp.data["[[ .Form.Header.FieldName ]]"]);
+          [[ end ]]
           [[ range $field := .Form.Fields ]]
             [[ if eq $field.Type $inputCentsType ]]
               set[[$field.ID]](resp.data[ "[[$field.ID]]" ] / 100);
@@ -1332,6 +1341,12 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
             <Typography color="text.primary">[[ .Form.Navigation.Active.Label ]]</Typography>
             [[ end ]]
           </Breadcrumbs>
+          [[ if .Form.Header ]]
+          <PaperHeader
+            sx={{ mt: 2, mb: -1, pl: 4, py: 1.4 }}
+            header={[[ .Form.Header.ID ]]}
+          />
+          [[ end ]]
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
@@ -2026,6 +2041,20 @@ function SnackbarWrapper({ isSnackbarOpen, handleSnackbarClose, vertical, horizo
           {message}
         </Alert>
     </Snackbar>
+  );
+}
+[[ end ]]
+
+[[ define "PaperHeader" ]]
+function PaperHeader({ header, ...props}) {
+  return (
+    <Paper {...props}>
+      <Box>
+        <Typography variant="subtitle1">
+          {header}
+        </Typography>
+      </Box>
+    </Paper>
   );
 }
 [[ end ]]
