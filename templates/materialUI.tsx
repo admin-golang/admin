@@ -105,6 +105,8 @@ const Input = styled('input')({
 
 [[ template "SnackbarWrapper" ]]
 
+[[ template "PaperHeader" ]]
+
 function LightBulbIcon(props) {
   return (
     <SvgIcon {...props}>
@@ -924,15 +926,28 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
   const [ data, setData ] = useState([]);
   const [ meta, setMeta ] = useState({});
 
+  [[ if $listPage.Header ]]
+    const [ [[ $listPage.Header.ID ]], set[[ $listPage.Header.ID ]] ] = useState();
+  [[ end ]]
+
   [[ if $listPage.DataLoader ]]
     [[ $dataLoader := Marshal $listPage.DataLoader ]]
     const [ response ] = useDataLoader(appState, [[ $dataLoader ]], "[[ .ParamKey ]]");
     useEffect(() => {
       if(response?.data) {
+        [[ if $listPage.Header ]]
+          set[[ $listPage.Header.ID ]](response.data["[[ $listPage.Header.FieldName ]]"]);
+        [[ end ]]
         setData(response.data);
       }
+
       if(response?.meta) {
         setMeta(response.meta);
+        [[ if $listPage.Header ]]
+          if(response.meta?.pageHeader) {
+            set[[ $listPage.Header.ID ]](response.meta?.pageHeader);
+          }
+        [[ end ]]
       }
     }, [ response ]);
   [[end]]
@@ -955,6 +970,12 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
             <Typography color="text.primary">[[ .Navigation.Active.Label ]]</Typography>
             [[ end ]]
           </Breadcrumbs>
+          [[ if $listPage.Header ]]
+          <PaperHeader
+            sx={{ mt: 2, mb: -1, pl: 4, py: 1.4 }}
+            header={[[ $listPage.Header.ID ]]}
+          />
+          [[ end ]]
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
@@ -1165,6 +1186,10 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   const history = useHistory();
   const params = useParams();
 
+  [[ if $editPage.Header ]]
+    const [ [[ $editPage.Header.ID ]], set[[ $editPage.Header.ID ]] ] = useState();
+  [[ end ]]
+
   [[ if .DataLoader ]]
   useEffect(() => {
     const abortCtrl = new AbortController();
@@ -1191,6 +1216,9 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
         }
 
         if (response.ok) {
+          [[ if $editPage.Header ]]
+            set[[ $editPage.Header.ID ]](resp.data["[[ $editPage.Header.FieldName ]]"]);
+          [[ end ]]
           [[ range $field := .Form.Fields ]]
             [[ if eq $field.Type $inputCentsType ]]
               set[[$field.ID]](resp.data[ "[[$field.ID]]" ] / 100);
@@ -1332,6 +1360,12 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
             <Typography color="text.primary">[[ .Form.Navigation.Active.Label ]]</Typography>
             [[ end ]]
           </Breadcrumbs>
+          [[ if $editPage.Header ]]
+          <PaperHeader
+            sx={{ mt: 2, mb: -1, pl: 4, py: 1.4 }}
+            header={[[ $editPage.Header.ID ]]}
+          />
+          [[ end ]]
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
@@ -1424,6 +1458,10 @@ function [[ .ID ]]Upload({ appState, handleClearAppState }) {
 
   const [ dataLoaderResult, setDataLoaderResult ] = useState();
 
+  [[ if $uploadPage.Header ]]
+    const [ [[ $uploadPage.Header.ID ]], set[[ $uploadPage.Header.ID ]] ] = useState();
+  [[ end ]]
+
   [[ if .DataLoader ]]
   useEffect(() => {
     const abortCtrl = new AbortController();
@@ -1450,6 +1488,9 @@ function [[ .ID ]]Upload({ appState, handleClearAppState }) {
         }
 
         if (response.ok) {
+          [[ if $uploadPage.Header ]]
+            set[[ $uploadPage.Header.ID ]](resp.data["[[ $uploadPage.Header.FieldName ]]"]);
+          [[ end ]]
           setDataLoaderResult(resp.data);
         } else {
         }
@@ -1549,6 +1590,12 @@ function [[ .ID ]]Upload({ appState, handleClearAppState }) {
             <Typography color="text.primary">[[ .Form.Navigation.Active.Label ]]</Typography>
             [[ end ]]
           </Breadcrumbs>
+          [[ if $uploadPage.Header ]]
+          <PaperHeader
+            sx={{ mt: 2, mb: -1, pl: 4, py: 1.4 }}
+            header={[[ $uploadPage.Header.ID ]]}
+          />
+          [[ end ]]
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} lg={12}>
@@ -1885,7 +1932,7 @@ function MultiField({ initialValue, meta, handleChange }) {
   const fullWidth = meta.reduce((prev, current) => (prev + current.width), 0);
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} spacing={2}>
+      <Grid item xs={12}>
       {lines && lines.map((line, idx) => (multiFieldLine(line, idx)))}
       </Grid>
       <Grid item xs={fullWidth}>
@@ -2026,6 +2073,20 @@ function SnackbarWrapper({ isSnackbarOpen, handleSnackbarClose, vertical, horizo
           {message}
         </Alert>
     </Snackbar>
+  );
+}
+[[ end ]]
+
+[[ define "PaperHeader" ]]
+function PaperHeader({ header, ...props}) {
+  return (
+    <Paper {...props}>
+      <Box>
+        <Typography variant="subtitle1">
+          {header}
+        </Typography>
+      </Box>
+    </Paper>
   );
 }
 [[ end ]]

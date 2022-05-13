@@ -127,6 +127,10 @@ func NewEditPage() admin.Pager {
 			URL:     "/releases/:release_id",
 			Type:    admin.EditPage,
 			NavTabs: releasesNavTabs,
+			Header: &admin.PageHeader{
+				ID:        "pageHeader",
+				FieldName: "name",
+			},
 		},
 		ParamKey: "release_id",
 		DataLoader: dataloader.New(dataloader.Config{
@@ -238,6 +242,10 @@ func NewEditNotesPage() admin.Pager {
 			URL:     "/releases/:release_id/notes",
 			Type:    admin.EditPage,
 			NavTabs: releasesNavTabs,
+			Header: &admin.PageHeader{
+				ID:        "pageHeader",
+				FieldName: "name",
+			},
 		},
 		ParamKey: "release_id",
 		DataLoader: dataloader.New(dataloader.Config{
@@ -359,6 +367,10 @@ func NewImageUploadPage() admin.Pager {
 			URL:     "/releases/:release_id/images/upload",
 			Type:    admin.UploadPage,
 			NavTabs: releasesNavTabs,
+			Header: &admin.PageHeader{
+				ID:        "pageHeader",
+				FieldName: "name",
+			},
 		},
 		ParamKey: "release_id",
 		DataLoader: dataloader.New(dataloader.Config{
@@ -434,6 +446,10 @@ func NewEditImagesPage() admin.Pager {
 			Type:       admin.CardListPage,
 			NavTabs:    releasesNavTabs,
 			Navigation: navigationEditRelease,
+			Header: &admin.PageHeader{
+				ID:        "pageHeader",
+				FieldName: "name",
+			},
 		},
 		DataLoader: dataloader.New(dataloader.Config{
 			URL: "/releases/:release_id/images",

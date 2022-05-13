@@ -81,10 +81,17 @@ type Pager interface {
 	ToolbarEnabled() bool
 	NavTabs() navigation.NavTabs
 	Navigation() *navigation.Navigation
+	PageHeader() *PageHeader
 }
 
 type Page struct {
-	page page
+	page   page
+	Header *PageHeader
+}
+
+type PageHeader struct {
+	ID        string
+	FieldName string
 }
 
 type PageConfig struct {
@@ -96,6 +103,7 @@ type PageConfig struct {
 	URL            string
 	NavTabs        navigation.NavTabs
 	Navigation     *navigation.Navigation
+	Header         *PageHeader
 }
 
 type OnListRowClick struct {
@@ -138,8 +146,10 @@ func NewPage(p PageConfig) Pager {
 		ttype:          p.Type,
 		url:            p.URL,
 		navTabs:        p.NavTabs,
+		navigation:     p.Navigation,
+		header:         p.Header,
 	}
-	return &Page{page}
+	return &Page{page: page, Header: p.Header}
 }
 
 type page struct {
@@ -151,6 +161,7 @@ type page struct {
 	url            string
 	navTabs        navigation.NavTabs
 	navigation     *navigation.Navigation
+	header         *PageHeader
 }
 
 func (p *Page) Icon() icon.Icon                    { return p.page.icon }
@@ -161,6 +172,7 @@ func (p *Page) Type() PageType                     { return p.page.ttype }
 func (p *Page) URL() string                        { return p.page.url }
 func (p *Page) NavTabs() navigation.NavTabs        { return p.page.navTabs }
 func (p *Page) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *Page) PageHeader() *PageHeader            { return p.page.header }
 
 type MainButton struct {
 	Label string
@@ -175,6 +187,7 @@ type LListPage struct {
 	DataLoader    *dataloader.DataLoader
 	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
+	Header        *PageHeader
 }
 
 func (p *LListPage) Icon() icon.Icon                    { return p.page.icon }
@@ -185,6 +198,7 @@ func (p *LListPage) Type() PageType                     { return p.page.ttype }
 func (p *LListPage) URL() string                        { return p.page.url }
 func (p *LListPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
 func (p *LListPage) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *LListPage) PageHeader() *PageHeader            { return p.page.header }
 
 func NewListPage(p ListPageConfig) Pager {
 	page := page{
@@ -195,9 +209,11 @@ func NewListPage(p ListPageConfig) Pager {
 		ttype:          p.Type,
 		url:            p.URL,
 		navTabs:        p.NavTabs,
+		header:         p.Header,
+		navigation:     p.Navigation,
 	}
 
-	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination}
+	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination, Header: p.Header}
 }
 
 type CardListPageConfig struct {
@@ -219,6 +235,7 @@ type CCardListPage struct {
 	DataLoader    *dataloader.DataLoader
 	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
+	Header        *PageHeader
 }
 
 func (p *CCardListPage) Icon() icon.Icon                    { return p.page.icon }
@@ -229,6 +246,7 @@ func (p *CCardListPage) Type() PageType                     { return p.page.ttyp
 func (p *CCardListPage) URL() string                        { return p.page.url }
 func (p *CCardListPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
 func (p *CCardListPage) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *CCardListPage) PageHeader() *PageHeader            { return p.page.header }
 
 func NewCardListPage(p CardListPageConfig) Pager {
 	page := page{
@@ -240,9 +258,10 @@ func NewCardListPage(p CardListPageConfig) Pager {
 		url:            p.URL,
 		navTabs:        p.NavTabs,
 		navigation:     p.Navigation,
+		header:         p.Header,
 	}
 
-	return &CCardListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination, ParamKey: p.ParamKey}
+	return &CCardListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination, ParamKey: p.ParamKey, Header: p.Header}
 }
 
 type EEditPage struct {
@@ -251,6 +270,7 @@ type EEditPage struct {
 	ParamKey   string
 	DataLoader *dataloader.DataLoader
 	Form       Form
+	Header     *PageHeader
 }
 
 func (p *EEditPage) Icon() icon.Icon                    { return p.page.icon }
@@ -261,16 +281,19 @@ func (p *EEditPage) Type() PageType                     { return p.page.ttype }
 func (p *EEditPage) URL() string                        { return p.page.url }
 func (p *EEditPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
 func (p *EEditPage) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *EEditPage) PageHeader() *PageHeader            { return p.page.header }
 
 func NewEditPage(p EditPageConfig) Pager {
 	page := page{
-		id:      p.ID,
-		ttype:   p.Type,
-		url:     p.URL,
-		navTabs: p.NavTabs,
+		id:         p.ID,
+		ttype:      p.Type,
+		url:        p.URL,
+		navTabs:    p.NavTabs,
+		header:     p.Header,
+		navigation: p.Navigation,
 	}
 
-	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey}
+	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey, Header: p.Header}
 }
 
 type UUploadPage struct {
@@ -279,6 +302,7 @@ type UUploadPage struct {
 	ParamKey   string
 	DataLoader *dataloader.DataLoader
 	Form       Form
+	Header     *PageHeader
 }
 
 func (p *UUploadPage) Icon() icon.Icon                    { return p.page.icon }
@@ -289,6 +313,7 @@ func (p *UUploadPage) Type() PageType                     { return p.page.ttype 
 func (p *UUploadPage) URL() string                        { return p.page.url }
 func (p *UUploadPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
 func (p *UUploadPage) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *UUploadPage) PageHeader() *PageHeader            { return p.page.header }
 
 type UploadPageConfig struct {
 	PageConfig
@@ -300,13 +325,15 @@ type UploadPageConfig struct {
 
 func NewUploadPage(p UploadPageConfig) Pager {
 	page := page{
-		id:      p.ID,
-		ttype:   p.Type,
-		url:     p.URL,
-		navTabs: p.NavTabs,
+		id:         p.ID,
+		ttype:      p.Type,
+		url:        p.URL,
+		navTabs:    p.NavTabs,
+		header:     p.Header,
+		navigation: p.Navigation,
 	}
 
-	return &UUploadPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey}
+	return &UUploadPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey, Header: p.Header}
 }
 
 type SSideFormPage struct {
@@ -325,6 +352,7 @@ func (p *SSideFormPage) Type() PageType                     { return p.page.ttyp
 func (p *SSideFormPage) URL() string                        { return p.page.url }
 func (p *SSideFormPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
 func (p *SSideFormPage) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *SSideFormPage) PageHeader() *PageHeader            { return p.page.header }
 
 type SideFormPageConfig struct {
 	PageConfig
@@ -343,6 +371,8 @@ func NewSideFormPage(p SideFormPageConfig) Pager {
 		ttype:          p.Type,
 		url:            p.URL,
 		navTabs:        p.NavTabs,
+		header:         p.Header,
+		navigation:     p.Navigation,
 	}
 
 	return &SSideFormPage{
@@ -367,6 +397,7 @@ func (p *FFormPage) Type() PageType                     { return p.page.ttype }
 func (p *FFormPage) URL() string                        { return p.page.url }
 func (p *FFormPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
 func (p *FFormPage) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *FFormPage) PageHeader() *PageHeader            { return p.page.header }
 
 type FormPageConfig struct {
 	PageConfig
@@ -383,6 +414,8 @@ func NewFormPage(p FormPageConfig) Pager {
 		ttype:          p.Type,
 		url:            p.URL,
 		navTabs:        p.NavTabs,
+		header:         p.Header,
+		navigation:     p.Navigation,
 	}
 
 	return &FFormPage{page: page, Form: p.Form}
