@@ -420,12 +420,18 @@ type OnSubmitSuccess struct {
 	RedirectURL          *RedirectURL
 }
 
+type FormHeader struct {
+	ID        string
+	FieldName string
+}
+
 type Form struct {
 	Navigation *navigation.Navigation
 	Fields     Fields
 	ID         string
 	Submit     Submit
 	Title      string
+	Header     *FormHeader
 }
 
 type Config struct {
