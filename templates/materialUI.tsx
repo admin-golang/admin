@@ -1932,7 +1932,7 @@ function MultiField({ initialValue, meta, handleChange }) {
   const fullWidth = meta.reduce((prev, current) => (prev + current.width), 0);
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} spacing={2}>
+      <Grid item xs={12}>
       {lines && lines.map((line, idx) => (multiFieldLine(line, idx)))}
       </Grid>
       <Grid item xs={fullWidth}>
