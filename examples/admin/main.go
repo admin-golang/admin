@@ -203,6 +203,7 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 						"imgALT": "name",
 					},
 				},
+				PageHeader: fmt.Sprintf("Go %s", releaseID),
 			},
 		}
 
