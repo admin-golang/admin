@@ -43,6 +43,7 @@ const (
 	InputNumber
 	InputCents
 	InputMulti
+	InputCheckbox
 )
 
 type PageType uint
@@ -512,8 +513,9 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			"page":   page,
 			"pages":  pages,
 			"inputTypes": map[string]interface{}{
-				"inputCents": InputCents,
-				"inputMulti": InputMulti,
+				"inputCents":    InputCents,
+				"inputMulti":    InputMulti,
+				"inputCheckbox": InputCheckbox,
 			},
 		}
 	}
