@@ -45,7 +45,10 @@ const {
   Card,
   CardMedia,
   CardContent,
-  CardActions
+  CardActions,
+  FormGroup,
+  FormControlLabel,
+  Checkbox
 } = MaterialUI;
 
 const {
@@ -1180,6 +1183,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
 [[define "Edit"]]
 [[ $inputCentsType := .inputTypes.inputCents ]]
 [[ $inputMultiType := .inputTypes.inputMulti ]]
+[[ $inputCheckboxType := .inputTypes.inputCheckbox ]]
 [[ with .page ]]
 [[ $editPage := WrapEditPage . ]]
 function [[ .ID ]]Edit({ appState, handleClearAppState }) {
@@ -1239,16 +1243,24 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
   [[end]]
 
   [[range $field := .Form.Fields]]
+
+  [[ if eq $field.Type $inputCheckboxType ]]
+  const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]" === "true");
+  [[ else ]]
   const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
+  [[ end ]]
+
   const handle[[$field.ID]]Change = (e) => {
     [[ if eq $field.Type 3 ]]
-    set[[$field.ID]](Number(e.target.value));
+      set[[$field.ID]](Number(e.target.value));
     [[ else if eq $field.Type $inputCentsType ]]
-    set[[$field.ID]](Number(e.target.value));
+      set[[$field.ID]](Number(e.target.value));
     [[ else if eq $field.Type $inputMultiType ]]
-    set[[$field.ID]](e);
+      set[[$field.ID]](e);
+    [[ else if eq $field.Type $inputCheckboxType ]]
+      set[[$field.ID]](e.target.checked);
     [[ else ]]
-    set[[$field.ID]](e.target.value);
+      set[[$field.ID]](e.target.value);
     [[ end ]]
   };
   [[end]]
@@ -1427,6 +1439,13 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
                         meta={[[ Marshal $field.Fields ]]}
                         handleChange={handle[[$field.ID]]Change}
                       />
+                    </Grid>
+                  </Grid>
+                [[ end ]]
+                [[ if eq $field.Type $inputCheckboxType ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={12}>
+                      [[ template "CheckboxField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
                     </Grid>
                   </Grid>
                 [[ end ]]
@@ -1849,6 +1868,17 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   value = { [[ .ID]] }
   onChange = { handle[[ .ID]]Change }
 />
+[[end]]
+
+[[define "CheckboxField"]]
+<FormGroup>
+  <FormControlLabel
+    control={<Checkbox value={[[ .ID ]]} onChange={ handle[[ .ID ]]Change } inputProps={{ 'aria-label': 'controlled' }} />}
+    label="[[ .label ]]"
+    required={[[ .isRequired ]]}
+  >
+  </FormControlLabel>
+</FormGroup>
 [[end]]
 
 [[define "FileField"]]

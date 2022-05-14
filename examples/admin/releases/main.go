@@ -204,6 +204,13 @@ func NewEditPage() admin.Pager {
 						},
 					},
 				},
+				admin.Field{
+					ID:         "test_checkbox",
+					Type:       admin.InputCheckbox,
+					Label:      "Test Checkbox",
+					Value:      "true",
+					IsRequired: true,
+				},
 			},
 			Submit: admin.Submit{
 				Label: "Edit",
