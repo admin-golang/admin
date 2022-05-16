@@ -1873,7 +1873,7 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
 [[define "CheckboxField"]]
 <FormGroup>
   <FormControlLabel
-    control={<Checkbox value={[[ .ID ]]} onChange={ handle[[ .ID ]]Change } inputProps={{ 'aria-label': 'controlled' }} />}
+    control={<Checkbox checked={[[ .ID ]]} value={[[ .ID ]]} onChange={ handle[[ .ID ]]Change } inputProps={{ 'aria-label': 'controlled' }} />}
     label="[[ .label ]]"
     required={[[ .isRequired ]]}
   >
