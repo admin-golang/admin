@@ -129,6 +129,7 @@ type Release struct {
 	TestCents      int             `json:"test_cents"`
 	TestNumber     int             `json:"test_number"`
 	TestInputMulti [][]interface{} `json:"test_input_multi"`
+	TestCheckbox   bool            `json:"test_checkbox"`
 }
 
 type ReleaseImage struct {
@@ -242,6 +243,7 @@ func showRelease() http.Handler {
 				TestCents:      1012,
 				TestNumber:     10,
 				TestInputMulti: testInputMulti,
+				TestCheckbox:   true,
 			},
 		}
 
