@@ -43,6 +43,7 @@ const {
   Breadcrumbs,
   Chip,
   Card,
+  CardActionArea,
   CardMedia,
   CardContent,
   CardActions,
@@ -999,7 +1000,7 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
                   {data.map((d, idx) => (
                     <MediaCard
                       key={idx}
-                      sx={{ minWidth: 240, mb: 2 }}
+                      sx={{ minWidth: 240, mb: 2, cursor: 'pointer' }}
                       imgURL={d[meta.mediaCardComponent.propsMapper.imgURL]}
                       imgALT={d[meta.mediaCardComponent.propsMapper.imgALT]}
                     />
@@ -1980,17 +1981,26 @@ function MultiField({ initialValue, meta, handleChange }) {
 [[ end ]]
 
 [[ define "MediaCard" ]]
-function MediaCard({ imgURL, imgALT, ...props }) {
+function MediaCard({ content, imgURL, imgALT, ...props }) {
+  const cardActionAreaStyles = (theme) => {
+    return {
+      '&:hover': {
+        border: `2.5px solid ${theme.palette.primary.main}`
+      },
+      border: '2.5px solid transparent'
+    };
+  };
   return (
     <Card {...props}>
-      <CardContent>
-      </CardContent>
-      <CardMedia
-        component="img"
-        height="140"
-        image={imgURL}
-        alt={imgALT}
-      />
+      <CardActionArea sx={cardActionAreaStyles}>
+        { content && <CardContent>{ content }</CardContent> }
+        <CardMedia
+          component="img"
+          height="140"
+          image={imgURL}
+          alt={imgALT}
+        />
+      </CardActionArea>
     </Card>
   );
 }
