@@ -43,12 +43,18 @@ const {
   Breadcrumbs,
   Chip,
   Card,
+  CardActionArea,
   CardMedia,
   CardContent,
   CardActions,
   FormGroup,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  useTheme
 } = MaterialUI;
 
 const {
@@ -89,6 +95,39 @@ const theme = createTheme({
     },
   },
 });
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
+
+const BootstrapDialogTitle = (props: DialogTitleProps) => {
+  const { children, onClose, ...other } = props;
+
+  return (
+    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+      {children}
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </DialogTitle>
+  );
+};
 
 const Input = styled('input')({
   display: 'none',
@@ -210,6 +249,14 @@ function SellIcon(props) {
   return (
     <SvgIcon {...props}>
       <path d="M21.41,11.41l-8.83-8.83C12.21,2.21,11.7,2,11.17,2H4C2.9,2,2,2.9,2,4v7.17c0,0.53,0.21,1.04,0.59,1.41l8.83,8.83 c0.78,0.78,2.05,0.78,2.83,0l7.17-7.17C22.2,13.46,22.2,12.2,21.41,11.41z M6.5,8C5.67,8,5,7.33,5,6.5S5.67,5,6.5,5S8,5.67,8,6.5 S7.33,8,6.5,8z"/>
+    </SvgIcon>
+  );
+}
+
+function CloseIcon(props) {
+  return (
+    <SvgIcon viewBox={"0 0 48 48"} {...props}>
+      <path d="M12.45 37.65 10.35 35.55 21.9 24 10.35 12.45 12.45 10.35 24 21.9 35.55 10.35 37.65 12.45 26.1 24 37.65 35.55 35.55 37.65 24 26.1Z"/>
     </SvgIcon>
   );
 }
@@ -999,7 +1046,7 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
                   {data.map((d, idx) => (
                     <MediaCard
                       key={idx}
-                      sx={{ minWidth: 240, mb: 2 }}
+                      sx={{ minWidth: 240, mb: 2, cursor: 'pointer' }}
                       imgURL={d[meta.mediaCardComponent.propsMapper.imgURL]}
                       imgALT={d[meta.mediaCardComponent.propsMapper.imgALT]}
                     />
@@ -1980,17 +2027,50 @@ function MultiField({ initialValue, meta, handleChange }) {
 [[ end ]]
 
 [[ define "MediaCard" ]]
-function MediaCard({ imgURL, imgALT, ...props }) {
+function MediaCard({ content, imgURL, imgALT, ...props }) {
+  const theme = useTheme();
+
+  const cardActionAreaStyles = {
+    '&:hover': {
+      border: `2.5px solid ${theme.palette.primary.main}`
+    },
+    border: '2.5px solid transparent'
+  };
+
+  const [ isModalOpen, setIsModalOpen ] = useState(false);
+  const handleModalOpen = () => setIsModalOpen(true);
+  const handleModalClose = () => setIsModalOpen(false);
+
   return (
     <Card {...props}>
-      <CardContent>
-      </CardContent>
-      <CardMedia
-        component="img"
-        height="140"
-        image={imgURL}
-        alt={imgALT}
-      />
+      <CardActionArea sx={cardActionAreaStyles} onClick={handleModalOpen}>
+        { content && <CardContent>{ content }</CardContent> }
+        <CardMedia
+          component="img"
+          height="140"
+          image={imgURL}
+          alt={imgALT}
+        />
+      </CardActionArea>
+      <BootstrapDialog open={isModalOpen} onClose={handleModalClose} aria-labelledby="customized-dialog-title">
+        <BootstrapDialogTitle id="customized-dialog-title" onClose={handleModalClose}>
+          {imgALT}
+        </BootstrapDialogTitle>
+        <DialogContent dividers>
+          <CardMedia
+            sx={{ mt: 2 }}
+            component="img"
+            height="440"
+            image={imgURL}
+            alt={imgALT}
+          />
+          <DialogActions sx={{ mt: 2 }}>
+            <Button autoFocus onClick={handleModalClose} variant="contained">
+              Save changes
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </BootstrapDialog>
     </Card>
   );
 }
