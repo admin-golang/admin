@@ -1073,6 +1073,7 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
                       key={idx}
                       appState={appState}
                       sx={{ minWidth: 240, mb: 2, cursor: 'pointer' }}
+                      imgId={d[meta.mediaCardComponent.propsMapper.imgId]}
                       imgURL={d[meta.mediaCardComponent.propsMapper.imgURL]}
                       imgALT={d[meta.mediaCardComponent.propsMapper.imgALT]}
                       form={[[ Marshal .Form ]]}
@@ -2056,8 +2057,10 @@ function MultiField({ initialValue, meta, handleChange }) {
 
 [[ define "MediaCard" ]]
 [[ $inputCheckboxType := .inputTypes.inputCheckbox ]]
-function MediaCard({ appState, content, form, formInitialValues, imgURL, imgALT, ...props }) {
+function MediaCard({ appState, content, form, formInitialValues, imgId, imgURL, imgALT, ...props }) {
   const theme = useTheme();
+  const history = useHistory();
+  const location = useLocation();
 
   const cardActionAreaStyles = {
     '&:hover': {
@@ -2067,8 +2070,15 @@ function MediaCard({ appState, content, form, formInitialValues, imgURL, imgALT,
   };
 
   const [ isModalOpen, setIsModalOpen ] = useState(false);
-  const handleModalOpen = () => setIsModalOpen(true);
-  const handleModalClose = () => setIsModalOpen(false);
+  const handleModalOpen = () => {
+    const params = new URLSearchParams({ imgId });
+    history.push({ pathname: location.pathname, search: '?' + params.toString() });
+    setIsModalOpen(true);
+  };
+  const handleModalClose = () => {
+    history.push({ pathname: location.pathname });
+    setIsModalOpen(false);
+  };
 
   const handleChanges = {};
   const fieldStates = {};
@@ -2214,6 +2224,9 @@ function useDataLoader(appState, dataLoader, paramKey) {
 [[ define "useRouteWithSearchParams" ]]
 function useRouteWithSearchParams({ url, searchParams }) {
   const params = useParams();
+  const location = useLocation();
+  const urlSearchParams = new URLSearchParams(location.search);
+  const queryParams = Object.fromEntries(urlSearchParams.entries());
 
   let route = url;
 
@@ -2223,7 +2236,10 @@ function useRouteWithSearchParams({ url, searchParams }) {
 
   searchParams.map((searchParam) => {
     if(searchParam.value.fromLocation) {
-      const param = params[searchParam.value.searchParamKey];
+      let param = params[searchParam.value.searchParamKey];
+      if(!param) {
+        param = queryParams[searchParam.value.searchParamKey];
+      }
       route = route.replace(searchParam.key, param);
     }
   });
