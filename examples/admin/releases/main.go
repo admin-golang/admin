@@ -471,13 +471,20 @@ func NewEditImagesPage() admin.Pager {
 			},
 			Submit: admin.Submit{
 				Label: "Save Changes",
-				URL:   "/releases/:release_id/images",
+				URL:   "/releases/:release_id/images/:imgId",
 				SearchParams: &navigation.SearchParams{
 					navigation.SearchParam{
 						Key: ":release_id",
 						Value: navigation.SearchParamValue{
 							FromLocation:   true,
 							SearchParamKey: "release_id",
+						},
+					},
+					navigation.SearchParam{
+						Key: ":imgId",
+						Value: navigation.SearchParamValue{
+							FromLocation:   true,
+							SearchParamKey: "imgId",
 						},
 					},
 				},
