@@ -133,9 +133,10 @@ type Release struct {
 }
 
 type ReleaseImage struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	URL          string `json:"url"`
+	TestCheckbox bool   `json:"test_checkbox"`
 }
 
 func allReleasesHandler(w http.ResponseWriter, r *http.Request) {
@@ -187,14 +188,16 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 		resp := dataloader.Response{
 			Data: []ReleaseImage{
 				{
-					ID:   releaseID,
-					Name: releaseID,
-					URL:  "https://source.unsplash.com/random/?golang",
+					ID:           releaseID,
+					Name:         releaseID,
+					URL:          "https://source.unsplash.com/random/?golang",
+					TestCheckbox: false,
 				},
 				{
-					ID:   releaseID,
-					Name: releaseID,
-					URL:  "https://source.unsplash.com/random/?golang",
+					ID:           releaseID,
+					Name:         releaseID,
+					URL:          "https://source.unsplash.com/random/?golang",
+					TestCheckbox: true,
 				},
 			},
 			Meta: dataloader.Meta{
