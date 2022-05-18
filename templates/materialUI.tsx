@@ -2086,12 +2086,12 @@ function MediaCard({ appState, content, form, formInitialValues, imgURL, imgALT,
   });
 
   const [ url ] = useRouteWithSearchParams({
-    url: form.submit.url, searchParams: form.submit.searchParams
+    url: form?.submit?.url, searchParams: form?.submit?.searchParams
   });
 
-  const [ doFetch ] = useFetch({ appState, header: form.submit.header });
+  const [ doFetch ] = useFetch({ appState, header: form?.submit?.header });
   const [ doRedirect ] = useRedirect();
-  const [ redirectURL ] = useRouteWithSearchParams({ ...form.submit.onSuccess.redirectUrl });
+  const [ redirectURL ] = useRouteWithSearchParams({ ...form?.submit?.onSuccess?.redirectUrl });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -2103,7 +2103,7 @@ function MediaCard({ appState, content, form, formInitialValues, imgURL, imgALT,
 
     const body = JSON.stringify(payload);
 
-    doFetch[form.submit.method]({ url, body }).then((data) => {
+    doFetch[form?.submit?.method]({ url, body }).then((data) => {
       handleModalClose();
       doRedirect({ url: redirectURL });
     });
