@@ -139,11 +139,15 @@ const Input = styled('input')({
 
 [[ template "MultiField" ]]
 
-[[ template "MediaCard" ]]
+[[ template "MediaCard" WrapComponent ]]
 
 [[ template "useDataLoader" ]]
 
 [[ template "useRouteWithSearchParams" ]]
+
+[[ template "useFetch" ]]
+
+[[ template "useRedirect" ]]
 
 [[ template "SnackbarWrapper" ]]
 
@@ -749,6 +753,27 @@ function [[ $page.ID]]NavTabs(props) {
 }
 [[ end ]]
 
+function CheckboxField2({ checked, label, isRequired, handleChange }) {
+  const checkbox = (
+    <Checkbox
+      checked={checked}
+      onChange={handleChange}
+      inputProps={{ 'aria-label': 'controlled' }}
+    />
+  );
+
+  return (
+    <FormGroup>
+      <FormControlLabel
+        control={checkbox}
+        label={label}
+        required={isRequired}
+      >
+      </FormControlLabel>
+    </FormGroup>
+  );
+}
+
 [[end]] [[/* JSX end */]]
 
 [[define "Dashboard"]]
@@ -1046,9 +1071,12 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
                   {data.map((d, idx) => (
                     <MediaCard
                       key={idx}
+                      appState={appState}
                       sx={{ minWidth: 240, mb: 2, cursor: 'pointer' }}
                       imgURL={d[meta.mediaCardComponent.propsMapper.imgURL]}
                       imgALT={d[meta.mediaCardComponent.propsMapper.imgALT]}
+                      form={[[ Marshal .Form ]]}
+                      formInitialValues={d}
                     />
                   ))}
                 </Box>
@@ -2027,7 +2055,8 @@ function MultiField({ initialValue, meta, handleChange }) {
 [[ end ]]
 
 [[ define "MediaCard" ]]
-function MediaCard({ content, imgURL, imgALT, ...props }) {
+[[ $inputCheckboxType := .inputTypes.inputCheckbox ]]
+function MediaCard({ appState, content, form, formInitialValues, imgURL, imgALT, ...props }) {
   const theme = useTheme();
 
   const cardActionAreaStyles = {
@@ -2040,6 +2069,45 @@ function MediaCard({ content, imgURL, imgALT, ...props }) {
   const [ isModalOpen, setIsModalOpen ] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
+
+  const handleChanges = {};
+  const fieldStates = {};
+
+  form?.fields?.map((field) => {
+    fieldStates[field.id] = useState(formInitialValues[field.id]);
+
+    handleChanges[field.id] = (e) => {
+      if(field.type === [[ $inputCheckboxType ]]) {
+        fieldStates[field.id][1](e.target.checked);
+      } else {
+        fieldStates[field.id][1](e.target.value);
+      }
+    };
+  });
+
+  const [ url ] = useRouteWithSearchParams({
+    url: form.submit.url, searchParams: form.submit.searchParams
+  });
+
+  const [ doFetch ] = useFetch({ appState, header: form.submit.header });
+  const [ doRedirect ] = useRedirect();
+  const [ redirectURL ] = useRouteWithSearchParams({ ...form.submit.onSuccess.redirectUrl });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const payload = {};
+
+    form?.fields?.map((field) => {
+      payload[field.id] = fieldStates[field.id][0];
+    });
+
+    const body = JSON.stringify(payload);
+
+    doFetch[form.submit.method]({ url, body }).then((data) => {
+      handleModalClose();
+      doRedirect({ url: redirectURL });
+    });
+  };
 
   return (
     <Card {...props}>
@@ -2057,18 +2125,29 @@ function MediaCard({ content, imgURL, imgALT, ...props }) {
           {imgALT}
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          <CardMedia
-            sx={{ mt: 2 }}
-            component="img"
-            height="440"
-            image={imgURL}
-            alt={imgALT}
-          />
-          <DialogActions sx={{ mt: 2 }}>
-            <Button autoFocus onClick={handleModalClose} variant="contained">
-              Save changes
-            </Button>
-          </DialogActions>
+          <form onSubmit={handleSubmit} >
+            <>
+              {form?.fields?.map?.((field, idx) => {
+                return (
+                  <CheckboxField2 key={idx} checked={fieldStates[field.id][0]} handleChange={handleChanges[field.id]} {...field} />
+                );
+              })}
+            </>
+            <CardMedia
+              sx={{ mt: 2 }}
+              component="img"
+              height="440"
+              image={imgURL}
+              alt={imgALT}
+            />
+            {form?.submit && <DialogActions sx={{ mt: 2 }}>
+              <>
+                <Button type="submit" autoFocus variant="contained">
+                {form.submit.label}
+              </Button>
+              </>
+            </DialogActions>}
+          </form>
         </DialogContent>
       </BootstrapDialog>
     </Card>
@@ -2150,6 +2229,50 @@ function useRouteWithSearchParams({ url, searchParams }) {
   });
 
   return [ route ];
+}
+[[ end ]]
+
+[[ define "useFetch" ]]
+function useFetch({ appState, header }) {
+  const fetchOptions = {method: "GET", headers: {}};
+
+  if(header) {
+    const parts = header.value.appStateFieldPath.split('.');
+    const headerValue = parts.reduce((prev, current) => { return prev && prev[current]; }, appState);
+    if(headerValue) {
+      const headerPrefix = header.value.prefix;
+      fetchOptions.headers[header.key] = `${headerPrefix}${headerValue}`;
+    }
+  }
+
+  const doFetch = async (url, method, body) => {
+    return fetch(url, { ...fetchOptions, method, body })
+      .then(async (response) => {
+        if(response.headers.get("content-type").includes("application/json")) {
+          return await response.json();
+        }
+        return await response.text();
+      });
+  };
+
+  return [{
+    PUT: ({ url, body }) => doFetch(url, "PUT", body)
+  }]
+}
+[[ end ]]
+
+[[ define "useRedirect" ]]
+function useRedirect() {
+  const history = useHistory();
+  const location = useLocation();
+
+  const doRedirect = ({ url }) => {
+    url && url !== location.pathname && history.push(url);
+  };
+
+  return [
+    doRedirect,
+  ];
 }
 [[ end ]]
 
