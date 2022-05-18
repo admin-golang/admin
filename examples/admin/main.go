@@ -134,6 +134,7 @@ type Release struct {
 
 type ReleaseImage struct {
 	ID           string `json:"id"`
+	UUID         string `json:"uuid"`
 	Name         string `json:"name"`
 	URL          string `json:"url"`
 	TestCheckbox bool   `json:"test_checkbox"`
@@ -189,12 +190,14 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 			Data: []ReleaseImage{
 				{
 					ID:           releaseID,
+					UUID:         "1",
 					Name:         releaseID,
 					URL:          "https://source.unsplash.com/random/?golang",
 					TestCheckbox: false,
 				},
 				{
 					ID:           releaseID,
+					UUID:         "2",
 					Name:         releaseID,
 					URL:          "https://source.unsplash.com/random/?golang",
 					TestCheckbox: true,
@@ -205,6 +208,7 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 					PropsMapper: dataloader.PropsMapper{
 						"imgURL": "url",
 						"imgALT": "name",
+						"imgId":  "uuid",
 					},
 				},
 				PageHeader: fmt.Sprintf("Go %s", releaseID),
