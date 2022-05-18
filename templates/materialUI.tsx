@@ -2071,8 +2071,10 @@ function MediaCard({ appState, content, form, formInitialValues, imgId, imgURL, 
 
   const [ isModalOpen, setIsModalOpen ] = useState(false);
   const handleModalOpen = () => {
-    const params = new URLSearchParams({ imgId });
-    history.push({ pathname: location.pathname, search: '?' + params.toString() });
+    if(imgId) {
+      const params = new URLSearchParams({ imgId });
+      history.push({ pathname: location.pathname, search: '?' + params.toString() });
+    }
     setIsModalOpen(true);
   };
   const handleModalClose = () => {
