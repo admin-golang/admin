@@ -59,9 +59,9 @@ const (
 )
 
 type Field struct {
-	ID           string `json:"id"`
-	Label        string `json:"label"`
-	Type         FieldType
+	ID           string    `json:"id"`
+	Label        string    `json:"label"`
+	Type         FieldType `json:"type"`
 	IsRequired   bool
 	FullWidth    bool `json:"fullWidth"`
 	Value        string
@@ -225,6 +225,7 @@ type CardListPageConfig struct {
 	DataLoader    *dataloader.DataLoader
 	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
+	Form          *Form
 }
 
 type CCardListPage struct {
@@ -237,6 +238,7 @@ type CCardListPage struct {
 	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
 	Header        *PageHeader
+	Form          *Form
 }
 
 func (p *CCardListPage) Icon() icon.Icon                    { return p.page.icon }
@@ -262,7 +264,7 @@ func NewCardListPage(p CardListPageConfig) Pager {
 		header:         p.Header,
 	}
 
-	return &CCardListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination, ParamKey: p.ParamKey, Header: p.Header}
+	return &CCardListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination, ParamKey: p.ParamKey, Header: p.Header, Form: p.Form}
 }
 
 type EEditPage struct {
@@ -425,22 +427,22 @@ func NewFormPage(p FormPageConfig) Pager {
 type Pages []Pager
 
 type Submit struct {
-	Label        string
-	URL          string
-	SearchParams *navigation.SearchParams
-	Method       string
-	Header       *Header
-	OnSuccess    *OnSubmitSuccess
+	Label        string                   `json:"label"`
+	URL          string                   `json:"url"`
+	SearchParams *navigation.SearchParams `json:"searchParams"`
+	Method       string                   `json:"method"`
+	Header       *Header                  `json:"header"`
+	OnSuccess    *OnSubmitSuccess         `json:"onSuccess"`
 }
 
 type Header struct {
-	Key   string
-	Value HeaderValue
+	Key   string      `json:"key"`
+	Value HeaderValue `json:"value"`
 }
 
 type HeaderValue struct {
-	Prefix            string
-	AppStateFieldPath string
+	Prefix            string `json:"prefix"`
+	AppStateFieldPath string `json:"appStateFieldPath"`
 }
 
 type RedirectURL struct {
@@ -451,14 +453,14 @@ type RedirectURL struct {
 type OnSubmitSuccess struct {
 	SetAppState          bool
 	SetAppStateFieldName string
-	RedirectURL          *RedirectURL
+	RedirectURL          *RedirectURL `json:"redirectUrl"`
 }
 
 type Form struct {
 	Navigation *navigation.Navigation
-	Fields     Fields
-	ID         string
-	Submit     Submit
+	Fields     Fields `json:"fields"`
+	ID         string `json:"id"`
+	Submit     Submit `json:"submit"`
 	Title      string
 }
 
@@ -520,6 +522,16 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	wrapComponent := func() map[string]interface{} {
+		return map[string]interface{}{
+			"inputTypes": map[string]interface{}{
+				"inputCents":    InputCents,
+				"inputMulti":    InputMulti,
+				"inputCheckbox": InputCheckbox,
+			},
+		}
+	}
+
 	wrapMenuIcons := func(menu *menu.Menu) map[string]interface{} {
 		return map[string]interface{}{
 			"menu": menu,
@@ -556,6 +568,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"WrapCardListPage": wrapCardListPage,
 		"WrapEditPage":     wrapEditPage,
 		"WrapUploadPage":   wrapUploadPage,
+		"WrapComponent":    wrapComponent,
 		"Marshal":          marshal,
 	}).Parse(ad.jsxTemplateText)
 	if err != nil {

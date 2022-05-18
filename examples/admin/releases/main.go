@@ -458,6 +458,53 @@ func NewEditImagesPage() admin.Pager {
 				FieldName: "name",
 			},
 		},
+		Form: &admin.Form{
+			ID: "ImageEdit",
+			Fields: admin.Fields{
+				admin.Field{
+					ID:         "test_checkbox",
+					Type:       admin.InputCheckbox,
+					Label:      "Test Checkbox",
+					Value:      "true",
+					IsRequired: true,
+				},
+			},
+			Submit: admin.Submit{
+				Label: "Save Changes",
+				URL:   "/releases/:release_id/images",
+				SearchParams: &navigation.SearchParams{
+					navigation.SearchParam{
+						Key: ":release_id",
+						Value: navigation.SearchParamValue{
+							FromLocation:   true,
+							SearchParamKey: "release_id",
+						},
+					},
+				},
+				Method: http.MethodPut,
+				Header: &admin.Header{
+					Key: "Authorization",
+					Value: admin.HeaderValue{
+						Prefix:            "Bearer ",
+						AppStateFieldPath: "currentUser.token",
+					},
+				},
+				OnSuccess: &admin.OnSubmitSuccess{
+					RedirectURL: &admin.RedirectURL{
+						URL: "/releases/:release_id/images",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromLocation:   true,
+									SearchParamKey: "release_id",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		DataLoader: dataloader.New(dataloader.Config{
 			URL: "/releases/:release_id/images",
 			SearchParams: &navigation.SearchParams{
