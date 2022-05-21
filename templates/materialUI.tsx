@@ -1367,8 +1367,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
       [[ if eq $field.Type $inputCentsType ]]
         const parts[[$field.ID]] = (payload["[[$field.ID]]"]+ "").split(".");
         if(parts[[$field.ID]].length > 1 && parts[[$field.ID]][1].length > 2) {
-          setAlertMessage(`[[$field.Label]] contains invalid cents value: ${payload["[[$field.ID]]"]}`);
-          setIsSnackbarOpen(true);
+          handleSetAppState({ snackBar: { alertMessage: `[[$field.Label]] contains invalid cents value: ${payload["[[$field.ID]]"]}`, severity: 'error' } });
           return;
         } else {
           payload["[[$field.ID]]"] = Math.round(payload["[[$field.ID]]"] * 100);
@@ -1639,8 +1638,7 @@ function [[ .ID ]]Upload({ appState, handleClearAppState, handleSetAppState }) {
         if (response.ok) {
           onSuccessRedirectURL && history.push(onSuccessRedirectURL);
         } else {
-          setAlertMessage(data);
-          setIsSnackbarOpen(true);
+          handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
         }
 
         return data;
