@@ -742,7 +742,7 @@ function [[ $page.ID]]NavTabs(props) {
 
   return (
     <Box {...props}>
-      <Tabs value={currentTab} aria-label="nav tabs">
+      <Tabs value={currentTab} aria-label="scrollable nav tabs" variant="scrollable" scrollButons="auto">
         [[ range $navTab := $page.NavTabs ]]
         <LinkTab label="[[ $navTab.Label ]]" href={[[ $page.ID]][[ $navTab.ID]]redirectURL("[[ $navTab.URL ]]")} />
         [[ end ]]
