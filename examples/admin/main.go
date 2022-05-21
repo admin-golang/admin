@@ -227,6 +227,11 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == http.MethodPost {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
 	w.WriteHeader(http.StatusNotFound)
 }
 
