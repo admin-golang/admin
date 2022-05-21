@@ -329,7 +329,7 @@ const AppStateLocalStorageKey = "app-state";
 function App() {
   const rawAppState = localStorage.getItem(AppStateLocalStorageKey) || {};
 
-  let initialAppState = {};
+  let initialAppState = { snackBar: { alertMessage: '', severity: '' } };
   try {
     initialAppState = JSON.parse(rawAppState);
   } catch(err) {}
@@ -364,26 +364,26 @@ function App() {
           <Route exact path="[[$page.URL]]">
           { shouldRedirect ? <Redirect to={defaultPageURL} />: null }
           [[ if eq $page.Type $.DashboardPage ]]
-							<[[ $page.ID ]]Dashboard handleClearAppState={handleClearAppState} />
+							<[[ $page.ID ]]Dashboard handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
           	[[ end ]]
           	[[ if eq $page.Type $.ListPage ]]
               <AppContext.Consumer>
               {appState => (
-							<[[ $page.ID ]]List appState={appState} handleClearAppState={handleClearAppState} />
+							<[[ $page.ID ]]List appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
               )}
               </AppContext.Consumer>
             [[ end ]]
             [[ if eq $page.Type $.CardListPage ]]
               <AppContext.Consumer>
               {appState => (
-                <[[ $page.ID ]]CardList appState={appState} handleClearAppState={handleClearAppState} />
+                <[[ $page.ID ]]CardList appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
               )}
               </AppContext.Consumer>
             [[ end ]]
             [[ if eq $page.Type $.FormPage ]]
               <AppContext.Consumer>
               {appState => (
-              <[[ $page.ID ]]Form appState={appState} handleClearAppState={handleClearAppState} />
+              <[[ $page.ID ]]Form appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
               )}
               </AppContext.Consumer>
             [[ end ]]
@@ -393,14 +393,14 @@ function App() {
           	[[ if eq $page.Type $.EditPage ]]
               <AppContext.Consumer>
               {appState => (
-              <[[ $page.ID ]]Edit appState={appState} handleClearAppState={handleClearAppState} />
+              <[[ $page.ID ]]Edit appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
               )}
               </AppContext.Consumer>
           	[[ end ]]
             [[ if eq $page.Type $.UploadPage ]]
               <AppContext.Consumer>
               {appState => (
-              <[[ $page.ID ]]Upload appState={appState} handleClearAppState={handleClearAppState} />
+              <[[ $page.ID ]]Upload appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
               )}
               </AppContext.Consumer>
             [[ end ]]
@@ -415,7 +415,7 @@ function App() {
   );
 }
 
-function Layout({ children, handleClearAppState }) {
+function Layout({ children, appState, handleClearAppState, handleSetAppState }) {
   const [open, setOpen] = React.useState(true);
 
   const toggleDrawer = () => {
@@ -437,9 +437,22 @@ function Layout({ children, handleClearAppState }) {
     return pageURLParts[1] === currentURLParts[1];
   };
 
+  const handleSnackbarClose = () => {
+    handleSetAppState({ snackBar: { alertMessage: '', severity: '' } });
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      {appState?.snackBar?.alertMessage && <SnackbarWrapper
+        isSnackbarOpen={appState?.snackBar?.alertMessage !== ""}
+        handleSnackbarClose={handleSnackbarClose}
+        vertical={"top"}
+        horizontal={"center"}
+        severity={appState?.snackBar?.severity}
+        message={appState?.snackBar?.alertMessage}
+        autoHideDuration={null}
+      />}
       <StyledAppBar position="absolute" open={open}>
         <Toolbar
           sx={{
@@ -778,10 +791,10 @@ function CheckboxField2({ checked, label, isRequired, handleChange }) {
 
 [[define "Dashboard"]]
 [[ with .page ]]
-function [[ .ID ]]Dashboard({ handleClearAppState }) {
+function [[ .ID ]]Dashboard({ appState, handleClearAppState, handleSetAppState }) {
 [[ end ]]
   return (
-    <Layout handleClearAppState={handleClearAppState}>
+    <Layout appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState}>
       <Grid item xs={12} md={8} lg={9}>
         <Paper
           sx={{
@@ -818,7 +831,7 @@ function [[ .ID ]]Dashboard({ handleClearAppState }) {
 [[define "List"]]
 [[ with .page ]]
 [[ $listPage := WrapListPage . ]]
-function [[ .ID ]]List({ appState, handleClearAppState }) {
+function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
   const history = useHistory();
 
   const [rows, setRows] = React.useState<Array>([]);
@@ -897,7 +910,7 @@ function [[ .ID ]]List({ appState, handleClearAppState }) {
   [[ end ]]
 
   return (
-    <Layout handleClearAppState={handleClearAppState} >
+    <Layout appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState}>
       <Grid item xs={12} md={12} lg={12}>
         <Paper
           sx={{
@@ -996,7 +1009,7 @@ function [[ .ID ]]List({ appState, handleClearAppState }) {
 [[define "CardList"]]
 [[ with .page ]]
 [[ $listPage := WrapCardListPage . ]]
-function [[ .ID ]]CardList({ appState, handleClearAppState }) {
+function [[ .ID ]]CardList({ appState, handleClearAppState, handleSetAppState }) {
   const history = useHistory();
   const [ data, setData ] = useState([]);
   const [ meta, setMeta ] = useState({});
@@ -1028,7 +1041,7 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
   [[end]]
 
   return (
-    <Layout handleClearAppState={handleClearAppState} >
+    <Layout appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState}>
       <Grid container>
         <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
           <Breadcrumbs aria-label="breadcrumb">
@@ -1093,7 +1106,7 @@ function [[ .ID ]]CardList({ appState, handleClearAppState }) {
 
 [[define "Form"]]
 [[ with .page ]]
-function [[ .ID ]]Form({ appState, handleClearAppState }) {
+function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
   const history = useHistory();
 
   [[range $field := .Form.Fields]]
@@ -1150,22 +1163,15 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
         if (response.ok) {
           onSuccessRedirectURL && history.push(onSuccessRedirectURL);
         } else {
-          setAlertMessage(data);
-          setIsSnackbarOpen(true);
+          handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
         }
 
         return data;
       });
   };
 
-  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const handleSnackbarClose = () => {
-    setIsSnackbarOpen(false);
-  };
-
   return (
-    <Layout handleClearAppState={handleClearAppState}>
+    <Layout appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState}>
       <Grid container>
         <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
           <Breadcrumbs aria-label="breadcrumb">
@@ -1262,7 +1268,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState }) {
 [[ $inputCheckboxType := .inputTypes.inputCheckbox ]]
 [[ with .page ]]
 [[ $editPage := WrapEditPage . ]]
-function [[ .ID ]]Edit({ appState, handleClearAppState }) {
+function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
   const history = useHistory();
   const params = useParams();
 
@@ -1407,31 +1413,15 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
         if (response.ok) {
           onSuccessRedirectURL && history.push(onSuccessRedirectURL);
         } else {
-          setAlertMessage(data);
-          setIsSnackbarOpen(true);
+          handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
         }
 
         return data;
       });
   };
 
-  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const handleSnackbarClose = () => {
-    setIsSnackbarOpen(false);
-  };
-
   return (
-    <Layout handleClearAppState={handleClearAppState}>
-      <SnackbarWrapper
-        isSnackbarOpen={isSnackbarOpen}
-        handleSnackbarClose={handleSnackbarClose}
-        vertical={"top"}
-        horizontal={"center"}
-        severity={"error"}
-        message={alertMessage}
-        autoHideDuration={null}
-      />
+    <Layout appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState}>
       <Grid container>
         <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
           <Breadcrumbs aria-label="breadcrumb">
@@ -1547,7 +1537,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState }) {
 [[define "Upload"]]
 [[ with .page ]]
 [[ $uploadPage := WrapUploadPage . ]]
-function [[ .ID ]]Upload({ appState, handleClearAppState }) {
+function [[ .ID ]]Upload({ appState, handleClearAppState, handleSetAppState }) {
   const history = useHistory();
   const params = useParams();
 
@@ -1657,18 +1647,12 @@ function [[ .ID ]]Upload({ appState, handleClearAppState }) {
       });
   };
 
-  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const handleSnackbarClose = () => {
-    setIsSnackbarOpen(false);
-  };
-
   const handleSetFile = (file) => {
     formData.append('file', file);
   };
 
   return (
-    <Layout handleClearAppState={handleClearAppState}>
+    <Layout appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState}>
       <Grid container>
         <Grid item xs={12} sm={12} sx={{ mt: 2, ml: 3 }}>
           <Breadcrumbs aria-label="breadcrumb">
