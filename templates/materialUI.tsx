@@ -1532,7 +1532,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
                 [[ end ]]
                 [[ if eq $field.Type $inputSelectType ]]
                   <Grid item xs={12}>
-                    <Grid item xs={12} md={2}>
+                    <Grid item xs={4} md={2}>
                       <DefaultSelect
                         label={"[[ $field.Label ]]"}
                         disabled={[[ $field.Disabled ]]}
