@@ -167,6 +167,14 @@ func NewEditPage() admin.Pager {
 					FullWidth:    true,
 				},
 				admin.Field{
+					ID:         "test_select",
+					Type:       admin.InputSelect,
+					Label:      "Test Select",
+					Value:      "Default Value",
+					IsRequired: true,
+					Disabled:   true,
+				},
+				admin.Field{
 					ID:         "test_cents",
 					Type:       admin.InputCents,
 					Label:      "Test Cents",
@@ -210,14 +218,6 @@ func NewEditPage() admin.Pager {
 					Label:      "Test Checkbox",
 					Value:      "true",
 					IsRequired: true,
-				},
-				admin.Field{
-					ID:         "test_select",
-					Type:       admin.InputSelect,
-					Label:      "Test Select",
-					Value:      "Default Value",
-					IsRequired: true,
-					Disabled:   true,
 				},
 			},
 			Submit: admin.Submit{
