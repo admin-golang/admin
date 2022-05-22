@@ -329,7 +329,11 @@ const AppStateLocalStorageKey = "app-state";
 function App() {
   const rawAppState = localStorage.getItem(AppStateLocalStorageKey) || {};
 
-  let initialAppState = { snackBar: { alertMessage: '', severity: '' } };
+  let initialAppState = {
+    snackBar: { alertMessage: '', severity: '' },
+    toolBar: { isOpen: true }
+  };
+
   try {
     initialAppState = JSON.parse(rawAppState);
   } catch(err) {}
@@ -364,7 +368,11 @@ function App() {
           <Route exact path="[[$page.URL]]">
           { shouldRedirect ? <Redirect to={defaultPageURL} />: null }
           [[ if eq $page.Type $.DashboardPage ]]
-							<[[ $page.ID ]]Dashboard handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
+              <AppContext.Consumer>
+              {appState => (
+							<[[ $page.ID ]]Dashboard appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
+              )}
+              </AppContext.Consumer>
           	[[ end ]]
           	[[ if eq $page.Type $.ListPage ]]
               <AppContext.Consumer>
@@ -416,10 +424,11 @@ function App() {
 }
 
 function Layout({ children, appState, handleClearAppState, handleSetAppState }) {
-  const [open, setOpen] = React.useState(true);
+  const [isToolbarOpen, setIsToolbarOpen] = React.useState(appState?.toolBar?.isOpen);
 
-  const toggleDrawer = () => {
-    setOpen(!open);
+  const toggleToolbarOpen = () => {
+    setIsToolbarOpen(!isToolbarOpen);
+    handleSetAppState({ toolBar: { isOpen: !isToolbarOpen }});
   };
 
   const location = useLocation();
@@ -453,7 +462,7 @@ function Layout({ children, appState, handleClearAppState, handleSetAppState }) 
         message={appState?.snackBar?.alertMessage}
         autoHideDuration={null}
       />}
-      <StyledAppBar position="absolute" open={open}>
+      <StyledAppBar position="absolute" open={isToolbarOpen}>
         <Toolbar
           sx={{
             pr: '24px', // keep right padding when drawer closed
@@ -463,10 +472,10 @@ function Layout({ children, appState, handleClearAppState, handleSetAppState }) 
             edge="start"
             color="inherit"
             aria-label="open drawer"
-            onClick={toggleDrawer}
+            onClick={toggleToolbarOpen}
             sx={{
               marginRight: '36px',
-              ...(open && { display: 'none' }),
+              ...(isToolbarOpen && { display: 'none' }),
             }}
           >
             <MenuIcon />
@@ -485,7 +494,7 @@ function Layout({ children, appState, handleClearAppState, handleSetAppState }) 
           [[end]]
         </Toolbar>
       </StyledAppBar>
-      <StyledDrawer variant="permanent" open={open}>
+      <StyledDrawer variant="permanent" open={isToolbarOpen}>
         <Toolbar
           sx={{
             display: 'flex',
@@ -494,7 +503,7 @@ function Layout({ children, appState, handleClearAppState, handleSetAppState }) 
             px: [1],
           }}
         >
-          <IconButton onClick={toggleDrawer}>
+          <IconButton onClick={toggleToolbarOpen}>
             <ChevronLeftIcon />
           </IconButton>
         </Toolbar>
