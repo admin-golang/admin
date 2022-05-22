@@ -493,7 +493,7 @@ function Layout({ children, appState, handleClearAppState, handleSetAppState }) 
             noWrap
             sx={{ flexGrow: 1 }}
           >
-            Dashboard
+            [[ .Layout.Title ]]
           </Typography>
           [[ if and .Layout .Layout.Menu ]]
           [[ template "MenuIcons" (WrapMenuIcons .Layout.Menu) ]]
