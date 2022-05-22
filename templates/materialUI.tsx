@@ -1532,7 +1532,7 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
                 [[ end ]]
                 [[ if eq $field.Type $inputSelectType ]]
                   <Grid item xs={12}>
-                    <Grid item xs={4} md={2}>
+                    <Grid item xs={12} md={6}>
                       <DefaultSelect
                         label={"[[ $field.Label ]]"}
                         disabled={[[ $field.Disabled ]]}
@@ -1976,8 +1976,8 @@ function DefaultSelect({ id, label, disabled, defaultValue, values = [] }) {
   };
 
   return (
-    <Box sx={{ mt: 1 }}>
-      <FormControl fullWidth disabled={disabled}>
+    <Box sx={{ width: 230, mt: 1 }}>
+      <FormControl fullWidth={true} disabled={disabled}>
         <InputLabel id={id}>{label}</InputLabel>
         <Select
           labelId={id}
