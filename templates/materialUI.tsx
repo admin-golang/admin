@@ -54,7 +54,11 @@ const {
   DialogTitle,
   DialogContent,
   DialogActions,
-  useTheme
+  useTheme,
+  Select,
+  OutlinedInput,
+  FormControl,
+  InputLabel
 } = MaterialUI;
 
 const {
@@ -140,6 +144,8 @@ const Input = styled('input')({
 [[ template "MultiField" ]]
 
 [[ template "MediaCard" WrapComponent ]]
+
+[[ template "DefaultSelect" ]]
 
 [[ template "useDataLoader" ]]
 
@@ -1275,6 +1281,7 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
 [[ $inputCentsType := .inputTypes.inputCents ]]
 [[ $inputMultiType := .inputTypes.inputMulti ]]
 [[ $inputCheckboxType := .inputTypes.inputCheckbox ]]
+[[ $inputSelectType := .inputTypes.inputSelect ]]
 [[ with .page ]]
 [[ $editPage := WrapEditPage . ]]
 function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
@@ -1520,6 +1527,18 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
                   <Grid item xs={12}>
                     <Grid item xs={12} md={12}>
                       [[ template "CheckboxField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                    </Grid>
+                  </Grid>
+                [[ end ]]
+                [[ if eq $field.Type $inputSelectType ]]
+                  <Grid item xs={12}>
+                    <Grid item xs={12} md={12}>
+                      <DefaultSelect
+                        label={"[[ $field.Label ]]"}
+                        disabled={[[ $field.Disabled ]]}
+                        defaultValue={"[[ $field.Value ]]"}
+                        values={["[[ $field.Value ]]"]}
+                      />
                     </Grid>
                   </Grid>
                 [[ end ]]
@@ -1946,6 +1965,33 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   >
   </FormControlLabel>
 </FormGroup>
+[[end]]
+
+[[define "DefaultSelect"]]
+function DefaultSelect({ id, label, disabled, defaultValue, values = [] }) {
+  const [val, setVal] = React.useState(defaultValue);
+
+  const handleChange = (e) => {
+    setVal(e.target.value);
+  };
+
+  return (
+    <Box sx={{ minWidth: 120, mt: 1 }}>
+      <FormControl fullWidth disabled={disabled}>
+        <InputLabel id={id}>{label}</InputLabel>
+        <Select
+          labelId={id}
+          id={id}
+          value={val}
+          label={label}
+          onChange={handleChange}
+        >
+          {values.map(v => ( <MenuItem key={v} value={v}>{v}</MenuItem> ))}
+        </Select>
+      </FormControl>
+    </Box>
+  );
+}
 [[end]]
 
 [[define "FileField"]]
