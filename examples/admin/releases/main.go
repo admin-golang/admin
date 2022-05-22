@@ -211,6 +211,14 @@ func NewEditPage() admin.Pager {
 					Value:      "true",
 					IsRequired: true,
 				},
+				admin.Field{
+					ID:         "test_select",
+					Type:       admin.InputSelect,
+					Label:      "Test Select",
+					Value:      "Default Value",
+					IsRequired: true,
+					Disabled:   true,
+				},
 			},
 			Submit: admin.Submit{
 				Label: "Edit",

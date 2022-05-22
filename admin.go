@@ -44,6 +44,7 @@ const (
 	InputCents
 	InputMulti
 	InputCheckbox
+	InputSelect
 )
 
 type PageType uint
@@ -69,6 +70,7 @@ type Field struct {
 	NumberOfRows int
 	Fields       Fields
 	Width        int `json:"width"`
+	Disabled     bool
 }
 
 type Fields []Field
@@ -518,6 +520,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				"inputCents":    InputCents,
 				"inputMulti":    InputMulti,
 				"inputCheckbox": InputCheckbox,
+				"inputSelect":   InputSelect,
 			},
 		}
 	}
