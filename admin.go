@@ -272,7 +272,6 @@ func NewCardListPage(p CardListPageConfig) Pager {
 type EEditPage struct {
 	page page
 
-	ParamKey   string
 	DataLoader *dataloader.DataLoader
 	Form       Form
 	Header     *PageHeader
@@ -300,7 +299,7 @@ func NewEditPage(p EditPageConfig) Pager {
 		toolbarEnabled: p.ToolbarEnabled,
 	}
 
-	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey, Header: p.Header}
+	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, Header: p.Header}
 }
 
 type UUploadPage struct {
