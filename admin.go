@@ -290,6 +290,7 @@ func (p *EEditPage) PageHeader() *PageHeader            { return p.page.header }
 
 func NewEditPage(p EditPageConfig) Pager {
 	page := page{
+		icon:           p.Icon,
 		id:             p.ID,
 		ttype:          p.Type,
 		url:            p.URL,
@@ -331,6 +332,7 @@ type UploadPageConfig struct {
 
 func NewUploadPage(p UploadPageConfig) Pager {
 	page := page{
+		icon:           p.Icon,
 		id:             p.ID,
 		ttype:          p.Type,
 		url:            p.URL,
