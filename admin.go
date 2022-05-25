@@ -290,12 +290,13 @@ func (p *EEditPage) PageHeader() *PageHeader            { return p.page.header }
 
 func NewEditPage(p EditPageConfig) Pager {
 	page := page{
-		id:         p.ID,
-		ttype:      p.Type,
-		url:        p.URL,
-		navTabs:    p.NavTabs,
-		header:     p.Header,
-		navigation: p.Navigation,
+		id:             p.ID,
+		ttype:          p.Type,
+		url:            p.URL,
+		navTabs:        p.NavTabs,
+		header:         p.Header,
+		navigation:     p.Navigation,
+		toolbarEnabled: p.ToolbarEnabled,
 	}
 
 	return &EEditPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey, Header: p.Header}
@@ -330,12 +331,13 @@ type UploadPageConfig struct {
 
 func NewUploadPage(p UploadPageConfig) Pager {
 	page := page{
-		id:         p.ID,
-		ttype:      p.Type,
-		url:        p.URL,
-		navTabs:    p.NavTabs,
-		header:     p.Header,
-		navigation: p.Navigation,
+		id:             p.ID,
+		ttype:          p.Type,
+		url:            p.URL,
+		navTabs:        p.NavTabs,
+		header:         p.Header,
+		navigation:     p.Navigation,
+		toolbarEnabled: p.ToolbarEnabled,
 	}
 
 	return &UUploadPage{page: page, Form: p.Form, DataLoader: p.DataLoader, ParamKey: p.ParamKey, Header: p.Header}
