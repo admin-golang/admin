@@ -1293,51 +1293,22 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
   [[ end ]]
 
   [[ if .DataLoader ]]
-  useEffect(() => {
-    const abortCtrl = new AbortController();
-    const fetchOptions = { method: "[[ $editPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
-    [[ if $editPage.DataLoader.Header ]]
-      if (appState?.[[ $editPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
-        const headerPrefix = "[[ $editPage.DataLoader.Header.Value.Prefix ]]";
-        const headerValue = appState?.[[ $editPage.DataLoader.Header.Value.AppStateFieldPath ]];
-        fetchOptions.headers["[[ $editPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+    [[ $dataLoader := Marshal $editPage.DataLoader ]]
+    const [ response ] = useDataLoader(appState, [[ $dataLoader ]]);
+    useEffect(() => {
+      if(response?.data) {
+        [[ if $editPage.Header ]]
+          set[[ $editPage.Header.ID ]](response.data["[[ $editPage.Header.FieldName ]]"]);
+        [[ end ]]
+        [[ range $field := .Form.Fields ]]
+          [[ if eq $field.Type $inputCentsType ]]
+            set[[$field.ID]](response.data[ "[[$field.ID]]" ] / 100);
+          [[ else ]]
+            set[[$field.ID]](response.data[ "[[$field.ID]]" ]);
+          [[ end ]]
+        [[ end ]]
       }
-    [[ end ]]
-
-    const fetchURLParam = params["[[ $editPage.ParamKey ]]"];
-    const fetchURL = `[[ $editPage.DataLoader.URL ]]/${fetchURLParam}`;
-
-    fetch(fetchURL, fetchOptions)
-      .then(async (response) => {
-        var resp: any;
-
-        if (response.headers.get("content-type").includes("application/json")) {
-          resp = await response.json();
-        } else {
-          resp = await response.text();
-        }
-
-        if (response.ok) {
-          [[ if $editPage.Header ]]
-            set[[ $editPage.Header.ID ]](resp.data["[[ $editPage.Header.FieldName ]]"]);
-          [[ end ]]
-          [[ range $field := .Form.Fields ]]
-            [[ if eq $field.Type $inputCentsType ]]
-              set[[$field.ID]](resp.data[ "[[$field.ID]]" ] / 100);
-            [[ else ]]
-              set[[$field.ID]](resp.data[ "[[$field.ID]]" ]);
-            [[ end ]]
-          [[ end ]]
-        } else {
-        }
-      })
-      .catch(err => {
-        if (err.name === "AbortError") return;
-        throw err;
-      });
-
-      return () => { abortCtrl.abort() };
-  }, []);
+    }, [ response ]);
   [[end]]
 
   [[range $field := .Form.Fields]]
@@ -2206,7 +2177,7 @@ function MediaCard({ appState, content, form, formInitialValues, imgId, imgURL, 
 [[ end ]]
 
 [[ define "useDataLoader" ]]
-function useDataLoader(appState, dataLoader, paramKey) {
+function useDataLoader(appState, dataLoader) {
   const [ response, setResponse ] = useState();
   const params = useParams();
 
