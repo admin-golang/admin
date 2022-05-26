@@ -8,6 +8,7 @@ const (
 	Dashboard
 	Inventory
 	Sell
+	Settings
 )
 
 type Icon struct {
