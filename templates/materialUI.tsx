@@ -538,19 +538,19 @@ function Layout({ children, appState, handleClearAppState, handleSetAppState }) 
               <ListItem button
                 selected={isSelected("[[ $page.URL ]]", location.pathname)}>
                 <ListItemIcon>
-                  [[ if eq $page.Icon.Type 2 ]]
-  					        <DashboardIcon />
+                  [[ if eq $page.Icon.Type $.DashboardIcon ]]
+                  <DashboardIcon />
                   [[ end ]]
-                  [[ if eq $page.Icon.Type 3 ]]
-  					        <InventoryIcon />
+                  [[ if eq $page.Icon.Type $.InventoryIcon ]]
+                  <InventoryIcon />
                   [[ end ]]
-                  [[ if eq $page.Icon.Type 4 ]]
+                  [[ if eq $page.Icon.Type $.SellIcon ]]
                   <SellIcon />
                   [[ end ]]
-                  [[ if eq $page.Icon.Type 5 ]]
+                  [[ if eq $page.Icon.Type $.SettingsIcon ]]
                   <SettingsIcon />
                   [[ end ]]
-                  [[ if eq $page.Icon.Type 6 ]]
+                  [[ if eq $page.Icon.Type $.PeopleIcon ]]
                   <PeopleIcon />
                   [[ end ]]
   					    </ListItemIcon>
