@@ -600,6 +600,11 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ClearAppStateAction state.ActionType
 		AccountCircleIcon   icon.IconType
 		NotificationsIcon   icon.IconType
+		PeopleIcon          icon.IconType
+		SettingsIcon        icon.IconType
+		SellIcon            icon.IconType
+		InventoryIcon       icon.IconType
+		DashboardIcon       icon.IconType
 	}{
 		Layout:              ad.layout,
 		Pages:               ad.pages,
@@ -614,6 +619,11 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ClearAppStateAction: state.ClearAppState,
 		AccountCircleIcon:   icon.AccountCircle,
 		NotificationsIcon:   icon.Notifications,
+		PeopleIcon:          icon.People,
+		SettingsIcon:        icon.Settings,
+		SellIcon:            icon.Sell,
+		InventoryIcon:       icon.Inventory,
+		DashboardIcon:       icon.Dashboard,
 	}
 
 	if err := jsxTemplate.Execute(&jsxWriter, jsxData); err != nil {

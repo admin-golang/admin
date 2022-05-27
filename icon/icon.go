@@ -9,6 +9,7 @@ const (
 	Inventory
 	Sell
 	Settings
+	People
 )
 
 type Icon struct {
