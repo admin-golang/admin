@@ -957,8 +957,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
             height: 640,
           }}
         >
-          [[ if IsNotNil $listPage.MainButton ]]
-          <Grid container spacing={0}>
+          <Grid container spacing={0} sx={{ mt: 1, mb: 4 }}>
           	<Grid item xs={8}>
        		 		<Typography
        		 		  variant="h6"
@@ -968,6 +967,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
        		 		[[ $listPage.Title ]]
        		 		</Typography>
           	</Grid>
+            [[ if IsNotNil $listPage.MainButton ]]
           	<Grid item xs={4}>
             	<Grid container item justifyContent="flex-end">
             		<Grid item xs={10} md={4} lg={4} justifyContent="flex-end">
@@ -977,7 +977,6 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
             		      fullWidth
             		      variant="contained"
             		      size="small"
-            		      sx={{ mt: 1, mb: 4 }}
             		      href="#[[ $listPage.MainButton.URL ]]"
             		    >
             		    [[ $listPage.MainButton.Label ]]
@@ -986,8 +985,8 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
             		</Grid>
             	</Grid>
           	</Grid>
+            [[ end ]]
           </Grid>
-          [[ end ]]
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
               <TableHead>
