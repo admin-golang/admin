@@ -227,7 +227,7 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method == http.MethodPost {
+	if r.Method == http.MethodPost || r.Method == http.MethodPut {
 		w.Header().Add("Content-Type", "application/json")
 		resp := dataloader.Response{
 			Meta: dataloader.Meta{
@@ -239,6 +239,7 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+		w.WriteHeader(http.StatusOK)
 		w.Write(b)
 		return
 	}
