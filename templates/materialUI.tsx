@@ -155,6 +155,8 @@ const Input = styled('input')({
 
 [[ template "useRedirect" ]]
 
+[[ template "useSnackbar" ]]
+
 [[ template "SnackbarWrapper" ]]
 
 [[ template "PaperHeader" ]]
@@ -1186,6 +1188,8 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
       }
     [[ end ]]
 
+    const [ setSnackbarMessage ] = useSnackbar(handleSetAppState);
+
     fetch("[[ .Form.Submit.URL ]]", fetchOptions)
       .then(async (response) => {
         var data;
@@ -1198,12 +1202,9 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
 
         if (response.ok) {
           onSuccessRedirectURL && history.push(onSuccessRedirectURL);
-          const msg = data?.meta?.message;
-          if(msg && msg !== "") {
-            handleSetAppState({ snackBar: { alertMessage: msg, severity: 'success' } });
-          }
+          setSnackbarMessage(data?.meta?.message, 'success');
         } else {
-          handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
+          setSnackbarMessage(data?.meta?.message, 'error');
         }
 
         return data;
@@ -1411,6 +1412,8 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
       [[ end ]]
     [[ end ]]
 
+    const [ setSnackbarMessage ] = useSnackbar(handleSetAppState);
+
     fetch(fetchURL, fetchOptions)
       .then(async (response) => {
         var data;
@@ -1423,8 +1426,9 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
 
         if (response.ok) {
           onSuccessRedirectURL && history.push(onSuccessRedirectURL);
+          setSnackbarMessage(data?.meta?.message, 'success');
         } else {
-          handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
+          setSnackbarMessage(data?.meta?.message, 'error');
         }
 
         return data;
@@ -2324,6 +2328,20 @@ function useRedirect() {
 
   return [
     doRedirect,
+  ];
+}
+[[ end ]]
+
+[[ define "useSnackbar" ]]
+function useSnackbar(handleSetAppState) {
+  const setSnackbarMessage = (msg: string, severity: string) => {
+    if(msg && msg !== "") {
+      handleSetAppState({ snackBar: { alertMessage: msg, severity } });
+    }
+  };
+
+  return [
+    setSnackbarMessage,
   ];
 }
 [[ end ]]
