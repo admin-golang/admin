@@ -1336,12 +1336,12 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
   };
   [[end]]
 
-  let onSuccessRedirectURL = null;
-  [[ if .Form.Submit.OnSuccess ]]
-  [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
-  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
-  onSuccessRedirectURL = redirectURLWithSearchParams;
-  [[ end ]]
+  const form = [[ Marshal .Form ]];
+  const [ url ] = useRouteWithSearchParams({
+    url: form?.submit?.url, searchParams: form?.submit?.searchParams
+  });
+  const [ doFetch ] = useFetch({ appState, header: form?.submit?.header, handleSetAppState });
+  const [ doRedirect ] = useRedirect();
 
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1364,51 +1364,18 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
       [[ end ]]
     [[end]]
 
-    const fetchOptions = {
-      method: "[[ .Form.Submit.Method ]]",
-      body: JSON.stringify(payload),
-      headers: {}
-    };
+    const body = JSON.stringify(payload);
 
-    [[ if .Form.Submit.Header ]]
-      if (appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]]) {
-        const headerPrefix = "[[ .Form.Submit.Header.Value.Prefix ]]";
-        const headerValue = appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]];
-        fetchOptions.headers["[[ .Form.Submit.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
-      }
-    [[ end ]]
-
-    let fetchURL = "[[ .Form.Submit.URL ]]";
-    [[ if .Form.Submit.SearchParams ]]
-      [[ range $searchParam := .Form.Submit.SearchParams ]]
-        [[ if $searchParam.Value.FromLocation ]]
-          const param[[ $searchParam.Value.SearchParamKey ]]Value = params["[[ $searchParam.Value.SearchParamKey ]]"];
-          fetchURL = fetchURL.replace("[[ $searchParam.Key ]]", param[[ $searchParam.Value.SearchParamKey ]]Value);
-        [[ end ]]
-      [[ end ]]
-    [[ end ]]
-
-    const [ setSnackbarMessage ] = useSnackbar(handleSetAppState);
-
-    fetch(fetchURL, fetchOptions)
-      .then(async (response) => {
-        var data;
-
-        if (response.headers.get("content-type").includes("application/json")) {
-          data = await response.json();
-        } else {
-          data = await response.text();
-        }
-
-        if (response.ok) {
-          onSuccessRedirectURL && history.push(onSuccessRedirectURL);
-          setSnackbarMessage(data?.meta?.message, 'success');
-        } else {
-          setSnackbarMessage(data?.meta?.message, 'error');
-        }
-
-        return data;
+    doFetch[form?.submit?.method]({ url, body }).then(({ data }) => {
+      let redirectURL = form?.submit?.onSuccess?.redirectUrl?.url;
+      form?.submit?.onSuccess?.redirectUrl?.searchParams?.map(searchParam => {
+        redirectURL = redirectURL.replace(searchParam.key, data[searchParam?.value?.responseFieldPath]);
       });
+      if(redirectURL) {
+        doRedirect({ url: redirectURL });
+      }
+    });
+
   };
 
   return (
