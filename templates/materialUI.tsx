@@ -1158,12 +1158,12 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
   };
   [[end]]
 
-  let onSuccessRedirectURL = null;
-  [[ if .Form.Submit.OnSuccess ]]
-  [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
-  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
-  onSuccessRedirectURL = redirectURLWithSearchParams;
-  [[ end ]]
+  const form = [[ Marshal .Form ]];
+  const [ url ] = useRouteWithSearchParams({
+    url: form?.submit?.url, searchParams: form?.submit?.searchParams
+  });
+  const [ doFetch ] = useFetch({ appState, header: form?.submit?.header, handleSetAppState });
+  const [ doRedirect ] = useRedirect();
 
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1174,41 +1174,17 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
       [[end]]
     };
 
-    const fetchOptions = {
-      method: "[[ .Form.Submit.Method ]]",
-      body: JSON.stringify(payload),
-      headers: {}
-    };
+    const body = JSON.stringify(payload);
 
-    [[ if .Form.Submit.Header ]]
-      if (appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]]) {
-        const headerPrefix = "[[ .Form.Submit.Header.Value.Prefix ]]";
-        const headerValue = appState?.[[ .Form.Submit.Header.Value.AppStateFieldPath ]];
-        fetchOptions.headers["[[ .Form.Submit.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
-      }
-    [[ end ]]
-
-    const [ setSnackbarMessage ] = useSnackbar(handleSetAppState);
-
-    fetch("[[ .Form.Submit.URL ]]", fetchOptions)
-      .then(async (response) => {
-        var data;
-
-        if (response.headers.get("content-type").includes("application/json")) {
-          data = await response.json();
-        } else {
-          data = await response.text();
-        }
-
-        if (response.ok) {
-          onSuccessRedirectURL && history.push(onSuccessRedirectURL);
-          setSnackbarMessage(data?.meta?.message, 'success');
-        } else {
-          setSnackbarMessage(data?.meta?.message, 'error');
-        }
-
-        return data;
+    doFetch[form?.submit?.method]({ url, body }).then(({ data }) => {
+      let redirectURL = form?.submit?.onSuccess?.redirectUrl?.url;
+      form?.submit?.onSuccess?.redirectUrl?.searchParams?.map(searchParam => {
+        redirectURL = redirectURL.replace(searchParam.key, data[searchParam?.value?.responseFieldPath]);
       });
+      if(redirectURL) {
+        doRedirect({ url: redirectURL });
+      }
+    });
   };
 
   return (
@@ -2139,7 +2115,7 @@ function MediaCard({ appState, content, form, formInitialValues, imgId, imgURL, 
     url: form?.submit?.url, searchParams: form?.submit?.searchParams
   });
 
-  const [ doFetch ] = useFetch({ appState, header: form?.submit?.header });
+  const [ doFetch ] = useFetch({ appState, header: form?.submit?.header, handleSetAppState });
   const [ doRedirect ] = useRedirect();
   const [ redirectURL ] = useRouteWithSearchParams({ ...form?.submit?.onSuccess?.redirectUrl });
 
@@ -2289,7 +2265,9 @@ function useRouteWithSearchParams({ url, searchParams }) {
 [[ end ]]
 
 [[ define "useFetch" ]]
-function useFetch({ appState, header }) {
+function useFetch({ appState, header, handleSetAppState}) {
+  const [ setSnackbarMessage ] = useSnackbar(handleSetAppState);
+
   const fetchOptions = {method: "GET", headers: {}};
 
   if(header) {
@@ -2304,15 +2282,27 @@ function useFetch({ appState, header }) {
   const doFetch = async (url, method, body) => {
     return fetch(url, { ...fetchOptions, method, body })
       .then(async (response) => {
+        let data;
+
         if(response.headers.get("content-type").includes("application/json")) {
-          return await response.json();
+          data = await response.json();
+        } else {
+          data = await response.text();
         }
-        return await response.text();
+
+        if(response.ok) {
+          setSnackbarMessage(data?.meta?.message, 'success');
+        } else {
+          setSnackbarMessage(data?.meta?.message, 'error');
+        }
+
+        return data;
       });
   };
 
   return [{
-    PUT: ({ url, body }) => doFetch(url, "PUT", body)
+    PUT: ({ url, body }) => doFetch(url, "PUT", body),
+    POST: ({ url, body }) => doFetch(url, "POST", body)
   }]
 }
 [[ end ]]
