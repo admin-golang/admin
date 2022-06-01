@@ -1412,6 +1412,8 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
       [[ end ]]
     [[ end ]]
 
+    const [ setSnackbarMessage ] = useSnackbar(handleSetAppState);
+
     fetch(fetchURL, fetchOptions)
       .then(async (response) => {
         var data;
@@ -1424,9 +1426,9 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
 
         if (response.ok) {
           onSuccessRedirectURL && history.push(onSuccessRedirectURL);
-          handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
+          setSnackbarMessage(data?.meta?.message, 'success');
         } else {
-          handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
+          setSnackbarMessage(data?.meta?.message, 'error');
         }
 
         return data;
@@ -2333,7 +2335,9 @@ function useRedirect() {
 [[ define "useSnackbar" ]]
 function useSnackbar(handleSetAppState) {
   const setSnackbarMessage = (msg: string, severity: string) => {
-    handleSetAppState({ snackBar: { alertMessage: msg, severity } });
+    if(msg && msg !== "") {
+      handleSetAppState({ snackBar: { alertMessage: msg, severity } });
+    }
   };
 
   return [
