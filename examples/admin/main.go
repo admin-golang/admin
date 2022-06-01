@@ -230,6 +230,13 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost || r.Method == http.MethodPut {
 		w.Header().Add("Content-Type", "application/json")
 		resp := dataloader.Response{
+			Data: Release{
+				ID:          "go1.16",
+				Name:        "Go 1.16",
+				Description: "Go 1.16 description",
+				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
+				URL:         "https://go.dev/doc/go1.16",
+			},
 			Meta: dataloader.Meta{
 				Message: "ok",
 			},
