@@ -375,7 +375,16 @@ func NewCreatePage() admin.Pager {
 				},
 				OnSuccess: &admin.OnSubmitSuccess{
 					RedirectURL: &admin.RedirectURL{
-						URL: "/releases",
+						URL: "/releases/:release_id",
+						SearchParams: &navigation.SearchParams{
+							navigation.SearchParam{
+								Key: ":release_id",
+								Value: navigation.SearchParamValue{
+									FromResponse:      true,
+									ResponseFieldPath: "id",
+								},
+							},
+						},
 					},
 				},
 			},
