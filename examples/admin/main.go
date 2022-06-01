@@ -228,7 +228,18 @@ func releasesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		w.Header().Add("Content-Type", "application/json")
+		resp := dataloader.Response{
+			Meta: dataloader.Meta{
+				Message: "ok",
+			},
+		}
+		b, err := json.Marshal(resp)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		w.Write(b)
 		return
 	}
 

@@ -1198,6 +1198,10 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
 
         if (response.ok) {
           onSuccessRedirectURL && history.push(onSuccessRedirectURL);
+          const msg = data?.meta?.message;
+          if(msg && msg !== "") {
+            handleSetAppState({ snackBar: { alertMessage: msg, severity: 'success' } });
+          }
         } else {
           handleSetAppState({ snackBar: { alertMessage: data, severity: 'error' } });
         }
