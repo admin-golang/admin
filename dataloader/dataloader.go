@@ -66,7 +66,8 @@ type Meta struct {
 	Headers            []string           `json:"headers,omitempty"`
 	Components         map[string]string  `json:"components,omitempty"`
 	MediaCardComponent MediaCardComponent `json:"mediaCardComponent"`
-	PageHeader         string             `json:"pageHeader",omitempty`
+	PageHeader         string             `json:"pageHeader,omitempty"`
+	Message            string             `json:"message,omitempty"`
 }
 
 type Response struct {
