@@ -35,7 +35,7 @@ type NavTabs []NavTab
 
 type SearchParamValue struct {
 	FromLocation      bool   `json:"fromLocation"`
-	FromResponse      bool   `json:"fromLocation"`
+	FromResponse      bool   `json:"fromResponse"`
 	SearchParamKey    string `json:"searchParamKey"`
 	ResponseFieldPath string `json:"responseFieldPath"`
 }
