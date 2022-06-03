@@ -2101,7 +2101,12 @@ function MediaCard({ appState, handleSetAppState, content, form, formInitialValu
 
     doFetch[form?.submit?.method]({ url, body }).then((data) => {
       handleModalClose();
-      doRedirect({ url: redirectURL });
+      const url = getRoute({
+        url: form?.submit?.onSuccess?.redirectUrl?.url,
+        searchParams: form?.submit?.onSuccess?.redirectUrl?.searchParams,
+        response: data
+      });
+      doRedirect({ url });
     });
   };
 
