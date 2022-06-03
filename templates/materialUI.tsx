@@ -2222,7 +2222,7 @@ function useRouteWithSearchParams() {
 
     searchParams.map((searchParam) => {
       if(searchParam.value.fromLocation) {
-        const param = params[searchParam.value.searchParamKey];
+        let param = params[searchParam.value.searchParamKey];
         if(!param) {
           param = queryParams[searchParam.value.searchParamKey];
         }
