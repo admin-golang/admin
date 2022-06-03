@@ -151,8 +151,6 @@ const Input = styled('input')({
 
 [[ template "useRouteWithSearchParams" ]]
 
-[[ template "useRedirectUrlFromResponse" ]]
-
 [[ template "useFetch" ]]
 
 [[ template "useRedirect" ]]
@@ -1161,12 +1159,12 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
   [[end]]
 
   const form = [[ Marshal .Form ]];
-  const [ url ] = useRouteWithSearchParams({
+  const [ getRoute ] = useRouteWithSearchParams();
+  const url = getRoute({
     url: form?.submit?.url, searchParams: form?.submit?.searchParams
   });
   const [ doFetch ] = useFetch({ appState, header: form?.submit?.header, handleSetAppState });
   const [ doRedirect ] = useRedirect();
-  const [ redirectUrlFromResponse ] = useRedirectUrlFromResponse();
 
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1180,7 +1178,12 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
     const body = JSON.stringify(payload);
 
     doFetch[form?.submit?.method]({ url, body }).then(({ data }) => {
-      doRedirect({ url: redirectUrlFromResponse(form, data) });
+      const url = getRoute({
+        url: form?.submit?.onSuccess?.redirectUrl?.url,
+        searchParams: form?.submit?.onSuccess?.redirectUrl?.searchParams,
+        response: data
+      });
+      doRedirect({ url });
     });
   };
 
@@ -1334,12 +1337,13 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
   [[end]]
 
   const form = [[ Marshal .Form ]];
-  const [ url ] = useRouteWithSearchParams({
+  const [ getRoute ] = useRouteWithSearchParams();
+  const url = getRoute({
     url: form?.submit?.url, searchParams: form?.submit?.searchParams
   });
+
   const [ doFetch ] = useFetch({ appState, header: form?.submit?.header, handleSetAppState });
   const [ doRedirect ] = useRedirect();
-  const [ redirectUrlFromResponse ] = useRedirectUrlFromResponse();
 
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -1365,7 +1369,12 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
     const body = JSON.stringify(payload);
 
     doFetch[form?.submit?.method]({ url, body }).then(({ data }) => {
-      doRedirect({ url: redirectUrlFromResponse(form, data) });
+      const url = getRoute({
+        url: form?.submit?.onSuccess?.redirectUrl?.url,
+        searchParams: form?.submit?.onSuccess?.redirectUrl?.searchParams,
+        response: data
+      });
+      doRedirect({ url });
     });
   };
 
@@ -1556,7 +1565,8 @@ function [[ .ID ]]Upload({ appState, handleClearAppState, handleSetAppState }) {
   let onSuccessRedirectURL = null;
   [[ if .Form.Submit.OnSuccess ]]
   [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
-  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
+  const [ getRoute ] = useRouteWithSearchParams();
+  const redirectURLWithSearchParams = getRoute([[ $redirectURL ]]);
   onSuccessRedirectURL = redirectURLWithSearchParams;
   [[ end ]]
 
@@ -1701,8 +1711,8 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   let onSuccessRedirectURL = null;
   [[ if .Form.Submit.OnSuccess ]]
   [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
-  const [ redirectURLWithSearchParams ] = useRouteWithSearchParams([[ $redirectURL ]]);
-  onSuccessRedirectURL = redirectURLWithSearchParams;
+  const [ getRoute ] = useRouteWithSearchParams();
+  onSuccessRedirectURL = getRoute([[ $redirectURL ]]);
   [[ end ]]
 
   const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -2069,13 +2079,14 @@ function MediaCard({ appState, content, form, formInitialValues, imgId, imgURL, 
     };
   });
 
-  const [ url ] = useRouteWithSearchParams({
+  const [ getRoute ] = useRouteWithSearchParams();
+  const url = getRoute({
     url: form?.submit?.url, searchParams: form?.submit?.searchParams
   });
 
   const [ doFetch ] = useFetch({ appState, header: form?.submit?.header, handleSetAppState });
   const [ doRedirect ] = useRedirect();
-  const [ redirectURL ] = useRouteWithSearchParams({ ...form?.submit?.onSuccess?.redirectUrl });
+  const redirectUrl = getRoute({ ...form?.submit?.onSuccess?.redirectUrl });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -2196,29 +2207,37 @@ function useDataLoader(appState, dataLoader) {
 [[ end ]]
 
 [[ define "useRouteWithSearchParams" ]]
-function useRouteWithSearchParams({ url, searchParams }) {
+function useRouteWithSearchParams() {
   const params = useParams();
   const location = useLocation();
   const urlSearchParams = new URLSearchParams(location.search);
   const queryParams = Object.fromEntries(urlSearchParams.entries());
 
-  let route = url;
+  const getRoute = ({ url, searchParams = {}, response = {} }): string => {
+    let route = url;
 
-  if(!searchParams) {
-    return [ route ];
-  }
-
-  searchParams.map((searchParam) => {
-    if(searchParam.value.fromLocation) {
-      let param = params[searchParam.value.searchParamKey];
-      if(!param) {
-        param = queryParams[searchParam.value.searchParamKey];
-      }
-      route = route.replace(searchParam.key, param);
+    if(!searchParams) {
+      return route;
     }
-  });
 
-  return [ route ];
+    searchParams.map((searchParam) => {
+      if(searchParam.value.fromLocation) {
+        const param = params[searchParam.value.searchParamKey];
+        if(!param) {
+          param = queryParams[searchParam.value.searchParamKey];
+        }
+        route = route.replace(searchParam.key, param);
+      }
+      if(searchParam.value.fromResponse) {
+        const param = response[searchParam.value.responseFieldPath];
+        route = route.replace(searchParam.key, param);
+      }
+    });
+
+    return route;
+  };
+
+  return [ getRoute ];
 }
 [[ end ]]
 
@@ -2276,21 +2295,6 @@ function useRedirect() {
 
   return [
     doRedirect,
-  ];
-}
-[[ end ]]
-
-[[ define "useRedirectUrlFromResponse" ]]
-function useRedirectUrlFromResponse() {
-  const redirectUrlFromResponse = (form, response): string => {
-    let url = form?.submit?.onSuccess?.redirectUrl?.url;
-    form?.submit?.onSuccess?.redirectUrl?.searchParams?.map?.(searchParam => {
-      url = url.replace(searchParam.key, response[searchParam?.value?.responseFieldPath]);
-    });
-    return url;
-  };
-  return [
-    redirectUrlFromResponse,
   ];
 }
 [[ end ]]
