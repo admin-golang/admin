@@ -1123,6 +1123,7 @@ function [[ .ID ]]CardList({ appState, handleClearAppState, handleSetAppState })
                     <MediaCard
                       key={idx}
                       appState={appState}
+                      handleSetAppState={handleSetAppState}
                       sx={{ minWidth: 240, mb: 2, cursor: 'pointer' }}
                       imgId={d[meta.mediaCardComponent.propsMapper.imgId]}
                       imgURL={d[meta.mediaCardComponent.propsMapper.imgURL]}
@@ -2039,7 +2040,7 @@ function MultiField({ initialValue, meta, handleChange }) {
 
 [[ define "MediaCard" ]]
 [[ $inputCheckboxType := .inputTypes.inputCheckbox ]]
-function MediaCard({ appState, content, form, formInitialValues, imgId, imgURL, imgALT, ...props }) {
+function MediaCard({ appState, handleSetAppState, content, form, formInitialValues, imgId, imgURL, imgALT, ...props }) {
   const theme = useTheme();
   const history = useHistory();
   const location = useLocation();
