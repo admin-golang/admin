@@ -1041,7 +1041,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
           <TablePagination
             sx={{mt: 2}}
             component="div"
-            rowsPerPageOptions={[1, 5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25]}
             count={rows?.length || 0}
             rowsPerPage={rowsPerPage}
             page={page}
