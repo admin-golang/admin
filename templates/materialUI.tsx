@@ -34,6 +34,7 @@ const {
   Tabs,
   Tab,
   TableContainer,
+  TablePagination,
   Table,
   TableBody,
   TableRow,
@@ -880,7 +881,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
   [[ if $listPage.Pagination ]]
     const [rowsPerPage, setRowsPerPage] = React.useState([[ $listPage.Pagination.RowsPerPage ]]);
   [[ else ]]
-    const [rowsPerPage, setRowsPerPage] = React.useState(20);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
   [[ end ]]
 
   [[ if $listPage.DataLoader ]]
@@ -1036,6 +1037,18 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
               </TableFooter>
             </Table>
           </TableContainer>
+          [[ if $listPage.Pagination ]]
+          <TablePagination
+            sx={{mt: 2}}
+            component="div"
+            rowsPerPageOptions={[1, 5, 10, 25]}
+            count={rows?.length || 0}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+          [[ end ]]
         </Paper>
       </Grid>
     </Layout>
