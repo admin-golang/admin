@@ -872,17 +872,17 @@ function [[ .ID ]]Dashboard({ appState, handleClearAppState, handleSetAppState }
 [[ with .page ]]
 [[ $listPage := WrapListPage . ]]
 function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
-  const history = useHistory();
-
-  const [rows, setRows] = React.useState<Array>([]);
-  const [rowsMeta, setRowsMeta] = React.useState<Object>({headers: []});
-  const [rowsProps, setRowsProps] = React.useState<Array>([]);
-  const [page, setPage] = React.useState(0);
+  let defaultPaginationPerPage = 10;
+  let defaultPaginationCurrentPage = 0;
+  let defaultRowsMeta = {headers: [], pagination: {totalCount: 0, perPage: defaultPaginationPerPage, currentPage: defaultPaginationCurrentPage}};
   [[ if $listPage.Pagination ]]
-    const [rowsPerPage, setRowsPerPage] = React.useState([[ $listPage.Pagination.RowsPerPage ]]);
-  [[ else ]]
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    defaultPaginationPerPage = [[ $listPage.Pagination.RowsPerPage ]];
   [[ end ]]
+
+  const history = useHistory();
+  const [rows, setRows] = React.useState<Array>([]);
+  const [rowsMeta, setRowsMeta] = React.useState<Object>(defaultRowsMeta);
+  const [rowsProps, setRowsProps] = React.useState<Array>([]);
 
   [[ if $listPage.DataLoader ]]
   useEffect(() => {
@@ -922,22 +922,25 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
   }, []);
   [[end]]
 
+  const page = rowsMeta?.pagination?.currentPage;
+  const rowsPerPage = rowsMeta?.pagination?.perPage;
+  const totalCount = rowsMeta?.pagination?.totalCount;
+
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - totalCount) : 0;
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    setPage(newPage);
+    setRowsMeta({...rowsMeta, pagination: { ...rowsMeta?.pagination, page: newPage } });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    const perPage = parseInt(event.target.value, 10);
+    setRowsMeta({...rowsMeta, pagination: { ...rowsMeta?.pagination, currentPage: defaultPaginationCurrentPage, perPage } });
   };
 
   [[ if $listPage.ListRowConfig ]]
@@ -1042,9 +1045,9 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
             sx={{mt: 2}}
             component="div"
             rowsPerPageOptions={[5, 10, 25]}
-            count={rows?.length || 0}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            count={rowsMeta?.pagination?.totalCount}
+            rowsPerPage={rowsMeta?.pagination?.perPage}
+            page={rowsMeta?.pagination?.currentPage}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
