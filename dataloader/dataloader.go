@@ -62,12 +62,19 @@ type MediaCardComponent struct {
 	PropsMapper PropsMapper `json:"propsMapper"`
 }
 
+type Pagination struct {
+	TotalCount  int `json:"totalCount"`
+	PerPage     int `json:"perPage"`
+	CurrentPage int `json:"currentPage"`
+}
+
 type Meta struct {
 	Headers            []string           `json:"headers,omitempty"`
 	Components         map[string]string  `json:"components,omitempty"`
 	MediaCardComponent MediaCardComponent `json:"mediaCardComponent"`
 	PageHeader         string             `json:"pageHeader,omitempty"`
 	Message            string             `json:"message,omitempty"`
+	Pagination         Pagination         `json:"pagination,omitempty"`
 }
 
 type Response struct {
