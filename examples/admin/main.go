@@ -167,6 +167,11 @@ func allReleasesHandler(w http.ResponseWriter, r *http.Request) {
 				"release_date": "text",
 				"url":          "link",
 			},
+			Pagination: dataloader.Pagination{
+				TotalCount:  2,
+				PerPage:     10,
+				CurrentPage: 0,
+			},
 		},
 	}
 
