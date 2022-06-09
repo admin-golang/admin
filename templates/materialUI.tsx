@@ -915,7 +915,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
       })
       .catch(err => {
         if (err.name === "AbortError") return;
-        throw error;
+        throw err;
       });
 
       return () => { abortCtrl.abort() };
@@ -2218,7 +2218,7 @@ function useDataLoader(appState, dataLoader) {
       })
       .catch(err => {
         if (err.name === "AbortError") return;
-        throw error;
+        throw err;
       });
 
       return () => { abortCtrl.abort() };
