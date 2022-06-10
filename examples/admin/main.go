@@ -169,7 +169,7 @@ func allReleasesHandler(w http.ResponseWriter, r *http.Request) {
 			},
 			Pagination: dataloader.Pagination{
 				TotalCount:  2,
-				PerPage:     10,
+				PerPage:     1,
 				CurrentPage: 0,
 			},
 		},

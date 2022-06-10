@@ -108,7 +108,7 @@ func NewListPage() admin.Pager {
 			},
 		}),
 		Pagination: &admin.PaginationConfig{
-			RowsPerPage: 10,
+			RowsPerPage: 1,
 		},
 		ListRowConfig: &admin.ListRowConfig{
 			DataRowFieldName: "id",
