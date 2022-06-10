@@ -281,7 +281,16 @@ func NewEditNotesPage() admin.Pager {
 		},
 		ParamKey: "release_id",
 		DataLoader: dataloader.New(dataloader.Config{
-			URL:    "/show-release",
+			URL: "/show-release/:release_id",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
 			Method: http.MethodGet,
 			HeaderConfig: &dataloader.HeaderConfig{
 				Key: "Authorization",
