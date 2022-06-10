@@ -885,41 +885,17 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
   const [rowsProps, setRowsProps] = React.useState<Array>([]);
 
   [[ if $listPage.DataLoader ]]
-  useEffect(() => {
-    const abortCtrl = new AbortController();
-    const fetchOptions = { method: "[[ $listPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
-    [[ if $listPage.DataLoader.Header ]]
-      if (appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
-        const headerPrefix = "[[ $listPage.DataLoader.Header.Value.Prefix ]]";
-        const headerValue = appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]];
-        fetchOptions.headers["[[ $listPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+    [[ $dataLoader := Marshal $listPage.DataLoader ]]
+    const [ response ] = useDataLoader(appState, [[ $dataLoader ]]);
+    useEffect(() => {
+      if(response?.data) {
+        setRows(response.data);
+        setRowsProps(Object.keys(response.data[0]));
       }
-    [[ end ]]
-
-    fetch("[[ $listPage.DataLoader.URL ]]", fetchOptions)
-      .then(async (response) => {
-        var resp: any;
-
-        if (response.headers.get("content-type").includes("application/json")) {
-          resp = await response.json();
-        } else {
-          resp = await response.text();
-        }
-
-        if (response.ok) {
-          setRows(resp.data);
-          setRowsProps(Object.keys(resp.data[0]));
-          setRowsMeta(resp.meta);
-        } else {
-        }
-      })
-      .catch(err => {
-        if (err.name === "AbortError") return;
-        throw err;
-      });
-
-      return () => { abortCtrl.abort() };
-  }, []);
+      if(response?.meta) {
+        setRowsMeta(response.meta);
+      }
+    }, [ response ]);
   [[end]]
 
   const page = rowsMeta?.pagination?.currentPage;
@@ -1074,7 +1050,7 @@ function [[ .ID ]]CardList({ appState, handleClearAppState, handleSetAppState })
 
   [[ if $listPage.DataLoader ]]
     [[ $dataLoader := Marshal $listPage.DataLoader ]]
-    const [ response ] = useDataLoader(appState, [[ $dataLoader ]], "[[ .ParamKey ]]");
+    const [ response ] = useDataLoader(appState, [[ $dataLoader ]]);
     useEffect(() => {
       if(response?.data) {
         [[ if $listPage.Header ]]
