@@ -99,11 +99,27 @@ func NewListPage() admin.Pager {
 		DataLoader: dataloader.New(dataloader.Config{
 			URL:    "/releases",
 			Method: http.MethodGet,
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: "limit",
+					Value: navigation.SearchParamValue{
+						FromQueryParams: true,
+						SearchParamKey:  "limit",
+					},
+				},
+				navigation.SearchParam{
+					Key: "page",
+					Value: navigation.SearchParamValue{
+						FromQueryParams: true,
+						SearchParamKey:  "page",
+					},
+				},
+			},
 			HeaderConfig: &dataloader.HeaderConfig{
 				Key: "Authorization",
 				ValueConfig: dataloader.HeaderValueConfig{
 					Prefix:            "Bearer ",
-					AppStateFieldPath: "currentUser?.token",
+					AppStateFieldPath: "currentUser.token",
 				},
 			},
 		}),
