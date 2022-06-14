@@ -99,16 +99,32 @@ func NewListPage() admin.Pager {
 		DataLoader: dataloader.New(dataloader.Config{
 			URL:    "/releases",
 			Method: http.MethodGet,
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: "limit",
+					Value: navigation.SearchParamValue{
+						FromQueryParams: true,
+						SearchParamKey:  "limit",
+					},
+				},
+				navigation.SearchParam{
+					Key: "page",
+					Value: navigation.SearchParamValue{
+						FromQueryParams: true,
+						SearchParamKey:  "page",
+					},
+				},
+			},
 			HeaderConfig: &dataloader.HeaderConfig{
 				Key: "Authorization",
 				ValueConfig: dataloader.HeaderValueConfig{
 					Prefix:            "Bearer ",
-					AppStateFieldPath: "currentUser?.token",
+					AppStateFieldPath: "currentUser.token",
 				},
 			},
 		}),
 		Pagination: &admin.PaginationConfig{
-			RowsPerPage: 10,
+			RowsPerPage: 1,
 		},
 		ListRowConfig: &admin.ListRowConfig{
 			DataRowFieldName: "id",
@@ -281,7 +297,16 @@ func NewEditNotesPage() admin.Pager {
 		},
 		ParamKey: "release_id",
 		DataLoader: dataloader.New(dataloader.Config{
-			URL:    "/show-release",
+			URL: "/show-release/:release_id",
+			SearchParams: &navigation.SearchParams{
+				navigation.SearchParam{
+					Key: ":release_id",
+					Value: navigation.SearchParamValue{
+						FromLocation:   true,
+						SearchParamKey: "release_id",
+					},
+				},
+			},
 			Method: http.MethodGet,
 			HeaderConfig: &dataloader.HeaderConfig{
 				Key: "Authorization",

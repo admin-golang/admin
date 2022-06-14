@@ -874,52 +874,79 @@ function [[ .ID ]]Dashboard({ appState, handleClearAppState, handleSetAppState }
 function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
   let defaultPaginationPerPage = 10;
   let defaultPaginationCurrentPage = 0;
-  let defaultRowsMeta = {headers: [], pagination: {totalCount: 0, perPage: defaultPaginationPerPage, currentPage: defaultPaginationCurrentPage}};
+  let defaultPaginationRowsPerPage = [5, 10, 25];
+  let defaultRowsMeta = {
+    headers: [],
+    pagination: {
+      totalCount: 0,
+      perPage: defaultPaginationPerPage,
+      currentPage: defaultPaginationCurrentPage,
+      rowsPerPage: defaultPaginationRowsPerPage
+    },
+  };
   [[ if $listPage.Pagination ]]
     defaultPaginationPerPage = [[ $listPage.Pagination.RowsPerPage ]];
   [[ end ]]
 
   const history = useHistory();
+  const location = useLocation();
   const [rows, setRows] = React.useState<Array>([]);
   const [rowsMeta, setRowsMeta] = React.useState<Object>(defaultRowsMeta);
   const [rowsProps, setRowsProps] = React.useState<Array>([]);
+  const [dataLoaderResponse, setDataLoaderResponse] = React.useState({});
+  const [initialLoad, setInitialLoad] = React.useState(false);
+  const [getRoute] = useRouteWithSearchParams();
+  const _setRowsMeta = (newRowsMeta = {}) => {
+    setRowsMeta({
+      ...rowsMeta,
+      ...newRowsMeta,
+      ...( newRowsMeta?.headers?.length ? { headers: [ ...newRowsMeta?.headers ]}: { headers: [ ...rowsMeta.headers ] }),
+      pagination: {...rowsMeta.pagination, ...newRowsMeta?.pagination},
+    });
+  };
 
   [[ if $listPage.DataLoader ]]
-  useEffect(() => {
-    const abortCtrl = new AbortController();
-    const fetchOptions = { method: "[[ $listPage.DataLoader.Method ]]", headers: {}, signal: abortCtrl.signal };
-    [[ if $listPage.DataLoader.Header ]]
-      if (appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]]) {
-        const headerPrefix = "[[ $listPage.DataLoader.Header.Value.Prefix ]]";
-        const headerValue = appState?.[[ $listPage.DataLoader.Header.Value.AppStateFieldPath ]];
-        fetchOptions.headers["[[ $listPage.DataLoader.Header.Key ]]"] = `${headerPrefix}${headerValue}`;
+    [[ $dataLoader := Marshal $listPage.DataLoader ]]
+    const dataLoader = [[ $dataLoader ]];
+    const [ doLoad ] = useDataLoader(appState, dataLoader, handleSetAppState);
+
+    useEffect(() => {
+      const url = getRoute({
+        url: dataLoader?.url, searchParams: dataLoader?.searchParams
+      });
+      doLoad({ url }).then(r => {
+        setInitialLoad(true);
+        setDataLoaderResponse(r);
+      });
+    }, []);
+
+    useEffect(() => {
+      if(dataLoaderResponse?.data) {
+        setRows(dataLoaderResponse.data);
+        setRowsProps(Object.keys(dataLoaderResponse.data[0]));
       }
-    [[ end ]]
+      if(dataLoaderResponse?.meta) {
+        _setRowsMeta(dataLoaderResponse?.meta);
+      }
+    }, [ dataLoaderResponse ]);
 
-    fetch("[[ $listPage.DataLoader.URL ]]", fetchOptions)
-      .then(async (response) => {
-        var resp: any;
+    useEffect(() => {
+      if(!initialLoad && rowsMeta?.pagination?.currentPage === defaultPaginationCurrentPage) {
+        return;
+      }
 
-        if (response.headers.get("content-type").includes("application/json")) {
-          resp = await response.json();
-        } else {
-          resp = await response.text();
-        }
+      const limit = rowsMeta?.pagination?.perPage;
+      const page = rowsMeta?.pagination?.currentPage;
+      const params = new URLSearchParams({ limit, page });
+      history.push({ pathname: location.pathname, search: '?' + params.toString() });
 
-        if (response.ok) {
-          setRows(resp.data);
-          setRowsProps(Object.keys(resp.data[0]));
-          setRowsMeta(resp.meta);
-        } else {
-        }
-      })
-      .catch(err => {
-        if (err.name === "AbortError") return;
-        throw err;
+      const url = getRoute({
+        url: dataLoader?.url, searchParams: dataLoader?.searchParams
       });
 
-      return () => { abortCtrl.abort() };
-  }, []);
+      doLoad({ url }).then(r => setDataLoaderResponse(r));
+
+    }, [ rowsMeta?.pagination?.currentPage ]);
   [[end]]
 
   const page = rowsMeta?.pagination?.currentPage;
@@ -931,16 +958,16 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number,
+    currentPage: number,
   ) => {
-    setRowsMeta({...rowsMeta, pagination: { ...rowsMeta?.pagination, page: newPage } });
+    _setRowsMeta({ pagination: { currentPage: currentPage }});
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const perPage = parseInt(event.target.value, 10);
-    setRowsMeta({...rowsMeta, pagination: { ...rowsMeta?.pagination, currentPage: defaultPaginationCurrentPage, perPage } });
+    _setRowsMeta({ pagination: { perPage }});
   };
 
   [[ if $listPage.ListRowConfig ]]
@@ -1004,8 +1031,8 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
               </TableHead>
               <TableBody>
                 {(rowsPerPage > 0
-                  ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  : rows
+                  ? rows
+                  : []
                 ).map((row, idx) => (
                   <TableRow sx={{ cursor: "pointer" }} hover key={idx}
                     [[ if $listPage.ListRowConfig ]]
@@ -1044,7 +1071,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
           <TablePagination
             sx={{mt: 2}}
             component="div"
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={rowsMeta?.pagination?.rowsPerPage}
             count={rowsMeta?.pagination?.totalCount}
             rowsPerPage={rowsMeta?.pagination?.perPage}
             page={rowsMeta?.pagination?.currentPage}
@@ -1067,6 +1094,8 @@ function [[ .ID ]]CardList({ appState, handleClearAppState, handleSetAppState })
   const history = useHistory();
   const [ data, setData ] = useState([]);
   const [ meta, setMeta ] = useState({});
+  const [ response, setResponse ] = useState({});
+  const [ getRoute ] = useRouteWithSearchParams();
 
   [[ if $listPage.Header ]]
     const [ [[ $listPage.Header.ID ]], set[[ $listPage.Header.ID ]] ] = useState();
@@ -1074,7 +1103,16 @@ function [[ .ID ]]CardList({ appState, handleClearAppState, handleSetAppState })
 
   [[ if $listPage.DataLoader ]]
     [[ $dataLoader := Marshal $listPage.DataLoader ]]
-    const [ response ] = useDataLoader(appState, [[ $dataLoader ]], "[[ .ParamKey ]]");
+    const dataLoader = [[ $dataLoader ]];
+    const [ doLoad ] = useDataLoader(appState, dataLoader, handleSetAppState);
+    useEffect(() => {
+      const url = getRoute({
+        url: dataLoader?.url, searchParams: dataLoader?.searchParams
+      });
+      doLoad({ url }).then(r => {
+        setResponse(r);
+      });
+    }, []);
     useEffect(() => {
       if(response?.data) {
         [[ if $listPage.Header ]]
@@ -1306,6 +1344,8 @@ function [[ .ID ]]Form({ appState, handleClearAppState, handleSetAppState }) {
 function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
   const history = useHistory();
   const params = useParams();
+  const [getRoute] = useRouteWithSearchParams();
+  const [response, setResponse] = React.useState({});
 
   [[ if $editPage.Header ]]
     const [ [[ $editPage.Header.ID ]], set[[ $editPage.Header.ID ]] ] = useState();
@@ -1313,7 +1353,16 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
 
   [[ if .DataLoader ]]
     [[ $dataLoader := Marshal $editPage.DataLoader ]]
-    const [ response ] = useDataLoader(appState, [[ $dataLoader ]]);
+    const dataLoader = [[ $dataLoader ]];
+    const [ doLoad ] = useDataLoader(appState, dataLoader, handleSetAppState);
+    useEffect(() => {
+      const url = getRoute({
+        url: dataLoader?.url, searchParams: dataLoader?.searchParams
+      });
+      doLoad({ url }).then(r => {
+        setResponse(r);
+      });
+    }, []);
     useEffect(() => {
       if(response?.data) {
         [[ if $editPage.Header ]]
@@ -1354,7 +1403,6 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
   [[end]]
 
   const form = [[ Marshal .Form ]];
-  const [ getRoute ] = useRouteWithSearchParams();
   const url = getRoute({
     url: form?.submit?.url, searchParams: form?.submit?.searchParams
   });
@@ -2173,74 +2221,31 @@ function MediaCard({ appState, handleSetAppState, content, form, formInitialValu
 [[ end ]]
 
 [[ define "useDataLoader" ]]
-function useDataLoader(appState, dataLoader) {
-  const [ response, setResponse ] = useState();
-  const params = useParams();
+function useDataLoader(appState, dataLoader, handleSetAppState) {
+  const [ doFetch ] = useFetch({ appState, header: dataLoader.header, handleSetAppState });
+  const doLoad = async ({ url }) => {
+    return doFetch[dataLoader.method]({ url, body: null });
+  };
 
-  useEffect(() => {
-    const abortCtrl = new AbortController();
-    const fetchOptions = { method: dataLoader.method, headers: {}, signal: abortCtrl.signal };
-
-    if(dataLoader.header) {
-      const parts = dataLoader.header.value.appStateFieldPath.split('.');
-      const headerValue = parts.reduce((prev, current) => { return prev && prev[current]; }, appState);
-      if(headerValue) {
-        const headerPrefix = dataLoader.header.value.prefix;
-        fetchOptions.headers[dataLoader.header.key] = `${headerPrefix}${headerValue}`;
-      }
-    }
-
-    let fetchURL = dataLoader.url;
-
-    if(dataLoader.searchParams) {
-      dataLoader.searchParams.map((searchParam) => {
-        if(searchParam.value.fromLocation) {
-          const param = params[searchParam.value.searchParamKey];
-          fetchURL = fetchURL.replace(searchParam.key, param);
-        }
-      });
-    }
-
-    fetch(fetchURL, fetchOptions)
-      .then(async (response) => {
-        var resp: any;
-
-        if (response.headers.get("content-type").includes("application/json")) {
-          resp = await response.json();
-        } else {
-          resp = await response.text();
-        }
-
-        if (response.ok) {
-          setResponse(resp);
-        } else {
-        }
-      })
-      .catch(err => {
-        if (err.name === "AbortError") return;
-        throw err;
-      });
-
-      return () => { abortCtrl.abort() };
-  }, []);
-
-  return [ response ];
+  return [ doLoad ];
 }
 [[ end ]]
 
 [[ define "useRouteWithSearchParams" ]]
 function useRouteWithSearchParams() {
   const params = useParams();
-  const location = useLocation();
-  const urlSearchParams = new URLSearchParams(location.search);
-  const queryParams = Object.fromEntries(urlSearchParams.entries());
+  const history = useHistory();
 
   const getRoute = ({ url, searchParams = {}, response = {} }): string => {
+    const urlSearchParams = new URLSearchParams(history.location.search);
+    const queryParams = Object.fromEntries(urlSearchParams.entries());
     let route = url;
 
     if(!searchParams) {
       return route;
     }
+
+    const routeQueryParams = new URLSearchParams();
 
     searchParams.map((searchParam) => {
       if(searchParam.value.fromLocation) {
@@ -2250,11 +2255,21 @@ function useRouteWithSearchParams() {
         }
         route = route.replace(searchParam.key, param);
       }
+      if(searchParam.value.fromQueryParams) {
+        const param = queryParams[searchParam.value.searchParamKey];
+        if(param) {
+          routeQueryParams.append(searchParam.value.searchParamKey, param);
+        }
+      }
       if(searchParam.value.fromResponse) {
         const param = response[searchParam.value.responseFieldPath];
         route = route.replace(searchParam.key, param);
       }
     });
+
+    if(routeQueryParams.toString() !== "") {
+      route += '?' + routeQueryParams.toString();
+    }
 
     return route;
   };
@@ -2300,6 +2315,7 @@ function useFetch({ appState, header, handleSetAppState}) {
   };
 
   return [{
+    GET: ({ url, body }) => doFetch(url, "GET", body),
     PUT: ({ url, body }) => doFetch(url, "PUT", body),
     POST: ({ url, body }) => doFetch(url, "POST", body)
   }]

@@ -63,9 +63,10 @@ type MediaCardComponent struct {
 }
 
 type Pagination struct {
-	TotalCount  int `json:"totalCount"`
-	PerPage     int `json:"perPage"`
-	CurrentPage int `json:"currentPage"`
+	TotalCount  int   `json:"totalCount"`
+	PerPage     int   `json:"perPage"`
+	CurrentPage int   `json:"currentPage"`
+	RowsPerPage []int `json:"rowsPerPage"`
 }
 
 type Meta struct {
