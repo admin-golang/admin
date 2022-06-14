@@ -922,8 +922,8 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
 
     useEffect(() => {
       if(dataLoaderResponse?.data) {
-        setRows(dataLoaderResponse.data);
-        setRowsProps(Object.keys(dataLoaderResponse.data[0]));
+        setRows(dataLoaderResponse?.data || []);
+        setRowsProps(Object.keys(dataLoaderResponse?.data?.length ? dataLoaderResponse.data[0] : {}));
       }
       if(dataLoaderResponse?.meta) {
         _setRowsMeta(dataLoaderResponse?.meta);
