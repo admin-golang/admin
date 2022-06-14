@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/admin-golang/admin"
@@ -141,23 +142,40 @@ type ReleaseImage struct {
 }
 
 func allReleasesHandler(w http.ResponseWriter, r *http.Request) {
-	resp := dataloader.Response{
-		Data: []Release{
-			{
-				ID:          "go1.16",
-				Name:        "Go 1.16",
-				Description: "Go 1.16 description",
-				ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
-				URL:         "https://go.dev/doc/go1.16",
-			},
-			{
-				ID:          "go1.15",
-				Name:        "Go 1.15",
-				Description: "Go 1.15 description",
-				ReleaseDate: "Tue Aug 11 19:01:57 2020 +0000",
-				URL:         "https://go.dev/doc/go1.15",
-			},
+	pageParam := r.URL.Query().Get("page")
+
+	page := 0
+	if pageParam != "" {
+		p, err := strconv.Atoi(pageParam)
+		if err != nil {
+			log.Printf("failed to convert type: %+v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		page = p
+	}
+
+	releases := []Release{
+		{
+			ID:          "go1.16",
+			Name:        "Go 1.16",
+			Description: "Go 1.16 description",
+			ReleaseDate: "Tue Feb 16 18:08:40 2021 +0000",
+			URL:         "https://go.dev/doc/go1.16",
 		},
+		{
+			ID:          "go1.15",
+			Name:        "Go 1.15",
+			Description: "Go 1.15 description",
+			ReleaseDate: "Tue Aug 11 19:01:57 2020 +0000",
+			URL:         "https://go.dev/doc/go1.15",
+		},
+	}
+
+	data := []Release{releases[page]}
+
+	resp := dataloader.Response{
+		Data: data,
 		Meta: dataloader.Meta{
 			Headers: []string{"ID", "Name", "Description", "Release Date", "URL"},
 			Components: map[string]string{
@@ -170,7 +188,8 @@ func allReleasesHandler(w http.ResponseWriter, r *http.Request) {
 			Pagination: dataloader.Pagination{
 				TotalCount:  2,
 				PerPage:     1,
-				CurrentPage: 0,
+				CurrentPage: page,
+				RowsPerPage: []int{1, 5, 10, 25},
 			},
 		},
 	}
