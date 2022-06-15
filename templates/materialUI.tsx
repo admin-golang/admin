@@ -59,7 +59,8 @@ const {
   Select,
   OutlinedInput,
   FormControl,
-  InputLabel
+  InputLabel,
+  InputAdornment
 } = MaterialUI;
 
 const {
@@ -286,6 +287,14 @@ function CloseIcon(props) {
   return (
     <SvgIcon viewBox={"0 0 48 48"} {...props}>
       <path d="M12.45 37.65 10.35 35.55 21.9 24 10.35 12.45 12.45 10.35 24 21.9 35.55 10.35 37.65 12.45 26.1 24 37.65 35.55 35.55 37.65 24 26.1Z"/>
+    </SvgIcon>
+  );
+}
+
+function SearchIcon(props) {
+  return (
+    <SvgIcon viewBox={"0 0 24 24"} {...props}>
+      <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
     </SvgIcon>
   );
 }
@@ -991,14 +1000,31 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
           }}
         >
           <Grid container spacing={0} sx={{ mt: 1, mb: 4 }}>
-          	<Grid item xs={8}>
-       		 		<Typography
-       		 		  variant="h6"
-       		 		  id="tableTitle"
-       		 		  component="div"
-       		 		>
-       		 		[[ $listPage.Title ]]
-       		 		</Typography>
+            <Grid container item xs={8}>
+              <Grid item xs={12}>
+                <Typography
+                  variant="h6"
+                  id="tableTitle"
+                  component="div"
+                >
+                [[ $listPage.Title ]]
+                </Typography>
+              </Grid>
+              <Grid item xs={5} sx={{ mt: 2 }}>
+                <TextField
+                  id="search"
+                  size="small"
+                  placeholder="Search..."
+                  fullWidth={true}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
           	</Grid>
             [[ if IsNotNil $listPage.MainButton ]]
           	<Grid item xs={4}>

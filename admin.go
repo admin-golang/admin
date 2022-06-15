@@ -123,6 +123,9 @@ type PaginationConfig struct {
 	RowsPerPage int
 }
 
+type ListSearchConfig struct {
+}
+
 type ListPageConfig struct {
 	PageConfig
 	MainButton    *MainButton
@@ -130,6 +133,7 @@ type ListPageConfig struct {
 	DataLoader    *dataloader.DataLoader
 	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
+	SearchConfig  *ListSearchConfig
 }
 
 type EditPageConfig struct {
