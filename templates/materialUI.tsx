@@ -946,7 +946,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
 
       doLoad({ url }).then(r => setDataLoaderResponse(r));
 
-    }, [ rowsMeta?.pagination?.currentPage ]);
+    }, [ rowsMeta?.pagination?.currentPage, rowsMeta?.pagination?.perPage ]);
   [[end]]
 
   const page = rowsMeta?.pagination?.currentPage;
