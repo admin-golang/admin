@@ -124,6 +124,8 @@ type PaginationConfig struct {
 }
 
 type ListSearchConfig struct {
+	InputPlaceholder string
+	InputID          string
 }
 
 type ListPageConfig struct {
@@ -194,6 +196,7 @@ type LListPage struct {
 	DataLoader    *dataloader.DataLoader
 	Pagination    *PaginationConfig
 	ListRowConfig *ListRowConfig
+	SearchConfig  *ListSearchConfig
 	Header        *PageHeader
 }
 
@@ -220,7 +223,16 @@ func NewListPage(p ListPageConfig) Pager {
 		navigation:     p.Navigation,
 	}
 
-	return &LListPage{page: page, MainButton: p.MainButton, Title: p.Title, DataLoader: p.DataLoader, ListRowConfig: p.ListRowConfig, Pagination: p.Pagination, Header: p.Header}
+	return &LListPage{
+		page:          page,
+		MainButton:    p.MainButton,
+		Title:         p.Title,
+		DataLoader:    p.DataLoader,
+		ListRowConfig: p.ListRowConfig,
+		SearchConfig:  p.SearchConfig,
+		Pagination:    p.Pagination,
+		Header:        p.Header,
+	}
 }
 
 type CardListPageConfig struct {
