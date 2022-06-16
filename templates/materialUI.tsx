@@ -1010,11 +1010,12 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
                 [[ $listPage.Title ]]
                 </Typography>
               </Grid>
+              [[ if $listPage.SearchConfig ]]
               <Grid item xs={5} sx={{ mt: 2 }}>
                 <TextField
-                  id="search"
+                  id="[[ $listPage.SearchConfig.InputID ]]"
                   size="small"
-                  placeholder="Search..."
+                  placeholder="[[ $listPage.SearchConfig.InputPlaceholder ]]"
                   fullWidth={true}
                   InputProps={{
                     startAdornment: (
@@ -1025,6 +1026,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
                   }}
                 />
               </Grid>
+              [[ end ]]
           	</Grid>
             [[ if IsNotNil $listPage.MainButton ]]
           	<Grid item xs={4}>
