@@ -892,6 +892,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
       currentPage: defaultPaginationCurrentPage,
       rowsPerPage: defaultPaginationRowsPerPage
     },
+    searchTerm: null
   };
   [[ if $listPage.Pagination ]]
     defaultPaginationPerPage = [[ $listPage.Pagination.RowsPerPage ]];
@@ -909,7 +910,8 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
     setRowsMeta({
       ...rowsMeta,
       ...newRowsMeta,
-      ...( newRowsMeta?.headers?.length ? { headers: [ ...newRowsMeta?.headers ]}: { headers: [ ...rowsMeta.headers ] }),
+      ...( newRowsMeta?.headers?.length ? { headers: [ ...newRowsMeta?.headers ]}: { headers: [ ...rowsMeta.headers ] } ),
+      ...( newRowsMeta?.searchTerm ? { searchTerm: newRowsMeta.searchTerm } : { searchTerm: rowsMeta.searchTerm } ),
       pagination: {...rowsMeta.pagination, ...newRowsMeta?.pagination},
     });
   };
@@ -946,7 +948,11 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
 
       const limit = rowsMeta?.pagination?.perPage;
       const page = rowsMeta?.pagination?.currentPage;
+      const searchTerm = rowsMeta?.searchTerm;
       const params = new URLSearchParams({ limit, page });
+      if(searchTerm && searchTerm !== "") {
+        params.append("searchTerm", searchTerm);
+      }
       history.push({ pathname: location.pathname, search: '?' + params.toString() });
 
       const url = getRoute({
@@ -955,7 +961,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
 
       doLoad({ url }).then(r => setDataLoaderResponse(r));
 
-    }, [ rowsMeta?.pagination?.currentPage, rowsMeta?.pagination?.perPage ]);
+    }, [ rowsMeta?.pagination?.currentPage, rowsMeta?.pagination?.perPage, rowsMeta?.searchTerm ]);
   [[end]]
 
   const page = rowsMeta?.pagination?.currentPage;
@@ -977,6 +983,15 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
   ) => {
     const perPage = parseInt(event.target.value, 10);
     _setRowsMeta({ pagination: { perPage }});
+  };
+
+  const [ searchTerm, setSearchTerm ] = useState("");
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    _setRowsMeta({ searchTerm });
+  };
+  const handleSearchTermChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   [[ if $listPage.ListRowConfig ]]
@@ -1012,19 +1027,23 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
               </Grid>
               [[ if $listPage.SearchConfig ]]
               <Grid item xs={5} sx={{ mt: 2 }}>
-                <TextField
-                  id="[[ $listPage.SearchConfig.InputID ]]"
-                  size="small"
-                  placeholder="[[ $listPage.SearchConfig.InputPlaceholder ]]"
-                  fullWidth={true}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    )
-                  }}
-                />
+                <form onSubmit={handleSearchSubmit}>
+                  <TextField
+                    id="[[ $listPage.SearchConfig.InputID ]]"
+                    size="small"
+                    placeholder="[[ $listPage.SearchConfig.InputPlaceholder ]]"
+                    fullWidth={true}
+                    value={searchTerm}
+                    onChange={handleSearchTermChange}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </form>
               </Grid>
               [[ end ]]
           	</Grid>
