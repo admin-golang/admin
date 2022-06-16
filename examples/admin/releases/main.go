@@ -114,6 +114,13 @@ func NewListPage() admin.Pager {
 						SearchParamKey:  "page",
 					},
 				},
+				navigation.SearchParam{
+					Key: "searchTerm",
+					Value: navigation.SearchParamValue{
+						FromQueryParams: true,
+						SearchParamKey:  "searchTerm",
+					},
+				},
 			},
 			HeaderConfig: &dataloader.HeaderConfig{
 				Key: "Authorization",
@@ -132,6 +139,10 @@ func NewListPage() admin.Pager {
 			OnClick: &admin.OnListRowClick{
 				RedirectURL: "/releases/:id",
 			},
+		},
+		SearchConfig: &admin.ListSearchConfig{
+			InputID:          "search",
+			InputPlaceholder: "Search...",
 		},
 	})
 }
