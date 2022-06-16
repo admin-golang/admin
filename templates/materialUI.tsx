@@ -911,7 +911,7 @@ function [[ .ID ]]List({ appState, handleClearAppState, handleSetAppState }) {
       ...rowsMeta,
       ...newRowsMeta,
       ...( newRowsMeta?.headers?.length ? { headers: [ ...newRowsMeta?.headers ]}: { headers: [ ...rowsMeta.headers ] } ),
-      ...( newRowsMeta?.searchTerm ? { searchTerm: newRowsMeta.searchTerm } : { searchTerm: rowsMeta.searchTerm } ),
+      ...( newRowsMeta?.searchTerm != null ? { searchTerm: newRowsMeta.searchTerm } : { searchTerm: rowsMeta.searchTerm } ),
       pagination: {...rowsMeta.pagination, ...newRowsMeta?.pagination},
     });
   };
