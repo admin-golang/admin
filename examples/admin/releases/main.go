@@ -133,6 +133,10 @@ func NewListPage() admin.Pager {
 				RedirectURL: "/releases/:id",
 			},
 		},
+		SearchConfig: &admin.ListSearchConfig{
+			InputID:          "search",
+			InputPlaceholder: "Search...",
+		},
 	})
 }
 
