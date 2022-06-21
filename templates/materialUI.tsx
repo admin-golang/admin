@@ -1480,11 +1480,12 @@ function [[ .ID ]]Edit({ appState, handleClearAppState, handleSetAppState }) {
 
     const body = JSON.stringify(payload);
 
-    doFetch[form?.submit?.method]({ url, body }).then(({ data }) => {
+    doFetch[form?.submit?.method]({ url, body }).then((r) => {
+      setResponse(r);
       const url = getRoute({
         url: form?.submit?.onSuccess?.redirectUrl?.url,
         searchParams: form?.submit?.onSuccess?.redirectUrl?.searchParams,
-        response: data
+        response: r.data
       });
       doRedirect({ url });
     });
