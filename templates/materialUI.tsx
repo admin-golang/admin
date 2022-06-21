@@ -1731,6 +1731,7 @@ function [[ .ID ]]Upload({ appState, handleClearAppState, handleSetAppState }) {
   };
 
   const handleSetFile = (file) => {
+    formData.delete('file');
     formData.append('file', file);
   };
 
