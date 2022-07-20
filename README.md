@@ -86,4 +86,7 @@ func main() {
 }
 ```
 
+<img width="721" alt="subscribe example" src="https://user-images.githubusercontent.com/1000404/179914238-81de7b65-8adb-46df-8b1c-fe0dbe35f96c.png">
+
+
 For more complex examples, refer to the `examples` directory.
