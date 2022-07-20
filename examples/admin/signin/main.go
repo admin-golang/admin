@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	"github.com/admin-golang/admin"
+	"github.com/admin-golang/admin/icon"
 )
 
 func NewFormPage() (admin.Pager, error) {
@@ -16,6 +17,9 @@ func NewFormPage() (admin.Pager, error) {
 		BackgroundImage: sideFormBackgroundImage,
 		FooterLabel:     "Copyright © Your Website 2022.",
 		PageConfig: admin.PageConfig{
+			Icon: icon.Icon{
+				Type: icon.Lock,
+			},
 			IsDefault: true,
 			ID:        "SignIn",
 			URL:       "/sign-in",

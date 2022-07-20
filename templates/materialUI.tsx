@@ -299,6 +299,14 @@ function SearchIcon(props) {
   );
 }
 
+function EmailIcon(props) {
+  return (
+    <SvgIcon viewBox={"0 0 24 24"} {...props}>
+      <path d="M0 0h24v24H0V0z" fill="none"/><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
+    </SvgIcon>
+  );
+}
+
 function FooterLabel(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -1908,7 +1916,12 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
+            [[ if eq .Icon.Type 7 ]]
+              <LockOutlinedIcon />
+            [[ end ]]
+            [[ if eq .Icon.Type 8 ]]
+              <EmailIcon />
+            [[ end ]]
           </Avatar>
           <Typography component="h1" variant="h5">
             [[ .Form.Title ]]
