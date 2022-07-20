@@ -10,6 +10,8 @@ const (
 	Sell
 	Settings
 	People
+	Lock
+	Email
 )
 
 type Icon struct {
