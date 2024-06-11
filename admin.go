@@ -780,6 +780,14 @@ const defaultAdminTemplateText string = `
   <script src="//cdn.jsdelivr.net/npm/@material-ui/core@5.0.0-beta.2/umd/material-ui.production.min.js"></script>
   [[- end ]]
 
+  [[- if and (eq .UITheme .VueUI) .Debug ]]
+  <script src="//cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.min.js"></script>
+  [[- end -]]
+
+  [[- if and (eq .UITheme .VueUI) (not .Debug) ]]
+  <script src="//cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.js"></script>
+  [[- end ]]
+
   <script type="text/javascript">[[ .ThemeJS ]]</script>
 </body>
 
