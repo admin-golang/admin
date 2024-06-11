@@ -32,6 +32,7 @@ type UITheme int8
 const (
 	MaterialUI UITheme = iota + 1
 	AntDesignUI
+	VueUI
 )
 
 type FieldType uint
@@ -671,6 +672,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		UITheme     UITheme
 		MaterialUI  UITheme
 		AntDesignUI UITheme
+		VueUI       UITheme
 	}{
 		Debug:       ad.debugMode,
 		ThemeJS:     template.JS(indexJSMinified.Code),
@@ -679,6 +681,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		UITheme:     ad.uiTheme,
 		MaterialUI:  MaterialUI,
 		AntDesignUI: AntDesignUI,
+		VueUI:       VueUI,
 	}
 
 	adminTemplate, err := newTemplate("Admin").Parse(ad.adminTemplateText)
