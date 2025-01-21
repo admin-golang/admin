@@ -58,6 +58,7 @@ const (
 	EditPage
 	UploadPage
 	CardListPage
+	InfinityListPage
 )
 
 type Field struct {
@@ -408,6 +409,51 @@ func NewSideFormPage(p SideFormPageConfig) Pager {
 	}
 }
 
+type IInfinityListPage struct {
+	page page
+
+	Form            Form
+	BackgroundImage *url.URL
+	FooterLabel     string
+}
+
+func (p *IInfinityListPage) Icon() icon.Icon                    { return p.page.icon }
+func (p *IInfinityListPage) ID() string                         { return p.page.id }
+func (p *IInfinityListPage) IsDefault() bool                    { return p.page.isDefault }
+func (p *IInfinityListPage) ToolbarEnabled() bool               { return p.page.toolbarEnabled }
+func (p *IInfinityListPage) Type() PageType                     { return p.page.ttype }
+func (p *IInfinityListPage) URL() string                        { return p.page.url }
+func (p *IInfinityListPage) NavTabs() navigation.NavTabs        { return p.page.navTabs }
+func (p *IInfinityListPage) Navigation() *navigation.Navigation { return p.page.navigation }
+func (p *IInfinityListPage) PageHeader() *PageHeader            { return p.page.header }
+
+type IInfinityListPageConfig struct {
+	PageConfig
+
+	Form            Form
+	BackgroundImage *url.URL
+	FooterLabel     string
+}
+
+func NewIInfinityListPage(p IInfinityListPageConfig) Pager {
+	page := page{
+		icon:           p.Icon,
+		id:             p.ID,
+		isDefault:      p.IsDefault,
+		toolbarEnabled: p.ToolbarEnabled,
+		ttype:          p.Type,
+		url:            p.URL,
+		navTabs:        p.NavTabs,
+		header:         p.Header,
+		navigation:     p.Navigation,
+	}
+
+	return &IInfinityListPage{
+		page: page,
+		Form: p.Form,
+	}
+}
+
 type FFormPage struct {
 	page page
 
@@ -613,6 +659,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		FormPage            PageType
 		EditPage            PageType
 		UploadPage          PageType
+		InfinityListPage    PageType
 		RedirectAction      state.ActionType
 		ClearAppStateAction state.ActionType
 		AccountCircleIcon   icon.IconType

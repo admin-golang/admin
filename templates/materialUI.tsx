@@ -454,6 +454,13 @@ function App() {
               )}
               </AppContext.Consumer>
             [[ end ]]
+            [[ if eq $page.Type $.InfinityListPage ]]
+              <AppContext.Consumer>
+              {appState => (
+              <[[ $page.ID ]]InfinityList appState={appState} handleClearAppState={handleClearAppState} handleSetAppState={handleSetAppState} />
+              )}
+              </AppContext.Consumer>
+            [[ end ]]
           </Route>
           [[ if $page.IsDefault ]]
             <Redirect exact from="/" to="[[ $page.URL ]]" />
@@ -642,6 +649,9 @@ ReactDOM.render(
 
   [[ if eq $page.Type $.UploadPage ]]
     [[template "Upload"(WrapPage $.Layout $page $.Pages)]]
+  [[end]]
+  [[ if eq $page.Type $.InfinityListPage ]]
+    [[template "InfinityList"(WrapPage $.Layout $page $.Pages)]]
   [[end]]
 [[end]]
 
@@ -1813,6 +1823,157 @@ function [[ .ID ]]Upload({ appState, handleClearAppState, handleSetAppState }) {
         </Paper>
         </Grid>
     </Layout>
+  );
+}
+[[ end ]]
+[[end]]
+
+[[define "InfinityList"]]
+[[ with .page ]]
+function [[ .ID ]]InfinityList({ handleSetAppState }) {
+  const history = useHistory();
+
+  [[range $field := .Form.Fields]]
+  const [ [[$field.ID]], set[[$field.ID]] ] = useState("[[ $field.Value ]]");
+  const handle[[$field.ID]]Change = (e) => {
+    set[[$field.ID]](e.target.value);
+  };
+  [[end]]
+
+  let onSuccessRedirectURL = null;
+  [[ if .Form.Submit.OnSuccess ]]
+  [[ $redirectURL := Marshal .Form.Submit.OnSuccess.RedirectURL ]]
+  const [ getRoute ] = useRouteWithSearchParams();
+  onSuccessRedirectURL = getRoute([[ $redirectURL ]]);
+  [[ end ]]
+
+  const handle[[ .Form.ID]]Submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const payload = {
+      [[range $field := .Form.Fields]]
+        "[[$field.ID]]": [[$field.ID]],
+      [[end]]
+    };
+
+    fetch("[[ .Form.Submit.URL ]]", {
+      method: "[[ .Form.Submit.Method ]]",
+      body: JSON.stringify(payload),
+    })
+      .then(async (response) => {
+        var data;
+
+        if (response.headers.get("content-type").includes("application/json")) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
+
+        if (response.ok) {
+          [[ if .Form.Submit.OnSuccess ]]
+            [[ if .Form.Submit.OnSuccess.SetAppState ]]
+              handleSetAppState({ [[ .Form.Submit.OnSuccess.SetAppStateFieldName ]]: data });
+            [[ end ]]
+          [[ end ]]
+          onSuccessRedirectURL && history.push(onSuccessRedirectURL);
+        } else {
+          setAlertMessage(data);
+          setIsSnackbarOpen(true);
+        }
+
+        return data;
+      });
+  };
+
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const handleSnackbarClose = () => {
+    setIsSnackbarOpen(false);
+  };
+
+  return (
+    <Grid container component="main" sx={{ height: '100vh' }}>
+      <CssBaseline />
+      <Snackbar open={isSnackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        <Alert onClose={handleSnackbarClose} severity="error">
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+      <Grid
+        item
+        xs={false}
+        sm={4}
+        md={7}
+        sx={{
+          backgroundImage: 'url([[ .BackgroundImage.String ]])',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: (theme) =>
+            theme.palette.mode === 'light'
+              ? theme.palette.grey[50]
+              : theme.palette.grey[900],
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        <Box
+          sx={{
+            my: 8,
+            mx: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            [[ if eq .Icon.Type 7 ]]
+              <LockOutlinedIcon />
+            [[ end ]]
+            [[ if eq .Icon.Type 8 ]]
+              <EmailIcon />
+            [[ end ]]
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            [[ .Form.Title ]]
+          </Typography>
+          <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 1 }}>
+              [[ range $field := .Form.Fields ]]
+            	  [[ if eq $field.Type 0 ]]
+                    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+            	  [[ end ]]
+            	  [[ if eq $field.Type 1 ]]
+                    [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+            	  [[ end ]]
+            	[[ end ]]
+            {/*<FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />*/}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            [[ .Form.Submit.Label ]]
+            </Button>
+          <Grid container>
+            <Grid item xs>
+              {/*<Link href="#" variant="body2">
+                  Forgot password?
+                </Link>*/}
+            </Grid>
+            <Grid item>
+              {/*<Link href="#" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>*/}
+            </Grid>
+          </Grid>
+          <FooterLabel sx={{ mt: 5 }} label={"[[ .FooterLabel ]]"} />
+        </Box>
+        </Box>
+    </Grid>
+    </Grid >
   );
 }
 [[ end ]]
