@@ -637,7 +637,6 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"WrapCardListPage":     wrapCardListPage,
 		"WrapEditPage":         wrapEditPage,
 		"WrapUploadPage":       wrapUploadPage,
-		"WrapInfinityListPage": wrapInfinityListPage,
 		"WrapComponent":        wrapComponent,
 		"Marshal":              marshal,
 	}).Parse(ad.jsxTemplateText)
