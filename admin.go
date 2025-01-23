@@ -629,16 +629,17 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
-		"IsNotNil":         isNotNil,
-		"Wrap":             wrap,
-		"WrapPage":         wrapPage,
-		"WrapMenuIcons":    wrapMenuIcons,
-		"WrapListPage":     wrapListPage,
-		"WrapCardListPage": wrapCardListPage,
-		"WrapEditPage":     wrapEditPage,
-		"WrapUploadPage":   wrapUploadPage,
-		"WrapComponent":    wrapComponent,
-		"Marshal":          marshal,
+		"IsNotNil":             isNotNil,
+		"Wrap":                 wrap,
+		"WrapPage":             wrapPage,
+		"WrapMenuIcons":        wrapMenuIcons,
+		"WrapListPage":         wrapListPage,
+		"WrapCardListPage":     wrapCardListPage,
+		"WrapEditPage":         wrapEditPage,
+		"WrapUploadPage":       wrapUploadPage,
+		"WrapInfinityListPage": wrapInfinityListPage,
+		"WrapComponent":        wrapComponent,
+		"Marshal":              marshal,
 	}).Parse(ad.jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
@@ -679,6 +680,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		FormPage:            FormPage,
 		EditPage:            EditPage,
 		UploadPage:          UploadPage,
+		InfinityListPage:    InfinityListPage,
 		RedirectAction:      state.Redirect,
 		ClearAppStateAction: state.ClearAppState,
 		AccountCircleIcon:   icon.AccountCircle,
