@@ -502,7 +502,7 @@ func newTestAdmin() admin.Admin {
 				IsDefault: true,
 				ID:        "SignIn",
 				URL:       "/sign-in",
-				Type:      admin.SideFormPage,
+				Type:      admin.InfinityListPage,
 				Icon:      icon.Icon{Type: icon.Inventory},
 			},
 			Form: admin.Form{
