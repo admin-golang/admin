@@ -412,9 +412,8 @@ func NewSideFormPage(p SideFormPageConfig) Pager {
 type IInfinityListPage struct {
 	page page
 
-	Form            Form
-	BackgroundImage *url.URL
-	FooterLabel     string
+	Form        Form
+	FooterLabel string
 }
 
 func (p *IInfinityListPage) Icon() icon.Icon                    { return p.page.icon }
@@ -430,9 +429,8 @@ func (p *IInfinityListPage) PageHeader() *PageHeader            { return p.page.
 type IInfinityListPageConfig struct {
 	PageConfig
 
-	Form            Form
-	BackgroundImage *url.URL
-	FooterLabel     string
+	Form        Form
+	FooterLabel string
 }
 
 func NewIInfinityListPage(p IInfinityListPageConfig) Pager {
@@ -629,16 +627,16 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
-		"IsNotNil":             isNotNil,
-		"Wrap":                 wrap,
-		"WrapPage":             wrapPage,
-		"WrapMenuIcons":        wrapMenuIcons,
-		"WrapListPage":         wrapListPage,
-		"WrapCardListPage":     wrapCardListPage,
-		"WrapEditPage":         wrapEditPage,
-		"WrapUploadPage":       wrapUploadPage,
-		"WrapComponent":        wrapComponent,
-		"Marshal":              marshal,
+		"IsNotNil":         isNotNil,
+		"Wrap":             wrap,
+		"WrapPage":         wrapPage,
+		"WrapMenuIcons":    wrapMenuIcons,
+		"WrapListPage":     wrapListPage,
+		"WrapCardListPage": wrapCardListPage,
+		"WrapEditPage":     wrapEditPage,
+		"WrapUploadPage":   wrapUploadPage,
+		"WrapComponent":    wrapComponent,
+		"Marshal":          marshal,
 	}).Parse(ad.jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)

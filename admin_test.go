@@ -497,7 +497,6 @@ func newTestAdmin() admin.Admin {
 			},
 		}),
 		admin.NewIInfinityListPage(admin.IInfinityListPageConfig{
-			BackgroundImage: &url.URL{},
 			PageConfig: admin.PageConfig{
 				IsDefault: true,
 				ID:        "SignIn",

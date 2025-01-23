@@ -1899,22 +1899,6 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
           {alertMessage}
         </Alert>
       </Snackbar>
-      <Grid
-        item
-        xs={false}
-        sm={4}
-        md={7}
-        sx={{
-          backgroundImage: 'url([[ .BackgroundImage.String ]])',
-          backgroundRepeat: 'no-repeat',
-          backgroundColor: (theme) =>
-            theme.palette.mode === 'light'
-              ? theme.palette.grey[50]
-              : theme.palette.grey[900],
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
       <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
         <Box
           sx={{
