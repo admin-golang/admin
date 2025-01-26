@@ -13,7 +13,7 @@ func NewInfinityListPage() (admin.Pager, error) {
 	return admin.NewIInfinityListPage(admin.IInfinityListPageConfig{
 		PageConfig: admin.PageConfig{
 			Icon: icon.Icon{
-				Type: icon.Email,
+				Type: icon.Empty,
 			},
 			IsDefault: true,
 			ID:        "Home",
