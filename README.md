@@ -90,3 +90,9 @@ func main() {
 
 
 For more complex examples, refer to the `examples` directory.
+
+# Development
+
+In order to have `live-reload` working the following chrome extension is needed to be installed:
+
+[https://github.com/chris-ramon/live-reload](https://github.com/chris-ramon/live-reload)
