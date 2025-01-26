@@ -23,26 +23,21 @@ func NewSubscribeFormPage() (admin.Pager, error) {
 				Type: icon.Email,
 			},
 			IsDefault: true,
-			ID:        "Subscribe",
-			URL:       "/subscribe",
+			ID:        "Home",
+			URL:       "/",
 			Type:      admin.SideFormPage,
 		},
 		Form: admin.Form{
-			ID: "subscribe",
+			ID: "Text",
 			Fields: admin.Fields{
 				admin.Field{
-					ID:         "email",
+					ID:         "Text",
 					Type:       admin.InputText,
-					Label:      "Email",
+					Label:      "Text ...",
 					IsRequired: true,
 					Value:      "",
 					FullWidth:  true,
 				},
-			},
-			Submit: admin.Submit{
-				Label:  "Subscribe",
-				URL:    "/subscribe",
-				Method: "POST",
 			},
 		},
 	}), nil
