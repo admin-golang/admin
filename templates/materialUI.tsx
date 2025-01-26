@@ -1909,7 +1909,6 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
             alignItems: 'center',
           }}
         >
-              <EmailIcon />
           [[ if gt .Icon.Type -1 ]]
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}></Avatar>
           [[ end ]]
