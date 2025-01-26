@@ -3,21 +3,14 @@ package main
 import (
 	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/admin-golang/admin"
 	"github.com/admin-golang/admin/icon"
 	"github.com/admin-golang/admin/layout"
 )
 
-func NewSubscribeFormPage() (admin.Pager, error) {
-	sideFormBackgroundImage, err := url.Parse("https://source.unsplash.com/random/?golang")
-	if err != nil {
-		return nil, err
-	}
-
-	return admin.NewSideFormPage(admin.SideFormPageConfig{
-		BackgroundImage: sideFormBackgroundImage,
+func NewInfinityListPage() (admin.Pager, error) {
+	return admin.NewIInfinityListPage(admin.IInfinityListPageConfig{
 		PageConfig: admin.PageConfig{
 			Icon: icon.Icon{
 				Type: icon.Email,
@@ -25,7 +18,7 @@ func NewSubscribeFormPage() (admin.Pager, error) {
 			IsDefault: true,
 			ID:        "Home",
 			URL:       "/",
-			Type:      admin.SideFormPage,
+			Type:      admin.InfinityListPage,
 		},
 		Form: admin.Form{
 			ID: "Text",
@@ -44,13 +37,13 @@ func NewSubscribeFormPage() (admin.Pager, error) {
 }
 
 func main() {
-	subscribeFormPage, err := NewSubscribeFormPage()
+	infinityListPage, err := NewInfinityListPage()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	pages := admin.Pages{
-		subscribeFormPage,
+		infinityListPage,
 	}
 
 	admin := admin.New(&admin.Config{
