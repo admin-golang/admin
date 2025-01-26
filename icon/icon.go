@@ -1,8 +1,9 @@
 package icon
 
-type IconType uint
+type IconType int
 
 const (
+	Empty         IconType = -1
 	Notifications IconType = iota
 	AccountCircle
 	Dashboard
