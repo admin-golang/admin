@@ -1933,6 +1933,8 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />*/}
+          [[ if eq .Form.Submit.Label "" ]]
+          [[ else ]]
           <Button
             type="submit"
             fullWidth
@@ -1940,7 +1942,8 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
             sx={{ mt: 3, mb: 2 }}
           >
             [[ .Form.Submit.Label ]]
-            </Button>
+          </Button>
+          [[ end ]]
           <Grid container>
             <Grid item xs>
               {/*<Link href="#" variant="body2">
