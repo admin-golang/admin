@@ -1910,14 +1910,7 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
           }}
         >
           [[ if gt .Icon.Type -1 ]]
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            [[ if eq .Icon.Type 7 ]]
-              <LockOutlinedIcon />
-            [[ end ]]
-            [[ if eq .Icon.Type 8 ]]
-              <EmailIcon />
-            [[ end ]]
-          </Avatar>
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}></Avatar>
           [[ end ]]
           <Typography component="h1" variant="h5">
             [[ .Form.Title ]]

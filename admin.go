@@ -667,6 +667,8 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SellIcon            icon.IconType
 		InventoryIcon       icon.IconType
 		DashboardIcon       icon.IconType
+		LockIcon            icon.IconType
+		EmailIcon           icon.IconType
 	}{
 		Layout:              ad.layout,
 		Pages:               ad.pages,
@@ -687,6 +689,8 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SellIcon:            icon.Sell,
 		InventoryIcon:       icon.Inventory,
 		DashboardIcon:       icon.Dashboard,
+		LockIcon:            icon.Lock,
+		EmailIcon:           icon.Email,
 	}
 
 	if err := jsxTemplate.Execute(&jsxWriter, jsxData); err != nil {
