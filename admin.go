@@ -586,6 +586,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				"inputMulti":        InputMulti,
 				"inputCheckbox":     InputCheckbox,
 				"inputSelect":       InputSelect,
+				"inputText":         InputText,
 				"inputAutocomplete": InputAutocomplete,
 			},
 		}
