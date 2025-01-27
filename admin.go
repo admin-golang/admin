@@ -46,6 +46,7 @@ const (
 	InputMulti
 	InputCheckbox
 	InputSelect
+	InputAutocomplete
 )
 
 type PageType uint
@@ -581,10 +582,11 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			"page":   page,
 			"pages":  pages,
 			"inputTypes": map[string]interface{}{
-				"inputCents":    InputCents,
-				"inputMulti":    InputMulti,
-				"inputCheckbox": InputCheckbox,
-				"inputSelect":   InputSelect,
+				"inputCents":        InputCents,
+				"inputMulti":        InputMulti,
+				"inputCheckbox":     InputCheckbox,
+				"inputSelect":       InputSelect,
+				"inputAutocomplete": InputAutocomplete,
 			},
 		}
 	}
