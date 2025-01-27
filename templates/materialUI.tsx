@@ -1829,6 +1829,8 @@ function [[ .ID ]]Upload({ appState, handleClearAppState, handleSetAppState }) {
 [[end]]
 
 [[define "InfinityList"]]
+[[ $inputAutocompleteType := .inputTypes.inputAutocomplete ]]
+[[ $inputTextType := .inputTypes.inputText ]]
 [[ with .page ]]
 function [[ .ID ]]InfinityList({ handleSetAppState }) {
   const history = useHistory();
@@ -1917,10 +1919,7 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
           </Typography>
           <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 1 }}>
               [[ range $field := .Form.Fields ]]
-            	  [[ if eq $field.Type 0 ]]
-                    [[ template "PasswordField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
-            	  [[ end ]]
-            	  [[ if eq $field.Type 1 ]]
+            	  [[ if eq $field.Type $.inputTextType ]]
                     [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
             	  [[ end ]]
             	[[ end ]]
