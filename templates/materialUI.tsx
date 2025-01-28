@@ -1919,7 +1919,7 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
           </Typography>
           <Box component="form" onSubmit={handle[[ .Form.ID]]Submit} sx={{ mt: 1 }}>
               [[ range $field := .Form.Fields ]]
-            	  [[ if eq $field.Type $.inputTextType ]]
+                [[ if eq $field.Type $inputTextType ]]
                     [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
             	  [[ end ]]
             	[[ end ]]
