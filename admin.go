@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strconv"
 	textTemplate "text/template"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -629,6 +630,17 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return template.JS(d)
 	}
 
+	toString := func(value interface{}) string {
+		switch v := value.(type) {
+		case string:
+			return v
+		case uint:
+			return strconv.Itoa(int(v))
+		default:
+			return ""
+		}
+	}
+
 	jsxTemplate, err := newTemplate("JSX").Funcs(textTemplate.FuncMap{
 		"IsNotNil":         isNotNil,
 		"Wrap":             wrap,
@@ -640,6 +652,7 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"WrapUploadPage":   wrapUploadPage,
 		"WrapComponent":    wrapComponent,
 		"Marshal":          marshal,
+		"ToString":         toString,
 	}).Parse(ad.jsxTemplateText)
 	if err != nil {
 		log.Printf("failed to parse TSX template: %v", err)
