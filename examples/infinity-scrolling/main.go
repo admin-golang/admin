@@ -21,12 +21,12 @@ func NewInfinityListPage() (admin.Pager, error) {
 			Type:      admin.InfinityListPage,
 		},
 		Form: admin.Form{
-			ID: "Text",
+			ID: "Autocomplete",
 			Fields: admin.Fields{
 				admin.Field{
-					ID:         "Text",
-					Type:       admin.InputText,
-					Label:      "Text ...",
+					ID:         "Autocomplete",
+					Type:       admin.InputAutocomplete,
+					Label:      "Autocomplete...",
 					IsRequired: true,
 					Value:      "",
 					FullWidth:  true,
