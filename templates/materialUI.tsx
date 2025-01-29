@@ -4,6 +4,7 @@ const {
   Avatar,
   colors,
   CssBaseline,
+  CircularProgress,
   ThemeProvider,
   Typography,
   Container,
@@ -65,7 +66,8 @@ const {
 
 const {
   useState,
-  useEffect
+  useEffect,
+  Fragment
 } = React;
 
 const {
@@ -1829,8 +1831,8 @@ function [[ .ID ]]Upload({ appState, handleClearAppState, handleSetAppState }) {
 [[end]]
 
 [[define "InfinityList"]]
-[[ $inputAutocompleteType := .inputTypes.inputAutocomplete ]]
 [[ $inputTextType := .inputTypes.inputText ]]
+[[ $inputAutocompleteType := .inputTypes.inputAutocomplete ]]
 [[ with .page ]]
 function [[ .ID ]]InfinityList({ handleSetAppState }) {
   const history = useHistory();
@@ -1922,7 +1924,10 @@ function [[ .ID ]]InfinityList({ handleSetAppState }) {
                 [[ if eq $field.Type $inputTextType ]]
                     [[ template "TextField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
             	  [[ end ]]
-            	[[ end ]]
+                [[ if eq $field.Type $inputAutocompleteType ]]
+                    [[ template "AutocompleteField" (Wrap $field.ID $field.Label $field.IsRequired $field.Value $field.FullWidth $field.IsMultiline $field.NumberOfRows) ]]
+                [[ end ]]
+              [[ end ]]
             {/*<FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
@@ -2178,6 +2183,36 @@ function [[ .ID ]]SideForm({ handleSetAppState }) {
   >
   </FormControlLabel>
 </FormGroup>
+[[end]]
+
+[[define "AutocompleteField"]]
+<Autocomplete
+  sx={{ width: 300 }}
+  open={ open }
+  onOpen={ handleOpen }
+  onClose={ handleClose }
+  isOptionEqualToValue={(option, value) => option.title === value.title}
+  getOptionLabel={(option) => option.title}
+  options={ options }
+  loading={ loading }
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Asynchronous"
+      slotProps={{
+        input: {
+          ...params.InputProps,
+          endAdornment: (
+            <Fragment>
+              {loading ? <CircularProgress color="inherit" size={20} /> : null}
+              {params.InputProps.endAdornment}
+            </Fragment>
+          ),
+        },
+      }}
+    />
+  )}
+/>
 [[end]]
 
 [[define "DefaultSelect"]]
