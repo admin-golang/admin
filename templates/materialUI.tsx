@@ -61,7 +61,8 @@ const {
   OutlinedInput,
   FormControl,
   InputLabel,
-  InputAdornment
+  InputAdornment,
+  Autocomplete
 } = MaterialUI;
 
 const {
