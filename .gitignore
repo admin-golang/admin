@@ -1,1 +1,2 @@
 examples/admin/bin/on_reload.sh
+*.swp

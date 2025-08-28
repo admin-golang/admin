@@ -28,12 +28,16 @@ var materialUIJSXTemplateText string
 //go:embed templates/antDesignUI.tsx
 var antDesignUIJSXTemplateText string
 
+//go:embed templates/angularMaterialUI.tsx
+var angularMaterialUIJSXTemplateText string
+
 type UITheme int8
 
 const (
 	MaterialUI UITheme = iota + 1
 	AntDesignUI
 	VueUI
+	AngularMaterial
 )
 
 type FieldType uint
@@ -775,6 +779,8 @@ func New(config *Config) Admin {
 			jsxTemplateText = &materialUIJSXTemplateText
 		case AntDesignUI:
 			jsxTemplateText = &antDesignUIJSXTemplateText
+		case AngularMaterial:
+			jsxTemplateText = &angularMaterialUIJSXTemplateText
 		default:
 			jsxTemplateText = &materialUIJSXTemplateText
 		}
@@ -820,11 +826,25 @@ const defaultAdminTemplateText string = `
 </head>
 <body>
   <div id="root"></div>
-  [[ if .Debug -]]
+  [[ if and (eq .UITheme .MaterialUI) .Debug -]]
   <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.development.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.development.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
-  [[- else -]]
+  [[- end -]]
+
+  [[ if and (eq .UITheme .MaterialUI) (not .Debug) -]]
+  <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.production.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
+  [[- end -]]
+
+  [[ if and (eq .UITheme .AntDesignUI) .Debug -]]
+  <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.development.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.development.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
+  [[- end -]]
+
+  [[ if and (eq .UITheme .AntDesignUI) (not .Debug) -]]
   <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.production.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
