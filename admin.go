@@ -34,6 +34,7 @@ const (
 	MaterialUI UITheme = iota + 1
 	AntDesignUI
 	VueUI
+	AngularMaterial
 )
 
 type FieldType uint
