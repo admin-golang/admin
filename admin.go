@@ -821,11 +821,25 @@ const defaultAdminTemplateText string = `
 </head>
 <body>
   <div id="root"></div>
-  [[ if .Debug -]]
+  [[ if and (eq .UITheme .MaterialUI) .Debug -]]
   <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.development.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.development.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
-  [[- else -]]
+  [[- end -]]
+
+  [[ if and (eq .UITheme .MaterialUI) (not .Debug) -]]
+  <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.production.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
+  [[- end -]]
+
+  [[ if and (eq .UITheme .AntDesignUI) .Debug -]]
+  <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.development.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.development.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.js"></script>
+  [[- end -]]
+
+  [[ if and (eq .UITheme .AntDesignUI) (not .Debug) -]]
   <script src="//cdn.jsdelivr.net/npm/react@17.0.1/umd/react.production.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-dom@17.0.1/umd/react-dom.production.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/react-router-dom@5.2.0/umd/react-router-dom.min.js"></script>
