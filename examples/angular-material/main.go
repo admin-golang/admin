@@ -60,7 +60,7 @@ func main() {
 
 	admin := admin.New(&admin.Config{
 		DebugMode: false,
-		UITheme:   admin.AngularMaterial,
+		UITheme:   admin.AngularMaterialUI,
 		Pages:     pages,
 		Layout:    layout.New(&layout.Config{}),
 	})

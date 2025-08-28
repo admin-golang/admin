@@ -37,7 +37,7 @@ const (
 	MaterialUI UITheme = iota + 1
 	AntDesignUI
 	VueUI
-	AngularMaterial
+	AngularMaterialUI
 )
 
 type FieldType uint
@@ -735,23 +735,25 @@ func (ad *admin) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	indexData := struct {
-		Debug       bool
-		ThemeJS     template.JS
-		Title       string
-		Pages       Pages
-		UITheme     UITheme
-		MaterialUI  UITheme
-		AntDesignUI UITheme
-		VueUI       UITheme
+		Debug             bool
+		ThemeJS           template.JS
+		Title             string
+		Pages             Pages
+		UITheme           UITheme
+		MaterialUI        UITheme
+		AntDesignUI       UITheme
+		VueUI             UITheme
+		AngularMaterialUI UITheme
 	}{
-		Debug:       ad.debugMode,
-		ThemeJS:     template.JS(indexJSMinified.Code),
-		Title:       ad.layout.Title,
-		Pages:       ad.pages,
-		UITheme:     ad.uiTheme,
-		MaterialUI:  MaterialUI,
-		AntDesignUI: AntDesignUI,
-		VueUI:       VueUI,
+		Debug:             ad.debugMode,
+		ThemeJS:           template.JS(indexJSMinified.Code),
+		Title:             ad.layout.Title,
+		Pages:             ad.pages,
+		UITheme:           ad.uiTheme,
+		MaterialUI:        MaterialUI,
+		AntDesignUI:       AntDesignUI,
+		VueUI:             VueUI,
+		AngularMaterialUI: AngularMaterialUI,
 	}
 
 	adminTemplate, err := newTemplate("Admin").Parse(ad.adminTemplateText)
@@ -779,7 +781,7 @@ func New(config *Config) Admin {
 			jsxTemplateText = &materialUIJSXTemplateText
 		case AntDesignUI:
 			jsxTemplateText = &antDesignUIJSXTemplateText
-		case AngularMaterial:
+		case AngularMaterialUI:
 			jsxTemplateText = &angularMaterialUIJSXTemplateText
 		default:
 			jsxTemplateText = &materialUIJSXTemplateText
