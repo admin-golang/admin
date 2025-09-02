@@ -28,16 +28,12 @@ var materialUIJSXTemplateText string
 //go:embed templates/antDesignUI.tsx
 var antDesignUIJSXTemplateText string
 
-//go:embed templates/angularMaterialUI.tsx
-var angularMaterialUIJSXTemplateText string
-
 type UITheme int8
 
 const (
 	MaterialUI UITheme = iota + 1
 	AntDesignUI
 	VueUI
-	AngularMaterial
 )
 
 type FieldType uint
@@ -779,8 +775,6 @@ func New(config *Config) Admin {
 			jsxTemplateText = &materialUIJSXTemplateText
 		case AntDesignUI:
 			jsxTemplateText = &antDesignUIJSXTemplateText
-		case AngularMaterial:
-			jsxTemplateText = &angularMaterialUIJSXTemplateText
 		default:
 			jsxTemplateText = &materialUIJSXTemplateText
 		}
