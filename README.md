@@ -23,7 +23,7 @@ import (
 )
 
 func NewSubscribeFormPage() (admin.Pager, error) {
-	sideFormBackgroundImage, err := url.Parse("https://source.unsplash.com/random/?golang")
+	sideFormBackgroundImage, err := url.Parse("https://picsum.photos/1200/800")
 	if err != nil {
 		return nil, err
 	}
