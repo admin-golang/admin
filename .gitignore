@@ -1,2 +1,4 @@
 examples/admin/bin/on_reload.sh
 *.swp
+coverage.html
+coverage.out
