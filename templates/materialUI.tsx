@@ -696,11 +696,11 @@ function [[$item.ID]]MenuItem({ handleClearAppState }) {
         <Badge badgeContent={[[$item.Badge.Content]]} color="secondary">
       [[ end ]]
 
-      [[ if eq $item.Icon.Type 0 ]]
+      [[ if eq $item.Icon.Type $.NotificationsIcon ]]
         <NotificationsIcon />
       [[ end ]]
 
-      [[ if eq $item.Icon.Type 1 ]]
+      [[ if eq $item.Icon.Type $.AccountCircleIcon ]]
         <AccountCircleIcon />
       [[ end ]]
 
